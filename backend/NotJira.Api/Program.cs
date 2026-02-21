@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NotJira.Api.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,56 @@ builder.Services.AddCors(options =>
                   .AllowAnyHeader();
         });
 });
+
+// Add Authentication
+var keycloakAuthority = builder.Configuration["Authentication:Keycloak:Authority"] 
+    ?? throw new InvalidOperationException("Keycloak Authority is not configured");
+var keycloakAudience = builder.Configuration["Authentication:Keycloak:Audience"] 
+    ?? throw new InvalidOperationException("Keycloak Audience is not configured");
+var keycloakMetadataAddress = builder.Configuration["Authentication:Keycloak:MetadataAddress"];
+var validIssuers = builder.Configuration.GetSection("Authentication:Keycloak:ValidIssuers").Get<string[]>() 
+    ?? new[] { keycloakAuthority };
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = keycloakAuthority;
+        options.Audience = keycloakAudience;
+        options.RequireHttpsMetadata = builder.Configuration.GetValue<bool>("Authentication:Keycloak:RequireHttpsMetadata");
+        
+        if (!string.IsNullOrEmpty(keycloakMetadataAddress))
+        {
+            options.MetadataAddress = keycloakMetadataAddress;
+        }
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = builder.Configuration.GetValue<bool>("Authentication:Keycloak:ValidateIssuer"),
+            ValidateAudience = builder.Configuration.GetValue<bool>("Authentication:Keycloak:ValidateAudience"),
+            ValidateLifetime = builder.Configuration.GetValue<bool>("Authentication:Keycloak:ValidateLifetime"),
+            ValidIssuers = validIssuers,
+            ValidAudiences = new[] { keycloakAudience, "account" }
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                logger.LogInformation("Token received, Authority: {Authority}, MetadataAddress: {MetadataAddress}", 
+                    options.Authority, options.MetadataAddress);
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                logger.LogError(context.Exception, "Authentication failed");
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 // Add Database Context
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -53,6 +105,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

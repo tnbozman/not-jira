@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotJira.Api.Data;
 using NotJira.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NotJira.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class TasksController : ControllerBase
 {
     private readonly AppDbContext _context;

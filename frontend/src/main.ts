@@ -8,10 +8,12 @@ import Aura from '@primeuix/themes/aura'
 
 import App from './App.vue'
 import router from './router'
+import { useAuthStore } from './stores/auth'
 
+const pinia = createPinia()
 const app = createApp(App)
 
-app.use(createPinia())
+app.use(pinia)
 app.use(router)
 app.use(PrimeVue, {
   theme: {
@@ -19,4 +21,8 @@ app.use(PrimeVue, {
   }
 })
 
-app.mount('#app')
+// Initialize Keycloak before mounting
+const authStore = useAuthStore()
+authStore.initialize().then(() => {
+  app.mount('#app')
+})

@@ -1,3 +1,5 @@
+import keycloakService from './keycloakService'
+
 export interface TaskItem {
   id?: number
   title: string
@@ -10,9 +12,24 @@ export interface TaskItem {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
+async function getHeaders(): Promise<HeadersInit> {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  }
+
+  const token = keycloakService.getToken()
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  return headers
+}
+
 export const taskService = {
   async getAllTasks(): Promise<TaskItem[]> {
-    const response = await fetch(`${API_BASE_URL}/tasks`)
+    const response = await fetch(`${API_BASE_URL}/tasks`, {
+      headers: await getHeaders(),
+    })
     if (!response.ok) {
       throw new Error('Failed to fetch tasks')
     }
@@ -20,7 +37,9 @@ export const taskService = {
   },
 
   async getTask(id: number): Promise<TaskItem> {
-    const response = await fetch(`${API_BASE_URL}/tasks/${id}`)
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+      headers: await getHeaders(),
+    })
     if (!response.ok) {
       throw new Error('Failed to fetch task')
     }
@@ -30,9 +49,7 @@ export const taskService = {
   async createTask(task: TaskItem): Promise<TaskItem> {
     const response = await fetch(`${API_BASE_URL}/tasks`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await getHeaders(),
       body: JSON.stringify(task),
     })
     if (!response.ok) {
@@ -44,9 +61,7 @@ export const taskService = {
   async updateTask(id: number, task: TaskItem): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await getHeaders(),
       body: JSON.stringify(task),
     })
     if (!response.ok) {
@@ -57,6 +72,7 @@ export const taskService = {
   async deleteTask(id: number): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
       method: 'DELETE',
+      headers: await getHeaders(),
     })
     if (!response.ok) {
       throw new Error('Failed to delete task')
