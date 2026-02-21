@@ -17,13 +17,13 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Models.Task>>> GetTasks()
+    public async System.Threading.Tasks.Task<ActionResult<IEnumerable<TaskItem>>> GetTasks()
     {
         return await _context.Tasks.ToListAsync();
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Models.Task>> GetTask(int id)
+    public async System.Threading.Tasks.Task<ActionResult<TaskItem>> GetTask(int id)
     {
         var task = await _context.Tasks.FindAsync(id);
 
@@ -36,7 +36,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Models.Task>> CreateTask(Models.Task task)
+    public async System.Threading.Tasks.Task<ActionResult<TaskItem>> CreateTask(TaskItem task)
     {
         task.CreatedAt = DateTime.UtcNow;
         task.UpdatedAt = DateTime.UtcNow;
@@ -48,7 +48,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTask(int id, Models.Task task)
+    public async System.Threading.Tasks.Task<IActionResult> UpdateTask(int id, TaskItem task)
     {
         if (id != task.Id)
         {
@@ -78,7 +78,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTask(int id)
+    public async System.Threading.Tasks.Task<IActionResult> DeleteTask(int id)
     {
         var task = await _context.Tasks.FindAsync(id);
         if (task == null)

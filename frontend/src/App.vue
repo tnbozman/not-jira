@@ -11,13 +11,13 @@ import { RouterLink, RouterView } from 'vue-router'
           <nav class="flex gap-4">
             <RouterLink 
               to="/" 
-              class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors router-link"
             >
               Home
             </RouterLink>
             <RouterLink 
               to="/about" 
-              class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors router-link"
             >
               About
             </RouterLink>
@@ -33,7 +33,8 @@ import { RouterLink, RouterView } from 'vue-router'
 </template>
 
 <style scoped>
-.router-link-exact-active {
-  @apply bg-blue-100 text-blue-700;
+.router-link.router-link-exact-active {
+  background-color: #dbeafe;
+  color: #1d4ed8;
 }
 </style>
