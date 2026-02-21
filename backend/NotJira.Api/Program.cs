@@ -27,6 +27,8 @@ var keycloakAuthority = builder.Configuration["Authentication:Keycloak:Authority
 var keycloakAudience = builder.Configuration["Authentication:Keycloak:Audience"] 
     ?? throw new InvalidOperationException("Keycloak Audience is not configured");
 var keycloakMetadataAddress = builder.Configuration["Authentication:Keycloak:MetadataAddress"];
+var validIssuers = builder.Configuration.GetSection("Authentication:Keycloak:ValidIssuers").Get<string[]>() 
+    ?? new[] { keycloakAuthority };
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -45,6 +47,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = builder.Configuration.GetValue<bool>("Authentication:Keycloak:ValidateIssuer"),
             ValidateAudience = builder.Configuration.GetValue<bool>("Authentication:Keycloak:ValidateAudience"),
             ValidateLifetime = builder.Configuration.GetValue<bool>("Authentication:Keycloak:ValidateLifetime"),
+            ValidIssuers = validIssuers,
             ValidAudiences = new[] { keycloakAudience, "account" }
         };
 

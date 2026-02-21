@@ -123,7 +123,7 @@
       "enabled": true,
       "publicClient": true,
       "standardFlowEnabled": true,
-      "directAccessGrantsEnabled": false,
+      "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
       "protocol": "openid-connect",
       "redirectUris": [
@@ -141,6 +141,16 @@
         "post.logout.redirect.uris": "+"
       },
       "protocolMappers": [
+        {
+          "name": "audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "notjira-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        },
         {
           "name": "groups",
           "protocol": "openid-connect",

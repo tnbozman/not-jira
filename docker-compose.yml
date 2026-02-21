@@ -10,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./keycloak/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -57,6 +58,8 @@ services:
       - Authentication__Keycloak__Authority=http://keycloak:8080/realms/notjira
       - Authentication__Keycloak__Audience=notjira-api
       - Authentication__Keycloak__MetadataAddress=http://keycloak:8080/realms/notjira/.well-known/openid-configuration
+      - Authentication__Keycloak__ValidIssuers__0=http://localhost:8180/realms/notjira
+      - Authentication__Keycloak__ValidIssuers__1=http://keycloak:8080/realms/notjira
     ports:
       - "8080:8080"
     depends_on:
