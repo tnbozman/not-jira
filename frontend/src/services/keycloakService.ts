@@ -17,6 +17,15 @@ export interface KeycloakUser {
   groups?: string[]
 }
 
+interface KeycloakTokenParsed {
+  preferred_username?: string
+  email?: string
+  given_name?: string
+  family_name?: string
+  roles?: string[]
+  groups?: string[]
+}
+
 class KeycloakService {
   private keycloak: Keycloak
 
@@ -77,7 +86,7 @@ class KeycloakService {
       return null
     }
 
-    const token = this.keycloak.tokenParsed as any
+    const token = this.keycloak.tokenParsed as KeycloakTokenParsed
 
     return {
       username: token.preferred_username,
