@@ -53,6 +53,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         options.Events = new JwtBearerEvents
         {
+            OnMessageReceived = context =>
+            {
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                logger.LogInformation("Token received, Authority: {Authority}, MetadataAddress: {MetadataAddress}", 
+                    options.Authority, options.MetadataAddress);
+                return Task.CompletedTask;
+            },
             OnAuthenticationFailed = context =>
             {
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();

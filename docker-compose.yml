@@ -27,7 +27,6 @@ services:
       KC_DB_URL: jdbc:postgresql://db:5432/keycloak
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: postgres
-      KC_HOSTNAME: localhost
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT: "false"
       KC_PROXY_HEADERS: xforwarded
@@ -59,7 +58,8 @@ services:
       - Authentication__Keycloak__Audience=notjira-api
       - Authentication__Keycloak__MetadataAddress=http://keycloak:8080/realms/notjira/.well-known/openid-configuration
       - Authentication__Keycloak__ValidIssuers__0=http://localhost:8180/realms/notjira
-      - Authentication__Keycloak__ValidIssuers__1=http://keycloak:8080/realms/notjira
+      - Authentication__Keycloak__ValidIssuers__1=http://localhost:8080/realms/notjira
+      - Authentication__Keycloak__ValidIssuers__2=http://keycloak:8080/realms/notjira
     ports:
       - "8080:8080"
     depends_on:
