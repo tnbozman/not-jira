@@ -130,6 +130,23 @@
           </Card>
         </TabPanel>
 
+        <TabPanel header="User Story Map" value="story-map">
+          <Card>
+            <template #content>
+              <div class="quick-nav-card">
+                <i class="pi pi-table" style="font-size: 2rem; color: #f59e0b;"></i>
+                <h3>User Story Map</h3>
+                <p>Outcome-focused themes, epics, stories, and spikes with sprint planning.</p>
+                <Button 
+                  label="View Story Map" 
+                  icon="pi pi-arrow-right" 
+                  @click="navigateToStoryMap" 
+                />
+              </div>
+            </template>
+          </Card>
+        </TabPanel>
+
         <TabPanel header="Members" value="members">
           <Card>
             <template #title>
@@ -411,6 +428,10 @@ const navigateToEntities = () => {
 
 const navigateToGraph = () => {
   router.push(`/projects/${project.value?.id}/graph`)
+}
+
+const navigateToStoryMap = () => {
+  router.push(`/projects/${project.value?.id}/story-map`)
 }
 
 onMounted(() => {

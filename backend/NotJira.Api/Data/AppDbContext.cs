@@ -19,6 +19,13 @@ public class AppDbContext : DbContext
     public DbSet<Interview> Interviews { get; set; }
     public DbSet<InterviewNote> InterviewNotes { get; set; }
     public DbSet<Tag> Tags { get; set; }
+    
+    // User Story Map entities
+    public DbSet<Theme> Themes { get; set; }
+    public DbSet<Epic> Epics { get; set; }
+    public DbSet<Story> Stories { get; set; }
+    public DbSet<Spike> Spikes { get; set; }
+    public DbSet<Sprint> Sprints { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -244,6 +251,126 @@ public class AppDbContext : DbContext
             entity.HasOne(e => e.Tag)
                 .WithMany(t => t.OutcomeTags)
                 .HasForeignKey(e => e.TagId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Theme
+        modelBuilder.Entity<Theme>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.Order).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            
+            entity.HasOne(e => e.Project)
+                .WithMany()
+                .HasForeignKey(e => e.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(e => e.Outcome)
+                .WithMany()
+                .HasForeignKey(e => e.OutcomeId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // Epic
+        modelBuilder.Entity<Epic>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.Order).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            
+            entity.HasOne(e => e.Theme)
+                .WithMany(t => t.Epics)
+                .HasForeignKey(e => e.ThemeId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(e => e.Outcome)
+                .WithMany()
+                .HasForeignKey(e => e.OutcomeId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // Story
+        modelBuilder.Entity<Story>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.SolutionDescription).HasMaxLength(2000);
+            entity.Property(e => e.AcceptanceCriteria).HasMaxLength(2000);
+            entity.Property(e => e.Order).IsRequired();
+            entity.Property(e => e.Priority).IsRequired();
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            
+            entity.HasOne(e => e.Epic)
+                .WithMany(ep => ep.Stories)
+                .HasForeignKey(e => e.EpicId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(e => e.Sprint)
+                .WithMany(s => s.Stories)
+                .HasForeignKey(e => e.SprintId)
+                .OnDelete(DeleteBehavior.SetNull);
+                
+            entity.HasOne(e => e.Outcome)
+                .WithMany()
+                .HasForeignKey(e => e.OutcomeId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // Spike
+        modelBuilder.Entity<Spike>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.InvestigationGoal).HasMaxLength(2000);
+            entity.Property(e => e.Findings).HasMaxLength(2000);
+            entity.Property(e => e.Order).IsRequired();
+            entity.Property(e => e.Priority).IsRequired();
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            
+            entity.HasOne(e => e.Epic)
+                .WithMany(ep => ep.Spikes)
+                .HasForeignKey(e => e.EpicId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(e => e.Sprint)
+                .WithMany(s => s.Spikes)
+                .HasForeignKey(e => e.SprintId)
+                .OnDelete(DeleteBehavior.SetNull);
+                
+            entity.HasOne(e => e.Outcome)
+                .WithMany()
+                .HasForeignKey(e => e.OutcomeId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // Sprint
+        modelBuilder.Entity<Sprint>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Goal).HasMaxLength(1000);
+            entity.Property(e => e.StartDate).IsRequired();
+            entity.Property(e => e.EndDate).IsRequired();
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            
+            entity.HasOne(e => e.Project)
+                .WithMany()
+                .HasForeignKey(e => e.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
