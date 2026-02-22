@@ -1,6 +1,8 @@
-import axios from 'axios';
+import axios from "axios";
+import keycloakService from "./keycloakService";
+import config from "@/config";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = config.API_BASE_URL;
 
 export interface GraphNode {
   id: string;
@@ -30,21 +32,17 @@ export interface GraphData {
 }
 
 class GraphService {
-  private getToken(): string | null {
-    return localStorage.getItem('keycloak_token');
-  }
-
   private getHeaders() {
-    const token = this.getToken();
+    const token = keycloakService.getToken();
     return {
-      'Content-Type': 'application/json',
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
   }
 
   async getGraphData(projectId: number): Promise<GraphData> {
     const response = await axios.get(`${API_BASE_URL}/projects/${projectId}/graph`, {
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
     });
     return response.data;
   }

@@ -22,12 +22,13 @@ builder.Services.AddCors(options =>
 });
 
 // Add Authentication
-var keycloakAuthority = builder.Configuration["Authentication:Keycloak:Authority"] 
+var keycloakAuthority = builder.Configuration["Authentication:Keycloak:Authority"]
     ?? throw new InvalidOperationException("Keycloak Authority is not configured");
-var keycloakAudience = builder.Configuration["Authentication:Keycloak:Audience"] 
+var keycloakAudience = builder.Configuration["Authentication:Keycloak:Audience"]
     ?? throw new InvalidOperationException("Keycloak Audience is not configured");
 var keycloakMetadataAddress = builder.Configuration["Authentication:Keycloak:MetadataAddress"];
-var validIssuers = builder.Configuration.GetSection("Authentication:Keycloak:ValidIssuers").Get<string[]>() 
+var keycloakInternalUrl = builder.Configuration["Authentication:Keycloak:InternalUrl"];
+var validIssuers = builder.Configuration.GetSection("Authentication:Keycloak:ValidIssuers").Get<string[]>()
     ?? new[] { keycloakAuthority };
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -36,10 +37,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.Authority = keycloakAuthority;
         options.Audience = keycloakAudience;
         options.RequireHttpsMetadata = builder.Configuration.GetValue<bool>("Authentication:Keycloak:RequireHttpsMetadata");
-        
+
         if (!string.IsNullOrEmpty(keycloakMetadataAddress))
         {
             options.MetadataAddress = keycloakMetadataAddress;
+        }
+
+        // When the backend can't reach the Authority URL directly (e.g. inside Docker),
+        // use a backchannel handler that rewrites requests to the internal Keycloak URL.
+        // This ensures JWKS and other metadata endpoints are fetched from the reachable address.
+        if (!string.IsNullOrEmpty(keycloakInternalUrl))
+        {
+            options.BackchannelHttpHandler = new KeycloakBackchannelHandler(keycloakInternalUrl, validIssuers);
         }
 
         options.TokenValidationParameters = new TokenValidationParameters
@@ -56,7 +65,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             OnMessageReceived = context =>
             {
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-                logger.LogInformation("Token received, Authority: {Authority}, MetadataAddress: {MetadataAddress}", 
+                logger.LogInformation("Token received, Authority: {Authority}, MetadataAddress: {MetadataAddress}",
                     options.Authority, options.MetadataAddress);
                 return Task.CompletedTask;
             },
@@ -122,13 +131,13 @@ var summaries = new[]
 
 app.MapGet("/api/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
+    var forecast = Enumerable.Range(1, 5).Select(index =>
+       new WeatherForecast
+       (
+           DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+           Random.Shared.Next(-20, 55),
+           summaries[Random.Shared.Next(summaries.Length)]
+       ))
         .ToArray();
     return forecast;
 })
@@ -139,4 +148,53 @@ app.Run();
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
+
+/// <summary>
+/// HTTP handler that rewrites outgoing requests from any public-facing Keycloak URL
+/// to the internal Docker-network URL. This allows the JWT middleware to fetch OIDC
+/// metadata and JWKS signing keys even when the Authority URL isn't directly reachable.
+/// Handles the case where Keycloak metadata returns URLs with a different origin than
+/// the configured Authority (e.g. jwks_uri at localhost:8080 vs Authority at localhost:8180).
+/// </summary>
+class KeycloakBackchannelHandler : DelegatingHandler
+{
+    private readonly string _internalOrigin;
+    private readonly string[] _externalOrigins;
+
+    public KeycloakBackchannelHandler(string internalUrl, string[] validIssuers)
+        : base(new HttpClientHandler())
+    {
+        _internalOrigin = internalUrl.TrimEnd('/');
+
+        // Build a set of external origins to rewrite from the valid issuers.
+        // Each issuer looks like "http://localhost:8180/realms/notjira", so extract the origin part.
+        _externalOrigins = validIssuers
+            .Select(issuer =>
+            {
+                try { return new Uri(issuer).GetLeftPart(UriPartial.Authority); }
+                catch { return null; }
+            })
+            .Where(origin => origin != null && !origin.Equals(_internalOrigin, StringComparison.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray()!;
+    }
+
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        if (request.RequestUri != null)
+        {
+            var original = request.RequestUri.ToString();
+            foreach (var externalOrigin in _externalOrigins)
+            {
+                if (original.StartsWith(externalOrigin!, StringComparison.OrdinalIgnoreCase))
+                {
+                    var rewritten = _internalOrigin + original[externalOrigin!.Length..];
+                    request.RequestUri = new Uri(rewritten);
+                    break;
+                }
+            }
+        }
+        return base.SendAsync(request, cancellationToken);
+    }
 }

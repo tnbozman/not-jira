@@ -10,8 +10,10 @@
       <template #content>
         <form @submit.prevent="handleSubmit" class="space-y-5">
           <div class="space-y-1.5">
-            <label for="key" class="block text-sm font-medium text-surface-700">Project Key *</label>
-            <InputText 
+            <label for="key" class="block text-sm font-medium text-surface-700"
+              >Project Key *</label
+            >
+            <InputText
               id="key"
               v-model="project.key"
               placeholder="e.g., PROJ, WEB, APP"
@@ -20,12 +22,16 @@
               @blur="validateKey"
             />
             <small v-if="errors.key" class="text-red-500 text-xs">{{ errors.key }}</small>
-            <small class="block text-surface-400 text-xs">Must be uppercase letters, numbers, and hyphens only</small>
+            <small class="block text-surface-400 text-xs"
+              >Must be uppercase letters, numbers, and hyphens only</small
+            >
           </div>
 
           <div class="space-y-1.5">
-            <label for="name" class="block text-sm font-medium text-surface-700">Project Name *</label>
-            <InputText 
+            <label for="name" class="block text-sm font-medium text-surface-700"
+              >Project Name *</label
+            >
+            <InputText
               id="name"
               v-model="project.name"
               placeholder="Enter project name"
@@ -36,8 +42,10 @@
           </div>
 
           <div class="space-y-1.5">
-            <label for="description" class="block text-sm font-medium text-surface-700">Description</label>
-            <Textarea 
+            <label for="description" class="block text-sm font-medium text-surface-700"
+              >Description</label
+            >
+            <Textarea
               id="description"
               v-model="project.description"
               placeholder="Enter project description"
@@ -51,9 +59,9 @@
 
           <div class="flex justify-end gap-3 pt-4 border-t border-surface-200">
             <Button label="Cancel" severity="secondary" text @click="goBack" />
-            <Button 
-              label="Create Project" 
-              type="submit" 
+            <Button
+              label="Create Project"
+              type="submit"
               icon="pi pi-check"
               :loading="submitting"
               :disabled="!isValid"
@@ -66,86 +74,87 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import Button from 'primevue/button'
-import Card from 'primevue/card'
-import InputText from 'primevue/inputtext'
-import Textarea from 'primevue/textarea'
-import Message from 'primevue/message'
-import { projectService, type Project } from '@/services/projectService'
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import Button from "primevue/button";
+import Card from "primevue/card";
+import InputText from "primevue/inputtext";
+import Textarea from "primevue/textarea";
+import Message from "primevue/message";
+import { projectService, type Project } from "@/services/projectService";
 
-const router = useRouter()
+const router = useRouter();
 
 const project = ref<Project>({
-  key: '',
-  name: '',
-  description: '',
-})
+  key: "",
+  name: "",
+  description: "",
+});
 
-const errors = ref<Record<string, string>>({})
-const error = ref<string | null>(null)
-const submitting = ref(false)
+const errors = ref<Record<string, string>>({});
+const error = ref<string | null>(null);
+const submitting = ref(false);
 
 const validateKey = () => {
-  errors.value.key = ''
-  
+  errors.value.key = "";
+
   if (!project.value.key) {
-    errors.value.key = 'Project key is required'
-    return false
+    errors.value.key = "Project key is required";
+    return false;
   }
 
   if (!/^[A-Z0-9-]+$/.test(project.value.key)) {
-    errors.value.key = 'Project key must contain only uppercase letters, numbers, and hyphens'
-    return false
+    errors.value.key = "Project key must contain only uppercase letters, numbers, and hyphens";
+    return false;
   }
 
   if (project.value.key.length > 20) {
-    errors.value.key = 'Project key must be 20 characters or less'
-    return false
+    errors.value.key = "Project key must be 20 characters or less";
+    return false;
   }
 
-  return true
-}
+  return true;
+};
 
 const isValid = computed(() => {
-  return project.value.key.trim() !== '' && 
-         project.value.name.trim() !== '' &&
-         /^[A-Z0-9-]+$/.test(project.value.key)
-})
+  return (
+    project.value.key.trim() !== "" &&
+    project.value.name.trim() !== "" &&
+    /^[A-Z0-9-]+$/.test(project.value.key)
+  );
+});
 
 const handleSubmit = async () => {
-  errors.value = {}
-  error.value = null
+  errors.value = {};
+  error.value = null;
 
   // Validate
   if (!validateKey()) {
-    return
+    return;
   }
 
   if (!project.value.name.trim()) {
-    errors.value.name = 'Project name is required'
-    return
+    errors.value.name = "Project name is required";
+    return;
   }
 
   try {
-    submitting.value = true
-    const createdProject = await projectService.createProject(project.value)
-    router.push(`/projects/${createdProject.id}`)
+    submitting.value = true;
+    const createdProject = await projectService.createProject(project.value);
+    router.push(`/projects/${createdProject.id}`);
   } catch (err) {
     if (err instanceof Error) {
-      error.value = err.message
+      error.value = err.message;
     } else {
-      error.value = 'Failed to create project. Please try again.'
+      error.value = "Failed to create project. Please try again.";
     }
-    console.error('Error creating project:', err)
+    console.error("Error creating project:", err);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 const goBack = () => {
-  router.push('/projects')
-}
+  router.push("/projects");
+};
 </script>
-

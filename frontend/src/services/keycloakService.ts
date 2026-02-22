@@ -1,9 +1,10 @@
 import Keycloak from "keycloak-js";
+import config from "@/config";
 
 const keycloakConfig = {
-  url: import.meta.env.VITE_KEYCLOAK_URL || "http://localhost:8180",
-  realm: "notjira",
-  clientId: "notjira-frontend",
+  url: config.KEYCLOAK_URL,
+  realm: config.KEYCLOAK_REALM,
+  clientId: config.KEYCLOAK_CLIENT_ID,
 };
 
 const keycloak = new Keycloak(keycloakConfig);

@@ -26,9 +26,31 @@
           <Column header="Actions" style="width: 10rem">
             <template #body="{ data }">
               <div class="flex gap-1">
-                <Button icon="pi pi-eye" text rounded size="small" @click="viewEntity(data)" v-tooltip="'View Details'" />
-                <Button icon="pi pi-pencil" text rounded size="small" @click="editEntity(data)" v-tooltip="'Edit'" />
-                <Button icon="pi pi-trash" text rounded size="small" severity="danger" @click="confirmDelete(data)" v-tooltip="'Delete'" />
+                <Button
+                  icon="pi pi-eye"
+                  text
+                  rounded
+                  size="small"
+                  @click="viewEntity(data)"
+                  v-tooltip="'View Details'"
+                />
+                <Button
+                  icon="pi pi-pencil"
+                  text
+                  rounded
+                  size="small"
+                  @click="editEntity(data)"
+                  v-tooltip="'Edit'"
+                />
+                <Button
+                  icon="pi pi-trash"
+                  text
+                  rounded
+                  size="small"
+                  severity="danger"
+                  @click="confirmDelete(data)"
+                  v-tooltip="'Delete'"
+                />
               </div>
             </template>
           </Column>
@@ -37,12 +59,21 @@
     </Card>
 
     <!-- Create/Edit Dialog -->
-    <Dialog v-model:visible="showCreateDialog" :header="editingEntity?.id ? 'Edit Entity' : 'Create Entity'"
-            :style="{ width: '32rem' }" :modal="true">
+    <Dialog
+      v-model:visible="showCreateDialog"
+      :header="editingEntity?.id ? 'Edit Entity' : 'Create Entity'"
+      :style="{ width: '32rem' }"
+      :modal="true"
+    >
       <div class="space-y-4">
         <div class="space-y-1.5">
           <label class="block text-sm font-medium text-surface-700">Type *</label>
-          <Dropdown v-model="formData.type" :options="['Person', 'Client']" placeholder="Select Type" class="w-full" />
+          <Dropdown
+            v-model="formData.type"
+            :options="['Person', 'Client']"
+            placeholder="Select Type"
+            class="w-full"
+          />
         </div>
         <div class="space-y-1.5">
           <label class="block text-sm font-medium text-surface-700">Name *</label>
@@ -50,11 +81,20 @@
         </div>
         <div class="space-y-1.5">
           <label class="block text-sm font-medium text-surface-700">Email</label>
-          <InputText v-model="formData.email" class="w-full" type="email" placeholder="email@example.com" />
+          <InputText
+            v-model="formData.email"
+            class="w-full"
+            type="email"
+            placeholder="email@example.com"
+          />
         </div>
         <div class="space-y-1.5">
           <label class="block text-sm font-medium text-surface-700">Organization</label>
-          <InputText v-model="formData.organization" class="w-full" placeholder="Organization name" />
+          <InputText
+            v-model="formData.organization"
+            class="w-full"
+            placeholder="Organization name"
+          />
         </div>
         <div class="space-y-1.5">
           <label class="block text-sm font-medium text-surface-700">Phone</label>
@@ -62,7 +102,12 @@
         </div>
         <div class="space-y-1.5">
           <label class="block text-sm font-medium text-surface-700">Notes</label>
-          <Textarea v-model="formData.notes" class="w-full" rows="4" placeholder="Additional notes" />
+          <Textarea
+            v-model="formData.notes"
+            class="w-full"
+            rows="4"
+            placeholder="Additional notes"
+          />
         </div>
       </div>
       <template #footer>
@@ -72,31 +117,49 @@
     </Dialog>
 
     <!-- View Dialog -->
-    <Dialog v-model:visible="showViewDialog" header="Entity Details" :style="{ width: '48rem' }" :modal="true">
+    <Dialog
+      v-model:visible="showViewDialog"
+      header="Entity Details"
+      :style="{ width: '48rem' }"
+      :modal="true"
+    >
       <div v-if="selectedEntity" class="space-y-6">
         <div>
           <h3 class="text-lg font-semibold text-surface-800 mb-3">Basic Information</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider">Name</span>
+              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider"
+                >Name</span
+              >
               <p class="text-surface-800 mt-0.5">{{ selectedEntity.name }}</p>
             </div>
             <div>
-              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider">Type</span>
+              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider"
+                >Type</span
+              >
               <div class="mt-0.5">
-                <Tag :value="selectedEntity.type" :severity="selectedEntity.type === 'Person' ? 'info' : 'success'" />
+                <Tag
+                  :value="selectedEntity.type"
+                  :severity="selectedEntity.type === 'Person' ? 'info' : 'success'"
+                />
               </div>
             </div>
             <div v-if="selectedEntity.email">
-              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider">Email</span>
+              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider"
+                >Email</span
+              >
               <p class="text-surface-800 mt-0.5">{{ selectedEntity.email }}</p>
             </div>
             <div v-if="selectedEntity.organization">
-              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider">Organization</span>
+              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider"
+                >Organization</span
+              >
               <p class="text-surface-800 mt-0.5">{{ selectedEntity.organization }}</p>
             </div>
             <div v-if="selectedEntity.phone">
-              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider">Phone</span>
+              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider"
+                >Phone</span
+              >
               <p class="text-surface-800 mt-0.5">{{ selectedEntity.phone }}</p>
             </div>
           </div>
@@ -108,24 +171,44 @@
         </div>
 
         <div v-if="selectedEntity.problems && selectedEntity.problems.length > 0">
-          <h3 class="text-lg font-semibold text-surface-800 mb-3">Problems ({{ selectedEntity.problems.length }})</h3>
+          <h3 class="text-lg font-semibold text-surface-800 mb-3">
+            Problems ({{ selectedEntity.problems.length }})
+          </h3>
           <div class="space-y-2">
-            <div v-for="problem in selectedEntity.problems" :key="problem.id" class="p-3 bg-surface-50 rounded-lg">
-              <Tag :value="problem.severity" :severity="getSeverityColor(problem.severity)" class="mb-2" />
+            <div
+              v-for="problem in selectedEntity.problems"
+              :key="problem.id"
+              class="p-3 bg-surface-50 rounded-lg"
+            >
+              <Tag
+                :value="problem.severity"
+                :severity="getSeverityColor(problem.severity)"
+                class="mb-2"
+              />
               <p class="text-sm text-surface-700">{{ problem.description }}</p>
             </div>
           </div>
         </div>
 
         <div v-if="selectedEntity.interviews && selectedEntity.interviews.length > 0">
-          <h3 class="text-lg font-semibold text-surface-800 mb-3">Interviews ({{ selectedEntity.interviews.length }})</h3>
+          <h3 class="text-lg font-semibold text-surface-800 mb-3">
+            Interviews ({{ selectedEntity.interviews.length }})
+          </h3>
           <div class="space-y-2">
-            <div v-for="interview in selectedEntity.interviews" :key="interview.id" class="p-3 bg-surface-50 rounded-lg">
+            <div
+              v-for="interview in selectedEntity.interviews"
+              :key="interview.id"
+              class="p-3 bg-surface-50 rounded-lg"
+            >
               <div class="flex items-center justify-between mb-1">
                 <Tag :value="interview.type" />
-                <span class="text-xs text-surface-400">{{ formatDate(interview.interviewDate) }}</span>
+                <span class="text-xs text-surface-400">{{
+                  formatDate(interview.interviewDate)
+                }}</span>
               </div>
-              <p v-if="interview.summary" class="text-sm text-surface-700">{{ interview.summary }}</p>
+              <p v-if="interview.summary" class="text-sm text-surface-700">
+                {{ interview.summary }}
+              </p>
             </div>
           </div>
         </div>
@@ -138,20 +221,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { useToast } from 'primevue/usetoast';
-import { useConfirm } from 'primevue/useconfirm';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import Button from 'primevue/button';
-import Dialog from 'primevue/dialog';
-import InputText from 'primevue/inputtext';
-import Textarea from 'primevue/textarea';
-import Dropdown from 'primevue/dropdown';
-import Tag from 'primevue/tag';
-import ProgressSpinner from 'primevue/progressspinner';
-import externalEntityService, { type ExternalEntity } from '@/services/externalEntityService';
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import { useToast } from "primevue/usetoast";
+import { useConfirm } from "primevue/useconfirm";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import Textarea from "primevue/textarea";
+import Dropdown from "primevue/dropdown";
+import Tag from "primevue/tag";
+import ProgressSpinner from "primevue/progressspinner";
+import externalEntityService, { type ExternalEntity } from "@/services/externalEntityService";
 
 const route = useRoute();
 const toast = useToast();
@@ -167,12 +250,12 @@ const editingEntity = ref<ExternalEntity | null>(null);
 const selectedEntity = ref<ExternalEntity | null>(null);
 
 const formData = ref<Partial<ExternalEntity>>({
-  type: 'Person',
-  name: '',
-  email: '',
-  organization: '',
-  phone: '',
-  notes: ''
+  type: "Person",
+  name: "",
+  email: "",
+  organization: "",
+  phone: "",
+  notes: "",
 });
 
 const loadEntities = async () => {
@@ -180,7 +263,12 @@ const loadEntities = async () => {
     loading.value = true;
     entities.value = await externalEntityService.getExternalEntities(projectId.value);
   } catch (error) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load entities', life: 3000 });
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Failed to load entities",
+      life: 3000,
+    });
   } finally {
     loading.value = false;
   }
@@ -188,7 +276,12 @@ const loadEntities = async () => {
 
 const saveEntity = async () => {
   if (!formData.value.name || !formData.value.type) {
-    toast.add({ severity: 'warn', summary: 'Warning', detail: 'Name and type are required', life: 3000 });
+    toast.add({
+      severity: "warn",
+      summary: "Warning",
+      detail: "Name and type are required",
+      life: 3000,
+    });
     return;
   }
 
@@ -197,17 +290,21 @@ const saveEntity = async () => {
     const entity = { ...formData.value, projectId: projectId.value } as ExternalEntity;
 
     if (editingEntity.value?.id) {
-      await externalEntityService.updateExternalEntity(projectId.value, editingEntity.value.id, entity);
-      toast.add({ severity: 'success', summary: 'Success', detail: 'Entity updated', life: 3000 });
+      await externalEntityService.updateExternalEntity(
+        projectId.value,
+        editingEntity.value.id,
+        entity,
+      );
+      toast.add({ severity: "success", summary: "Success", detail: "Entity updated", life: 3000 });
     } else {
       await externalEntityService.createExternalEntity(projectId.value, entity);
-      toast.add({ severity: 'success', summary: 'Success', detail: 'Entity created', life: 3000 });
+      toast.add({ severity: "success", summary: "Success", detail: "Entity created", life: 3000 });
     }
 
     showCreateDialog.value = false;
     await loadEntities();
   } catch (error) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save entity', life: 3000 });
+    toast.add({ severity: "error", summary: "Error", detail: "Failed to save entity", life: 3000 });
   } finally {
     saving.value = false;
   }
@@ -221,38 +318,56 @@ const editEntity = (entity: ExternalEntity) => {
 
 const viewEntity = async (entity: ExternalEntity) => {
   try {
-    selectedEntity.value = await externalEntityService.getExternalEntity(projectId.value, entity.id!);
+    selectedEntity.value = await externalEntityService.getExternalEntity(
+      projectId.value,
+      entity.id!,
+    );
     showViewDialog.value = true;
   } catch (error) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load entity details', life: 3000 });
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Failed to load entity details",
+      life: 3000,
+    });
   }
 };
 
 const confirmDelete = (entity: ExternalEntity) => {
   confirm.require({
     message: `Are you sure you want to delete ${entity.name}?`,
-    header: 'Confirm Delete',
-    icon: 'pi pi-exclamation-triangle',
+    header: "Confirm Delete",
+    icon: "pi pi-exclamation-triangle",
     accept: async () => {
       try {
         await externalEntityService.deleteExternalEntity(projectId.value, entity.id!);
-        toast.add({ severity: 'success', summary: 'Success', detail: 'Entity deleted', life: 3000 });
+        toast.add({
+          severity: "success",
+          summary: "Success",
+          detail: "Entity deleted",
+          life: 3000,
+        });
         await loadEntities();
       } catch (error) {
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete entity', life: 3000 });
+        toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "Failed to delete entity",
+          life: 3000,
+        });
       }
-    }
+    },
   });
 };
 
 const getSeverityColor = (severity: string) => {
   const colors: Record<string, string> = {
-    Low: 'info',
-    Medium: 'warning',
-    High: 'danger',
-    Critical: 'danger'
+    Low: "info",
+    Medium: "warning",
+    High: "danger",
+    Critical: "danger",
   };
-  return colors[severity] || 'info';
+  return colors[severity] || "info";
 };
 
 const formatDate = (date: string) => {

@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import Card from 'primevue/card'
+import Card from "primevue/card";
 </script>
 
 <template>
   <div class="max-w-3xl mx-auto space-y-6">
     <div>
       <h1 class="text-2xl font-bold text-surface-900 mb-2">About Not JIRA</h1>
-      <p class="text-surface-500">A modern project management tool built with modern technologies.</p>
+      <p class="text-surface-500">
+        A modern project management tool built with modern technologies.
+      </p>
     </div>
 
     <Card class="border border-surface-200">

@@ -19,7 +19,9 @@
 
     <!-- Empty State -->
     <div v-else-if="projects.length === 0" class="text-center py-16">
-      <div class="w-20 h-20 rounded-full bg-surface-100 flex items-center justify-center mx-auto mb-4">
+      <div
+        class="w-20 h-20 rounded-full bg-surface-100 flex items-center justify-center mx-auto mb-4"
+      >
         <i class="pi pi-folder-open text-surface-400 text-3xl"></i>
       </div>
       <h3 class="text-lg font-semibold text-surface-700 mb-2">No projects found</h3>
@@ -37,7 +39,9 @@
       >
         <template #header>
           <div class="px-5 pt-5 pb-0">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-blue-100 text-blue-700">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-blue-100 text-blue-700"
+            >
               {{ project.key }}
             </span>
           </div>
@@ -46,7 +50,9 @@
           <span class="text-lg group-hover:text-primary transition-colors">{{ project.name }}</span>
         </template>
         <template #content>
-          <p class="text-surface-500 text-sm line-clamp-2 mb-4">{{ project.description || 'No description' }}</p>
+          <p class="text-surface-500 text-sm line-clamp-2 mb-4">
+            {{ project.description || "No description" }}
+          </p>
           <div class="flex items-center gap-4 text-sm text-surface-400">
             <span class="flex items-center gap-1.5">
               <i class="pi pi-users text-xs"></i>
@@ -56,7 +62,13 @@
         </template>
         <template #footer>
           <div class="flex justify-end gap-2">
-            <Button label="Open" icon="pi pi-arrow-right" text size="small" @click.stop="navigateToProject(project.id!)" />
+            <Button
+              label="Open"
+              icon="pi pi-arrow-right"
+              text
+              size="small"
+              @click.stop="navigateToProject(project.id!)"
+            />
             <Button
               icon="pi pi-trash"
               severity="danger"
@@ -70,12 +82,20 @@
     </div>
 
     <!-- Delete Confirmation -->
-    <Dialog v-model:visible="deleteDialogVisible" header="Confirm Delete" :modal="true" :style="{ width: '28rem' }">
+    <Dialog
+      v-model:visible="deleteDialogVisible"
+      header="Confirm Delete"
+      :modal="true"
+      :style="{ width: '28rem' }"
+    >
       <div class="flex items-start gap-4">
         <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
           <i class="pi pi-exclamation-triangle text-red-600"></i>
         </div>
-        <p class="text-surface-700">Are you sure you want to delete project <strong>"{{ projectToDelete?.name }}"</strong>? This action cannot be undone.</p>
+        <p class="text-surface-700">
+          Are you sure you want to delete project <strong>"{{ projectToDelete?.name }}"</strong>?
+          This action cannot be undone.
+        </p>
       </div>
       <template #footer>
         <Button label="Cancel" text @click="deleteDialogVisible = false" />
@@ -86,64 +106,63 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import Button from 'primevue/button'
-import Card from 'primevue/card'
-import ProgressSpinner from 'primevue/progressspinner'
-import Message from 'primevue/message'
-import Dialog from 'primevue/dialog'
-import { projectService, type Project } from '@/services/projectService'
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import Button from "primevue/button";
+import Card from "primevue/card";
+import ProgressSpinner from "primevue/progressspinner";
+import Message from "primevue/message";
+import Dialog from "primevue/dialog";
+import { projectService, type Project } from "@/services/projectService";
 
-const router = useRouter()
-const projects = ref<Project[]>([])
-const loading = ref(true)
-const error = ref<string | null>(null)
-const deleteDialogVisible = ref(false)
-const projectToDelete = ref<Project | null>(null)
+const router = useRouter();
+const projects = ref<Project[]>([]);
+const loading = ref(true);
+const error = ref<string | null>(null);
+const deleteDialogVisible = ref(false);
+const projectToDelete = ref<Project | null>(null);
 
 const loadProjects = async () => {
   try {
-    loading.value = true
-    error.value = null
-    projects.value = await projectService.getAllProjects()
+    loading.value = true;
+    error.value = null;
+    projects.value = await projectService.getAllProjects();
   } catch (err) {
-    error.value = 'Failed to load projects. Please try again.'
-    console.error('Error loading projects:', err)
+    error.value = "Failed to load projects. Please try again.";
+    console.error("Error loading projects:", err);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const navigateToCreate = () => {
-  router.push('/projects/new')
-}
+  router.push("/projects/new");
+};
 
 const navigateToProject = (id: number) => {
-  router.push(`/projects/${id}`)
-}
+  router.push(`/projects/${id}`);
+};
 
 const confirmDelete = (project: Project) => {
-  projectToDelete.value = project
-  deleteDialogVisible.value = true
-}
+  projectToDelete.value = project;
+  deleteDialogVisible.value = true;
+};
 
 const deleteProject = async () => {
-  if (!projectToDelete.value?.id) return
+  if (!projectToDelete.value?.id) return;
 
   try {
-    await projectService.deleteProject(projectToDelete.value.id)
-    deleteDialogVisible.value = false
-    projectToDelete.value = null
-    await loadProjects()
+    await projectService.deleteProject(projectToDelete.value.id);
+    deleteDialogVisible.value = false;
+    projectToDelete.value = null;
+    await loadProjects();
   } catch (err) {
-    error.value = 'Failed to delete project. Please try again.'
-    console.error('Error deleting project:', err)
+    error.value = "Failed to delete project. Please try again.";
+    console.error("Error deleting project:", err);
   }
-}
+};
 
 onMounted(() => {
-  loadProjects()
-})
+  loadProjects();
+});
 </script>
-

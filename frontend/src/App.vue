@@ -1,41 +1,41 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { computed, ref } from 'vue'
-import Button from 'primevue/button'
-import Avatar from 'primevue/avatar'
-import Menu from 'primevue/menu'
-import Toast from 'primevue/toast'
-import ConfirmDialog from 'primevue/confirmdialog'
+import { RouterLink, RouterView } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import { computed, ref } from "vue";
+import Button from "primevue/button";
+import Avatar from "primevue/avatar";
+import Menu from "primevue/menu";
+import Toast from "primevue/toast";
+import ConfirmDialog from "primevue/confirmdialog";
 
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 
-const isAuthenticated = computed(() => authStore.isAuthenticated)
-const username = computed(() => authStore.username)
-const userInitial = computed(() => username.value?.charAt(0).toUpperCase() || '?')
-const mobileMenuOpen = ref(false)
-const userMenu = ref()
+const isAuthenticated = computed(() => authStore.isAuthenticated);
+const username = computed(() => authStore.username);
+const userInitial = computed(() => username.value?.charAt(0).toUpperCase() || "?");
+const mobileMenuOpen = ref(false);
+const userMenu = ref();
 
 const userMenuItems = computed(() => [
   {
-    label: username.value || 'User',
+    label: username.value || "User",
     items: [
       {
-        label: 'Logout',
-        icon: 'pi pi-sign-out',
-        command: () => authStore.logout()
-      }
-    ]
-  }
-])
+        label: "Logout",
+        icon: "pi pi-sign-out",
+        command: () => authStore.logout(),
+      },
+    ],
+  },
+]);
 
 const toggleUserMenu = (event: Event) => {
-  userMenu.value.toggle(event)
-}
+  userMenu.value.toggle(event);
+};
 
 const handleLogin = () => {
-  authStore.login()
-}
+  authStore.login();
+};
 </script>
 
 <template>
@@ -57,24 +57,15 @@ const handleLogin = () => {
 
           <!-- Desktop Nav Links -->
           <nav class="hidden md:flex items-center gap-1">
-            <RouterLink
-              to="/"
-              class="nav-link"
-            >
+            <RouterLink to="/" class="nav-link">
               <i class="pi pi-home text-sm"></i>
               <span>Dashboard</span>
             </RouterLink>
-            <RouterLink
-              to="/projects"
-              class="nav-link"
-            >
+            <RouterLink to="/projects" class="nav-link">
               <i class="pi pi-folder text-sm"></i>
               <span>Projects</span>
             </RouterLink>
-            <RouterLink
-              to="/about"
-              class="nav-link"
-            >
+            <RouterLink to="/about" class="nav-link">
               <i class="pi pi-info-circle text-sm"></i>
               <span>About</span>
             </RouterLink>
@@ -88,7 +79,9 @@ const handleLogin = () => {
                 @click="toggleUserMenu"
               >
                 <Avatar :label="userInitial" shape="circle" class="bg-primary text-white" />
-                <span class="hidden sm:inline text-sm font-medium text-surface-700">{{ username }}</span>
+                <span class="hidden sm:inline text-sm font-medium text-surface-700">{{
+                  username
+                }}</span>
                 <i class="pi pi-chevron-down text-xs text-surface-400"></i>
               </div>
               <Menu ref="userMenu" :model="userMenuItems" :popup="true" />
@@ -116,7 +109,10 @@ const handleLogin = () => {
       </div>
 
       <!-- Mobile Nav -->
-      <div v-if="mobileMenuOpen" class="md:hidden border-t border-surface-200 bg-white px-4 pb-4 pt-2 space-y-1">
+      <div
+        v-if="mobileMenuOpen"
+        class="md:hidden border-t border-surface-200 bg-white px-4 pb-4 pt-2 space-y-1"
+      >
         <RouterLink to="/" class="mobile-nav-link" @click="mobileMenuOpen = false">
           <i class="pi pi-home"></i> Dashboard
         </RouterLink>
