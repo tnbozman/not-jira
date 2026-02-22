@@ -61,6 +61,37 @@
   --p-form-field-placeholder-color:  #94a3b8;
   --p-form-field-disabled-background:#f1f5f9;
   --p-form-field-disabled-color:#94a3b8;
+
+  /* TabView specific tokens */
+  --p-tabview-tab-list-background:       #ffffff;
+  --p-tabview-tab-list-border-color:     #e2e8f0;
+  --p-tabview-tab-border-color:          #e2e8f0;
+  --p-tabview-tab-active-border-color:   #2563eb;
+  --p-tabview-tab-color:                 #64748b;
+  --p-tabview-tab-hover-color:           #0f172a;
+  --p-tabview-tab-active-color:          #2563eb;
+  --p-tabview-tab-panel-background:      transparent;
+  --p-tabview-tab-panel-color:           #1e293b;
+  --p-tabview-nav-button-background:     #ffffff;
+  --p-tabview-nav-button-color:          #64748b;
+  --p-tabview-nav-button-hover-color:    #0f172a;
+
+  /* DataTable specific tokens */
+  --p-datatable-border-color:                  #e2e8f0;
+  --p-datatable-header-cell-background:        #f8fafc;
+  --p-datatable-header-cell-color:             #475569;
+  --p-datatable-header-cell-border-color:      #e2e8f0;
+  --p-datatable-row-background:                #ffffff;
+  --p-datatable-row-color:                     #334155;
+  --p-datatable-row-hover-background:          #eff6ff;
+  --p-datatable-row-hover-color:               #1e293b;
+  --p-datatable-row-striped-background:        #f8fafc;
+  --p-datatable-row-selected-background:       #dbeafe;
+  --p-datatable-row-selected-color:            #1e40af;
+  --p-datatable-body-cell-border-color:        #f1f5f9;
+  --p-datatable-footer-cell-background:        #f8fafc;
+  --p-datatable-footer-cell-color:             #475569;
+  --p-datatable-footer-cell-border-color:      #e2e8f0;
 }
 
 /*
@@ -162,20 +193,34 @@
 .p-tabview .p-tabview-tablist,
 .p-tabview .p-tabview-tab-list,
 .p-tablist {
-  background: #ffffff;
-  border-color: #e2e8f0;
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
 }
 
+/* Default (inactive) tab link */
+.p-tabview-tab-header,
 .p-tabview .p-tabview-header .p-tabview-header-action,
 .p-tabview .p-tabview-nav-link,
 .p-tab {
   color: #64748b !important;
-  font-weight: 500;
+  font-weight: 600 !important;
   background: transparent !important;
 }
 
-/* Tab hover — must NOT turn white */
-.p-tabview .p-tabview-header .p-tabview-header-action:hover,
+/* Tab title text */
+.p-tabview-tab-title {
+  color: inherit !important;
+}
+
+/*
+ * Tab hover — the critical WCAG fix.
+ * PrimeVue's actual selector is:
+ *   .p-tabview-tablist-item:not(.p-highlight):not(.p-disabled):hover > .p-tabview-tab-header
+ * We match it exactly + add fallback selectors.
+ */
+.p-tabview-tablist-item:not(.p-highlight):not(.p-disabled):hover > .p-tabview-tab-header,
+.p-tabview-tablist-item:not(.p-tabview-tablist-item-active):not(.p-disabled):hover > .p-tabview-tab-header,
+.p-tabview .p-tabview-header:not(.p-highlight):not(.p-disabled):hover .p-tabview-header-action,
 .p-tabview .p-tabview-nav-link:hover,
 .p-tab:hover,
 .p-tab:hover > * {
@@ -184,40 +229,45 @@
 }
 
 /* Active tab */
+.p-tabview-tablist-item.p-highlight > .p-tabview-tab-header,
+.p-tabview-tablist-item.p-tabview-tablist-item-active > .p-tabview-tab-header,
 .p-tabview .p-tabview-header.p-tabview-header-active .p-tabview-header-action,
-.p-tabview .p-tabview-nav-link.p-tabview-nav-link-active,
-.p-tab[data-p-active="true"],
-.p-tabview .p-highlight .p-tabview-nav-link {
+.p-tabview .p-highlight .p-tabview-nav-link,
+.p-tab[data-p-active="true"] {
   color: #2563eb !important;
-  border-color: #2563eb;
+  border-color: #2563eb !important;
   background: transparent !important;
 }
 
 /* Active tab hover */
-.p-tab[data-p-active="true"]:hover,
-.p-tabview .p-tabview-header.p-tabview-header-active .p-tabview-header-action:hover {
+.p-tabview-tablist-item.p-highlight:hover > .p-tabview-tab-header,
+.p-tabview-tablist-item.p-tabview-tablist-item-active:hover > .p-tabview-tab-header,
+.p-tabview .p-tabview-header.p-tabview-header-active:hover .p-tabview-header-action,
+.p-tab[data-p-active="true"]:hover {
   color: #1d4ed8 !important;
   background: #eff6ff !important;
 }
 
 .p-tabview .p-tabview-panels,
 .p-tabpanels {
-  background: transparent;
+  background: transparent !important;
+  color: #1e293b !important;
   padding: 1rem 0 0;
 }
 
 .p-tabview .p-tabview-panel,
 .p-tabpanel {
-  background: transparent;
+  background: transparent !important;
 }
 
 .p-tablist {
   border-bottom: 1px solid #e2e8f0;
 }
 
-/* Active tab indicator bar */
+/* Active tab indicator bar (ink bar) */
+.p-tabview-ink-bar,
 .p-tablist .p-tablist-active-bar {
-  background: #2563eb;
+  background: #2563eb !important;
 }
 
 /* ── Buttons — text / outlined / link variants ─────────────── */
@@ -319,43 +369,131 @@
 }
 
 /* ── DataTable ─────────────────────────────────────────────── */
-.p-datatable .p-datatable-thead > tr > th {
-  background: #f8fafc;
-  color: #334155;
-  border-color: #e2e8f0;
+
+/* Table container */
+.p-datatable {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.p-datatable .p-datatable-table-container {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* Header cells */
+.p-datatable .p-datatable-thead > tr > th,
+.p-datatable .p-datatable-header-cell {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
   font-weight: 600;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem;
 }
 
+/* Body rows — all rows get white background by default */
 .p-datatable .p-datatable-tbody > tr {
-  background: #ffffff;
-  color: #1e293b;
+  background: #ffffff !important;
+  color: #334155 !important;
+  transition: background 0.15s ease;
 }
 
-.p-datatable .p-datatable-tbody > tr > td {
-  border-color: #f1f5f9;
+/* Body cells */
+.p-datatable .p-datatable-tbody > tr > td,
+.p-datatable .p-datatable-tbody > tr > td.p-datatable-body-cell {
+  border-color: #f1f5f9 !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  padding: 0.75rem 1rem;
+  color: #334155 !important;
+  font-size: 0.875rem;
 }
 
-.p-datatable .p-datatable-tbody > tr.p-row-odd,
-.p-datatable .p-datatable-tbody > tr:nth-child(even) {
-  background: #f8fafc;
+/* Striped rows — very subtle alternating shade, NOT black */
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr.p-row-odd,
+.p-datatable .p-datatable-tbody > tr.p-row-odd {
+  background: #f8fafc !important;
+  color: #334155 !important;
 }
 
-.p-datatable .p-datatable-tbody > tr:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr.p-row-even,
+.p-datatable .p-datatable-tbody > tr.p-row-even {
+  background: #ffffff !important;
+  color: #334155 !important;
+}
+
+/* Row hover */
+.p-datatable .p-datatable-tbody > tr:hover,
+.p-datatable-hoverable .p-datatable-tbody > tr:not(.p-datatable-row-selected):hover,
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr:hover,
+.p-datatable-striped.p-datatable-hoverable .p-datatable-tbody > tr:not(.p-datatable-row-selected):hover {
+  background: #eff6ff !important;
+  color: #1e293b !important;
+}
+
+/* Selected row */
+.p-datatable .p-datatable-tbody > tr.p-datatable-row-selected {
+  background: #dbeafe !important;
+  color: #1e40af !important;
 }
 
 /* Sortable column header hover */
-.p-datatable .p-sortable-column:hover {
+.p-datatable .p-sortable-column:hover,
+.p-datatable .p-datatable-header-cell.p-datatable-sortable-column:hover {
   background: #f1f5f9 !important;
-  color: #0f172a !important;
+  color: #334155 !important;
 }
 
-.p-datatable .p-sortable-column:hover .p-sortable-column-icon {
+.p-datatable .p-sortable-column:hover .p-sortable-column-icon,
+.p-datatable .p-datatable-sort-icon {
+  color: #94a3b8 !important;
+}
+
+.p-datatable .p-sortable-column.p-datatable-column-sorted .p-datatable-sort-icon {
+  color: #2563eb !important;
+}
+
+/* Empty message */
+.p-datatable .p-datatable-tbody > tr > td.p-datatable-empty-message,
+.p-datatable .p-datatable-empty-message {
+  color: #94a3b8 !important;
+  text-align: center;
+  padding: 2rem 1rem;
+  font-style: italic;
+}
+
+/* Paginator (if used) */
+.p-datatable .p-paginator {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+/* Row action buttons within table */
+.p-datatable .p-datatable-tbody .p-button-text,
+.p-datatable .p-datatable-tbody .p-button.p-button-text {
   color: #64748b !important;
+}
+
+.p-datatable .p-datatable-tbody .p-button-text:hover,
+.p-datatable .p-datatable-tbody .p-button.p-button-text:hover {
+  color: #334155 !important;
+  background: #f1f5f9 !important;
+}
+
+.p-datatable .p-datatable-tbody .p-button-text.p-button-danger,
+.p-datatable .p-datatable-tbody .p-button.p-button-text.p-button-danger {
+  color: #dc2626 !important;
+}
+
+.p-datatable .p-datatable-tbody .p-button-text.p-button-danger:hover,
+.p-datatable .p-datatable-tbody .p-button.p-button-text.p-button-danger:hover {
+  color: #b91c1c !important;
+  background: #fef2f2 !important;
 }
 
 /* ── Tag ───────────────────────────────────────────────────── */
