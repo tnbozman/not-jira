@@ -26,4 +26,17 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: #0f172a;
+  background-color: #f8fafc;
+}
+
+/* Fix Firefox-specific color rendering issues */
+img,
+svg {
+  color-interpolation: sRGB;
+}
+
+/* Ensure consistent color-scheme across browsers */
+:root {
+  color-scheme: light;
 }

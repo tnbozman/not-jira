@@ -1,75 +1,64 @@
 <template>
-  <div class="max-w-2xl mx-auto">
-    <Card class="border border-surface-200">
-      <template #title>
-        <div class="flex items-center gap-3">
-          <Button icon="pi pi-arrow-left" text rounded @click="goBack" />
-          <h1 class="text-xl font-bold text-surface-900">Create New Project</h1>
+  <div class="create-page">
+    <div class="create-card">
+      <div class="create-card-header">
+        <Button icon="pi pi-arrow-left" text rounded @click="goBack" />
+        <h1 class="create-title">Create New Project</h1>
+      </div>
+
+      <form @submit.prevent="handleSubmit" class="create-form">
+        <div class="form-field">
+          <label for="key" class="field-label">Project Key *</label>
+          <InputText
+            id="key"
+            v-model="project.key"
+            placeholder="e.g., PROJ, WEB, APP"
+            :class="{ 'p-invalid': errors.key }"
+            class="w-full"
+            @blur="validateKey"
+          />
+          <small v-if="errors.key" class="field-error">{{ errors.key }}</small>
+          <small class="field-hint">Must be uppercase letters, numbers, and hyphens only</small>
         </div>
-      </template>
-      <template #content>
-        <form @submit.prevent="handleSubmit" class="space-y-5">
-          <div class="space-y-1.5">
-            <label for="key" class="block text-sm font-medium text-surface-700"
-              >Project Key *</label
-            >
-            <InputText
-              id="key"
-              v-model="project.key"
-              placeholder="e.g., PROJ, WEB, APP"
-              :class="{ 'p-invalid': errors.key }"
-              class="w-full"
-              @blur="validateKey"
-            />
-            <small v-if="errors.key" class="text-red-500 text-xs">{{ errors.key }}</small>
-            <small class="block text-surface-400 text-xs"
-              >Must be uppercase letters, numbers, and hyphens only</small
-            >
-          </div>
 
-          <div class="space-y-1.5">
-            <label for="name" class="block text-sm font-medium text-surface-700"
-              >Project Name *</label
-            >
-            <InputText
-              id="name"
-              v-model="project.name"
-              placeholder="Enter project name"
-              :class="{ 'p-invalid': errors.name }"
-              class="w-full"
-            />
-            <small v-if="errors.name" class="text-red-500 text-xs">{{ errors.name }}</small>
-          </div>
+        <div class="form-field">
+          <label for="name" class="field-label">Project Name *</label>
+          <InputText
+            id="name"
+            v-model="project.name"
+            placeholder="Enter project name"
+            :class="{ 'p-invalid': errors.name }"
+            class="w-full"
+          />
+          <small v-if="errors.name" class="field-error">{{ errors.name }}</small>
+        </div>
 
-          <div class="space-y-1.5">
-            <label for="description" class="block text-sm font-medium text-surface-700"
-              >Description</label
-            >
-            <Textarea
-              id="description"
-              v-model="project.description"
-              placeholder="Enter project description"
-              rows="5"
-              auto-resize
-              class="w-full"
-            />
-          </div>
+        <div class="form-field">
+          <label for="description" class="field-label">Description</label>
+          <Textarea
+            id="description"
+            v-model="project.description"
+            placeholder="Enter project description"
+            rows="5"
+            auto-resize
+            class="w-full"
+          />
+        </div>
 
-          <Message v-if="error" severity="error" :closable="false">{{ error }}</Message>
+        <Message v-if="error" severity="error" :closable="false">{{ error }}</Message>
 
-          <div class="flex justify-end gap-3 pt-4 border-t border-surface-200">
-            <Button label="Cancel" severity="secondary" text @click="goBack" />
-            <Button
-              label="Create Project"
-              type="submit"
-              icon="pi pi-check"
-              :loading="submitting"
-              :disabled="!isValid"
-            />
-          </div>
-        </form>
-      </template>
-    </Card>
+        <div class="create-actions">
+          <Button label="Cancel" severity="secondary" text @click="goBack" />
+          <Button
+            label="Create Project"
+            type="submit"
+            icon="pi pi-check"
+            :loading="submitting"
+            :disabled="!isValid"
+          />
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -77,7 +66,6 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import Button from "primevue/button";
-import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import Message from "primevue/message";
@@ -158,3 +146,66 @@ const goBack = () => {
   router.push("/projects");
 };
 </script>
+
+<style scoped>
+.create-page {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.create-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.create-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.create-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.field-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.field-error {
+  font-size: 0.75rem;
+  color: #dc2626;
+}
+
+.field-hint {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.create-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+</style>

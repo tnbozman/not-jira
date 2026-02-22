@@ -1,62 +1,60 @@
 <template>
-  <div class="space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  <div class="entities-page">
+    <div class="page-header">
       <div>
-        <h2 class="text-2xl font-bold text-surface-900">External Entities</h2>
-        <p class="text-surface-500 text-sm mt-1">Manage people and clients for this project</p>
+        <h2 class="page-title">External Entities</h2>
+        <p class="page-subtitle">Manage people and clients for this project</p>
       </div>
       <Button label="Add Entity" icon="pi pi-plus" @click="showCreateDialog = true" />
     </div>
 
-    <Card class="border border-surface-200">
-      <template #content>
-        <div v-if="loading" class="flex justify-center py-12">
-          <ProgressSpinner />
-        </div>
+    <div class="table-card">
+      <div v-if="loading" class="loading-state">
+        <ProgressSpinner />
+      </div>
 
-        <DataTable v-else :value="entities" stripedRows responsiveLayout="scroll" class="text-sm">
-          <Column field="name" header="Name" sortable></Column>
-          <Column field="type" header="Type" sortable style="width: 8rem">
-            <template #body="{ data }">
-              <Tag :value="data.type" :severity="data.type === 'Person' ? 'info' : 'success'" />
-            </template>
-          </Column>
-          <Column field="email" header="Email"></Column>
-          <Column field="organization" header="Organization"></Column>
-          <Column header="Actions" style="width: 10rem">
-            <template #body="{ data }">
-              <div class="flex gap-1">
-                <Button
-                  icon="pi pi-eye"
-                  text
-                  rounded
-                  size="small"
-                  @click="viewEntity(data)"
-                  v-tooltip="'View Details'"
-                />
-                <Button
-                  icon="pi pi-pencil"
-                  text
-                  rounded
-                  size="small"
-                  @click="editEntity(data)"
-                  v-tooltip="'Edit'"
-                />
-                <Button
-                  icon="pi pi-trash"
-                  text
-                  rounded
-                  size="small"
-                  severity="danger"
-                  @click="confirmDelete(data)"
-                  v-tooltip="'Delete'"
-                />
-              </div>
-            </template>
-          </Column>
-        </DataTable>
-      </template>
-    </Card>
+      <DataTable v-else :value="entities" stripedRows responsiveLayout="scroll" class="text-sm">
+        <Column field="name" header="Name" sortable></Column>
+        <Column field="type" header="Type" sortable style="width: 8rem">
+          <template #body="{ data }">
+            <Tag :value="data.type" :severity="data.type === 'Person' ? 'info' : 'success'" />
+          </template>
+        </Column>
+        <Column field="email" header="Email"></Column>
+        <Column field="organization" header="Organization"></Column>
+        <Column header="Actions" style="width: 10rem">
+          <template #body="{ data }">
+            <div class="action-btns">
+              <Button
+                icon="pi pi-eye"
+                text
+                rounded
+                size="small"
+                @click="viewEntity(data)"
+                v-tooltip="'View Details'"
+              />
+              <Button
+                icon="pi pi-pencil"
+                text
+                rounded
+                size="small"
+                @click="editEntity(data)"
+                v-tooltip="'Edit'"
+              />
+              <Button
+                icon="pi pi-trash"
+                text
+                rounded
+                size="small"
+                severity="danger"
+                @click="confirmDelete(data)"
+                v-tooltip="'Delete'"
+              />
+            </div>
+          </template>
+        </Column>
+      </DataTable>
+    </div>
 
     <!-- Create/Edit Dialog -->
     <Dialog
@@ -65,9 +63,9 @@
       :style="{ width: '32rem' }"
       :modal="true"
     >
-      <div class="space-y-4">
-        <div class="space-y-1.5">
-          <label class="block text-sm font-medium text-surface-700">Type *</label>
+      <div class="dialog-form">
+        <div class="form-field">
+          <label class="field-label">Type *</label>
           <Dropdown
             v-model="formData.type"
             :options="['Person', 'Client']"
@@ -75,12 +73,12 @@
             class="w-full"
           />
         </div>
-        <div class="space-y-1.5">
-          <label class="block text-sm font-medium text-surface-700">Name *</label>
+        <div class="form-field">
+          <label class="field-label">Name *</label>
           <InputText v-model="formData.name" class="w-full" placeholder="Enter name" />
         </div>
-        <div class="space-y-1.5">
-          <label class="block text-sm font-medium text-surface-700">Email</label>
+        <div class="form-field">
+          <label class="field-label">Email</label>
           <InputText
             v-model="formData.email"
             class="w-full"
@@ -88,20 +86,20 @@
             placeholder="email@example.com"
           />
         </div>
-        <div class="space-y-1.5">
-          <label class="block text-sm font-medium text-surface-700">Organization</label>
+        <div class="form-field">
+          <label class="field-label">Organization</label>
           <InputText
             v-model="formData.organization"
             class="w-full"
             placeholder="Organization name"
           />
         </div>
-        <div class="space-y-1.5">
-          <label class="block text-sm font-medium text-surface-700">Phone</label>
+        <div class="form-field">
+          <label class="field-label">Phone</label>
           <InputText v-model="formData.phone" class="w-full" placeholder="Phone number" />
         </div>
-        <div class="space-y-1.5">
-          <label class="block text-sm font-medium text-surface-700">Notes</label>
+        <div class="form-field">
+          <label class="field-label">Notes</label>
           <Textarea
             v-model="formData.notes"
             class="w-full"
@@ -123,90 +121,76 @@
       :style="{ width: '48rem' }"
       :modal="true"
     >
-      <div v-if="selectedEntity" class="space-y-6">
-        <div>
-          <h3 class="text-lg font-semibold text-surface-800 mb-3">Basic Information</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider"
-                >Name</span
-              >
-              <p class="text-surface-800 mt-0.5">{{ selectedEntity.name }}</p>
+      <div v-if="selectedEntity" class="view-entity">
+        <div class="view-section">
+          <h3 class="section-title">Basic Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Name</span>
+              <p class="detail-value">{{ selectedEntity.name }}</p>
             </div>
-            <div>
-              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider"
-                >Type</span
-              >
-              <div class="mt-0.5">
+            <div class="detail-item">
+              <span class="detail-label">Type</span>
+              <div style="margin-top: 0.125rem">
                 <Tag
                   :value="selectedEntity.type"
                   :severity="selectedEntity.type === 'Person' ? 'info' : 'success'"
                 />
               </div>
             </div>
-            <div v-if="selectedEntity.email">
-              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider"
-                >Email</span
-              >
-              <p class="text-surface-800 mt-0.5">{{ selectedEntity.email }}</p>
+            <div v-if="selectedEntity.email" class="detail-item">
+              <span class="detail-label">Email</span>
+              <p class="detail-value">{{ selectedEntity.email }}</p>
             </div>
-            <div v-if="selectedEntity.organization">
-              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider"
-                >Organization</span
-              >
-              <p class="text-surface-800 mt-0.5">{{ selectedEntity.organization }}</p>
+            <div v-if="selectedEntity.organization" class="detail-item">
+              <span class="detail-label">Organization</span>
+              <p class="detail-value">{{ selectedEntity.organization }}</p>
             </div>
-            <div v-if="selectedEntity.phone">
-              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider"
-                >Phone</span
-              >
-              <p class="text-surface-800 mt-0.5">{{ selectedEntity.phone }}</p>
+            <div v-if="selectedEntity.phone" class="detail-item">
+              <span class="detail-label">Phone</span>
+              <p class="detail-value">{{ selectedEntity.phone }}</p>
             </div>
           </div>
         </div>
 
-        <div v-if="selectedEntity.notes">
-          <h3 class="text-lg font-semibold text-surface-800 mb-2">Notes</h3>
-          <p class="text-surface-600 text-sm">{{ selectedEntity.notes }}</p>
+        <div v-if="selectedEntity.notes" class="view-section">
+          <h3 class="section-title">Notes</h3>
+          <p class="notes-text">{{ selectedEntity.notes }}</p>
         </div>
 
-        <div v-if="selectedEntity.problems && selectedEntity.problems.length > 0">
-          <h3 class="text-lg font-semibold text-surface-800 mb-3">
-            Problems ({{ selectedEntity.problems.length }})
-          </h3>
-          <div class="space-y-2">
-            <div
-              v-for="problem in selectedEntity.problems"
-              :key="problem.id"
-              class="p-3 bg-surface-50 rounded-lg"
-            >
+        <div
+          v-if="selectedEntity.problems && selectedEntity.problems.length > 0"
+          class="view-section"
+        >
+          <h3 class="section-title">Problems ({{ selectedEntity.problems.length }})</h3>
+          <div class="item-list">
+            <div v-for="problem in selectedEntity.problems" :key="problem.id" class="item-block">
               <Tag
                 :value="problem.severity"
                 :severity="getSeverityColor(problem.severity)"
-                class="mb-2"
+                style="margin-bottom: 0.5rem"
               />
-              <p class="text-sm text-surface-700">{{ problem.description }}</p>
+              <p class="item-text">{{ problem.description }}</p>
             </div>
           </div>
         </div>
 
-        <div v-if="selectedEntity.interviews && selectedEntity.interviews.length > 0">
-          <h3 class="text-lg font-semibold text-surface-800 mb-3">
-            Interviews ({{ selectedEntity.interviews.length }})
-          </h3>
-          <div class="space-y-2">
+        <div
+          v-if="selectedEntity.interviews && selectedEntity.interviews.length > 0"
+          class="view-section"
+        >
+          <h3 class="section-title">Interviews ({{ selectedEntity.interviews.length }})</h3>
+          <div class="item-list">
             <div
               v-for="interview in selectedEntity.interviews"
               :key="interview.id"
-              class="p-3 bg-surface-50 rounded-lg"
+              class="item-block"
             >
-              <div class="flex items-center justify-between mb-1">
+              <div class="interview-row">
                 <Tag :value="interview.type" />
-                <span class="text-xs text-surface-400">{{
-                  formatDate(interview.interviewDate)
-                }}</span>
+                <span class="interview-date">{{ formatDate(interview.interviewDate) }}</span>
               </div>
-              <p v-if="interview.summary" class="text-sm text-surface-700">
+              <p v-if="interview.summary" class="item-text">
                 {{ interview.summary }}
               </p>
             </div>
@@ -380,54 +364,88 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.external-entities-view {
-  padding: 1.5rem;
-}
-
-.card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-}
-
-.card-header {
+.entities-page {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.card-header h2 {
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.page-title {
   margin: 0;
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: #0f172a;
 }
 
-.loading-container {
+.page-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.table-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.loading-state {
   display: flex;
   justify-content: center;
-  padding: 3rem;
+  padding: 3rem 0;
 }
 
-.entity-form .field {
-  margin-bottom: 1.5rem;
+.action-btns {
+  display: flex;
+  gap: 0.25rem;
 }
 
-.entity-form label {
+/* Dialog form */
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.field-label {
   display: block;
-  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
   font-weight: 500;
+  color: #334155;
 }
 
-.entity-details .detail-section {
-  margin-bottom: 2rem;
+/* View entity dialog */
+.view-entity {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.entity-details h3 {
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-  color: #333;
+.view-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.section-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
 }
 
 .detail-grid {
@@ -436,39 +454,64 @@ onMounted(() => {
   gap: 1rem;
 }
 
+@media (max-width: 640px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .detail-item {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.125rem;
 }
 
-.detail-item .label {
+.detail-label {
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #666;
-  font-size: 0.9rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.detail-item .value {
-  color: #333;
+.detail-value {
+  margin: 0;
+  color: #1e293b;
 }
 
-.problem-card,
-.interview-card {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 0.75rem;
+.notes-text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #475569;
 }
 
-.interview-header {
+.item-list {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.interview-header span {
-  font-size: 0.9rem;
-  color: #666;
+.item-block {
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+}
+
+.item-text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #334155;
+}
+
+.interview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.interview-date {
+  font-size: 0.75rem;
+  color: #94a3b8;
 }
 </style>

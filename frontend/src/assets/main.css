@@ -1,5 +1,545 @@
+@import "tailwindcss";
 @import "./base.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*
+ * ── PrimeVue CSS custom-property fallbacks ──────────────────
+ * PrimeVue Aura generates CSS vars like var(--p-text-color) at
+ * runtime.  Firefox + Tailwind v4 sometimes fail to resolve them.
+ * Setting them explicitly on :root guarantees a sane fallback for
+ * ANY PrimeVue component — not just the ones we override below.
+ */
+:root {
+  /* Text */
+  --p-text-color:              #0f172a;
+  --p-text-muted-color:        #64748b;
+
+  /* Primary */
+  --p-primary-color:           #2563eb;
+  --p-primary-hover-color:     #1d4ed8;
+  --p-primary-contrast-color:  #ffffff;
+  --p-primary-50:              #eff6ff;
+  --p-primary-100:             #dbeafe;
+  --p-primary-200:             #bfdbfe;
+  --p-primary-500:             #3b82f6;
+  --p-primary-600:             #2563eb;
+  --p-primary-700:             #1d4ed8;
+  --p-primary-800:             #1e40af;
+
+  /* Surface */
+  --p-surface-0:               #ffffff;
+  --p-surface-50:              #f8fafc;
+  --p-surface-100:             #f1f5f9;
+  --p-surface-200:             #e2e8f0;
+  --p-surface-300:             #cbd5e1;
+  --p-surface-400:             #94a3b8;
+  --p-surface-500:             #64748b;
+  --p-surface-600:             #475569;
+  --p-surface-700:             #334155;
+  --p-surface-800:             #1e293b;
+  --p-surface-900:             #0f172a;
+  --p-surface-950:             #020617;
+
+  /* Content */
+  --p-content-background:      #ffffff;
+  --p-content-color:           #1e293b;
+  --p-content-border-color:    #e2e8f0;
+  --p-content-hover-background:#f1f5f9;
+  --p-content-hover-color:     #0f172a;
+
+  /* Highlight (selected items) */
+  --p-highlight-background:    #eff6ff;
+  --p-highlight-color:         #2563eb;
+  --p-highlight-focus-background:#dbeafe;
+  --p-highlight-focus-color:   #1d4ed8;
+
+  /* Form field */
+  --p-form-field-background:   #ffffff;
+  --p-form-field-color:        #1e293b;
+  --p-form-field-border-color: #cbd5e1;
+  --p-form-field-hover-border-color: #94a3b8;
+  --p-form-field-focus-border-color: #2563eb;
+  --p-form-field-placeholder-color:  #94a3b8;
+  --p-form-field-disabled-background:#f1f5f9;
+  --p-form-field-disabled-color:#94a3b8;
+}
+
+/*
+ * Surface color utilities — explicit hex values so they render
+ * identically across Chrome, Firefox, Safari.  These replace the
+ * PrimeVue `surface-*` design-token Tailwind classes which rely on
+ * CSS custom-properties that Tailwind v4 doesn't auto-resolve.
+ */
+@utility text-surface-50 {
+  color: #f8fafc;
+}
+@utility text-surface-100 {
+  color: #f1f5f9;
+}
+@utility text-surface-200 {
+  color: #e2e8f0;
+}
+@utility text-surface-300 {
+  color: #cbd5e1;
+}
+@utility text-surface-400 {
+  color: #94a3b8;
+}
+@utility text-surface-500 {
+  color: #64748b;
+}
+@utility text-surface-600 {
+  color: #475569;
+}
+@utility text-surface-700 {
+  color: #334155;
+}
+@utility text-surface-800 {
+  color: #1e293b;
+}
+@utility text-surface-900 {
+  color: #0f172a;
+}
+
+@utility bg-surface-50 {
+  background-color: #f8fafc;
+}
+@utility bg-surface-100 {
+  background-color: #f1f5f9;
+}
+@utility bg-surface-200 {
+  background-color: #e2e8f0;
+}
+@utility bg-surface-300 {
+  background-color: #cbd5e1;
+}
+@utility bg-surface-400 {
+  background-color: #94a3b8;
+}
+@utility bg-surface-500 {
+  background-color: #64748b;
+}
+@utility bg-surface-600 {
+  background-color: #475569;
+}
+@utility bg-surface-700 {
+  background-color: #334155;
+}
+@utility bg-surface-800 {
+  background-color: #1e293b;
+}
+@utility bg-surface-900 {
+  background-color: #0f172a;
+}
+
+@utility border-surface-50 {
+  border-color: #f8fafc;
+}
+@utility border-surface-100 {
+  border-color: #f1f5f9;
+}
+@utility border-surface-200 {
+  border-color: #e2e8f0;
+}
+@utility border-surface-300 {
+  border-color: #cbd5e1;
+}
+@utility border-surface-400 {
+  border-color: #94a3b8;
+}
+@utility border-surface-500 {
+  border-color: #64748b;
+}
+
+/*
+ * ── PrimeVue component overrides ────────────────────────────
+ * Override PrimeVue Aura theme CSS-variable-based styling with
+ * hardcoded hex colors so everything renders consistently across
+ * Chrome, Firefox, and Safari.  We use !important sparingly — only
+ * where PrimeVue injects inline <style> blocks with high specificity.
+ */
+
+/* ── TabView / Tabs ────────────────────────────────────────── */
+.p-tabview .p-tabview-tablist,
+.p-tabview .p-tabview-tab-list,
+.p-tablist {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.p-tabview .p-tabview-header .p-tabview-header-action,
+.p-tabview .p-tabview-nav-link,
+.p-tab {
+  color: #64748b !important;
+  font-weight: 500;
+  background: transparent !important;
+}
+
+/* Tab hover — must NOT turn white */
+.p-tabview .p-tabview-header .p-tabview-header-action:hover,
+.p-tabview .p-tabview-nav-link:hover,
+.p-tab:hover,
+.p-tab:hover > * {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+}
+
+/* Active tab */
+.p-tabview .p-tabview-header.p-tabview-header-active .p-tabview-header-action,
+.p-tabview .p-tabview-nav-link.p-tabview-nav-link-active,
+.p-tab[data-p-active="true"],
+.p-tabview .p-highlight .p-tabview-nav-link {
+  color: #2563eb !important;
+  border-color: #2563eb;
+  background: transparent !important;
+}
+
+/* Active tab hover */
+.p-tab[data-p-active="true"]:hover,
+.p-tabview .p-tabview-header.p-tabview-header-active .p-tabview-header-action:hover {
+  color: #1d4ed8 !important;
+  background: #eff6ff !important;
+}
+
+.p-tabview .p-tabview-panels,
+.p-tabpanels {
+  background: transparent;
+  padding: 1rem 0 0;
+}
+
+.p-tabview .p-tabview-panel,
+.p-tabpanel {
+  background: transparent;
+}
+
+.p-tablist {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Active tab indicator bar */
+.p-tablist .p-tablist-active-bar {
+  background: #2563eb;
+}
+
+/* ── Buttons — text / outlined / link variants ─────────────── */
+/* Text buttons */
+.p-button-text,
+.p-button.p-button-text {
+  color: #334155 !important;
+  background: transparent !important;
+}
+
+.p-button-text:hover,
+.p-button.p-button-text:hover,
+.p-button-text:enabled:hover,
+.p-button.p-button-text:enabled:hover {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+}
+
+/* Text button — primary severity */
+.p-button-text.p-button-primary,
+.p-button.p-button-text.p-button-primary {
+  color: #2563eb !important;
+}
+
+.p-button-text.p-button-primary:hover,
+.p-button-text.p-button-primary:enabled:hover {
+  color: #1d4ed8 !important;
+  background: #eff6ff !important;
+}
+
+/* Text button — danger severity */
+.p-button-text.p-button-danger,
+.p-button.p-button-text.p-button-danger {
+  color: #dc2626 !important;
+}
+
+.p-button-text.p-button-danger:hover,
+.p-button-text.p-button-danger:enabled:hover {
+  color: #b91c1c !important;
+  background: #fef2f2 !important;
+}
+
+/* Text button — secondary severity */
+.p-button-text.p-button-secondary,
+.p-button.p-button-text.p-button-secondary {
+  color: #64748b !important;
+}
+
+.p-button-text.p-button-secondary:hover,
+.p-button-text.p-button-secondary:enabled:hover {
+  color: #334155 !important;
+  background: #f1f5f9 !important;
+}
+
+/* Outlined buttons */
+.p-button-outlined,
+.p-button.p-button-outlined {
+  color: #2563eb !important;
+  border-color: #2563eb !important;
+  background: transparent !important;
+}
+
+.p-button-outlined:hover,
+.p-button-outlined:enabled:hover,
+.p-button.p-button-outlined:hover {
+  color: #1d4ed8 !important;
+  background: #eff6ff !important;
+  border-color: #1d4ed8 !important;
+}
+
+/* Primary filled buttons (keep readable on hover) */
+.p-button-primary:not(.p-button-text):not(.p-button-outlined):not(.p-button-link),
+.p-button.p-button-primary:not(.p-button-text):not(.p-button-outlined):not(.p-button-link) {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.p-button-primary:not(.p-button-text):not(.p-button-outlined):not(.p-button-link):hover,
+.p-button-primary:not(.p-button-text):not(.p-button-outlined):not(.p-button-link):enabled:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+/* Danger filled buttons */
+.p-button-danger:not(.p-button-text):not(.p-button-outlined):not(.p-button-link),
+.p-button.p-button-danger:not(.p-button-text):not(.p-button-outlined):not(.p-button-link) {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.p-button-danger:not(.p-button-text):not(.p-button-outlined):not(.p-button-link):hover,
+.p-button-danger:not(.p-button-text):not(.p-button-outlined):not(.p-button-link):enabled:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+/* ── DataTable ─────────────────────────────────────────────── */
+.p-datatable .p-datatable-thead > tr > th {
+  background: #f8fafc;
+  color: #334155;
+  border-color: #e2e8f0;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  background: #ffffff;
+  color: #1e293b;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  border-color: #f1f5f9;
+}
+
+.p-datatable .p-datatable-tbody > tr.p-row-odd,
+.p-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Sortable column header hover */
+.p-datatable .p-sortable-column:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.p-datatable .p-sortable-column:hover .p-sortable-column-icon {
+  color: #64748b !important;
+}
+
+/* ── Tag ───────────────────────────────────────────────────── */
+.p-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ── Dialog ────────────────────────────────────────────────── */
+.p-dialog .p-dialog-header {
+  background: #ffffff;
+  color: #0f172a;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.p-dialog .p-dialog-content {
+  background: #ffffff;
+  color: #1e293b;
+}
+
+.p-dialog .p-dialog-footer {
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* ── InputText / Textarea / Dropdown ───────────────────────── */
+.p-inputtext,
+.p-textarea,
+.p-dropdown {
+  border-color: #cbd5e1;
+  color: #1e293b;
+  background: #ffffff;
+}
+
+.p-inputtext:enabled:hover,
+.p-textarea:enabled:hover,
+.p-dropdown:not(.p-disabled):hover {
+  border-color: #94a3b8;
+}
+
+.p-inputtext:enabled:focus,
+.p-textarea:enabled:focus,
+.p-dropdown:not(.p-disabled).p-focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb33;
+}
+
+.p-inputtext::placeholder,
+.p-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.p-inputtext:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+/* ── Menu / Popup (quick-create, user dropdown) ────────────── */
+.p-menu {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.p-menu .p-menuitem-link,
+.p-menu .p-menuitem-content {
+  color: #334155;
+}
+
+.p-menu .p-menuitem-link:hover,
+.p-menu .p-menuitem:hover > .p-menuitem-content {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.p-menu .p-menuitem-icon {
+  color: #64748b;
+}
+
+.p-menu .p-menuitem-link:hover .p-menuitem-icon {
+  color: #334155;
+}
+
+/* ── Tooltip ───────────────────────────────────────────────── */
+.p-tooltip .p-tooltip-text {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+/* ── Select / Dropdown overlay list ────────────────────────── */
+.p-select-overlay,
+.p-dropdown-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.p-select-option,
+.p-dropdown-item {
+  color: #334155;
+}
+
+.p-select-option:hover,
+.p-select-option.p-focus,
+.p-dropdown-item:hover,
+.p-dropdown-item.p-focus {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.p-select-option.p-selected,
+.p-select-option[data-p-selected="true"],
+.p-dropdown-item.p-highlight {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+}
+
+.p-select-option.p-selected.p-focus,
+.p-select-option[data-p-selected="true"].p-focus,
+.p-dropdown-item.p-highlight.p-focus {
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+/* ── DatePicker ────────────────────────────────────────────── */
+.p-datepicker-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.p-datepicker-panel .p-datepicker-day:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.p-datepicker-panel .p-datepicker-day.p-datepicker-day-selected,
+.p-datepicker-panel .p-datepicker-day[data-p-selected="true"] {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.p-datepicker-panel .p-datepicker-header {
+  color: #334155;
+  background: #ffffff;
+}
+
+.p-datepicker-panel .p-datepicker-title button:hover,
+.p-datepicker-panel .p-datepicker-header button:hover {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+}
+
+/* ── Message ───────────────────────────────────────────────── */
+.p-message.p-message-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.p-message.p-message-success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.p-message.p-message-warn {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.p-message.p-message-info {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+/* ── ConfirmDialog ─────────────────────────────────────────── */
+.p-confirmdialog .p-confirmdialog-message {
+  color: #334155;
+}
+
+/* ── Anchor / Link hover fix ───────────────────────────────── */
+a:hover {
+  color: inherit;
+}
