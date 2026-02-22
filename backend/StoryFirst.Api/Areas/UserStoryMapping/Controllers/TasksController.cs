@@ -17,14 +17,14 @@ public class TasksController : BaseApiController
     }
 
     [HttpGet]
-    public async System.Threading.Tasks.Task<ActionResult<IEnumerable<TaskItem>>> GetTasks()
+    public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks()
     {
         var tasks = await _taskRepository.GetAllAsync();
         return Ok(tasks);
     }
 
     [HttpGet("{id}")]
-    public async System.Threading.Tasks.Task<ActionResult<TaskItem>> GetTask(int id)
+    public async Task<ActionResult<TaskItem>> GetTask(int id)
     {
         var task = await _taskRepository.GetByIdAsync(id);
 
@@ -37,7 +37,7 @@ public class TasksController : BaseApiController
     }
 
     [HttpPost]
-    public async System.Threading.Tasks.Task<ActionResult<TaskItem>> CreateTask(TaskItem task)
+    public async Task<ActionResult<TaskItem>> CreateTask(TaskItem task)
     {
         task.CreatedAt = DateTime.UtcNow;
         task.UpdatedAt = DateTime.UtcNow;
@@ -49,7 +49,7 @@ public class TasksController : BaseApiController
     }
 
     [HttpPut("{id}")]
-    public async System.Threading.Tasks.Task<IActionResult> UpdateTask(int id, TaskItem task)
+    public async Task<IActionResult> UpdateTask(int id, TaskItem task)
     {
         if (id != task.Id)
         {
@@ -73,7 +73,7 @@ public class TasksController : BaseApiController
     }
 
     [HttpDelete("{id}")]
-    public async System.Threading.Tasks.Task<IActionResult> DeleteTask(int id)
+    public async Task<IActionResult> DeleteTask(int id)
     {
         var task = await _taskRepository.GetByIdAsync(id);
         if (task == null)
