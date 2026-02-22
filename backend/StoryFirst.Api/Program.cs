@@ -106,6 +106,10 @@ builder.Services.AddScoped<StoryFirst.Api.Areas.SprintPlanning.Services.IBacklog
 builder.Services.AddScoped<StoryFirst.Api.Areas.SprintPlanning.Services.ISprintService, StoryFirst.Api.Areas.SprintPlanning.Services.SprintService>();
 builder.Services.AddScoped<StoryFirst.Api.Areas.SprintPlanning.Services.ITeamService, StoryFirst.Api.Areas.SprintPlanning.Services.TeamService>();
 builder.Services.AddScoped<StoryFirst.Api.Areas.SprintPlanning.Services.IReleaseService, StoryFirst.Api.Areas.SprintPlanning.Services.ReleaseService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.IExternalEntityService, StoryFirst.Api.Areas.ProductDiscovery.Services.ExternalEntityService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.IProblemService, StoryFirst.Api.Areas.ProductDiscovery.Services.ProblemService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.IInterviewService, StoryFirst.Api.Areas.ProductDiscovery.Services.InterviewService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.ITagService, StoryFirst.Api.Areas.ProductDiscovery.Services.TagService>();
 
 // Add Controllers
 builder.Services.AddControllers()

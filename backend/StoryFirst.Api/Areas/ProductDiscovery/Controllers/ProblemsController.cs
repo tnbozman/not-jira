@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
-using StoryFirst.Api.Repositories;
+using StoryFirst.Api.Areas.ProductDiscovery.Services;
 
 namespace StoryFirst.Api.Areas.ProductDiscovery.Controllers;
 
@@ -9,29 +9,24 @@ namespace StoryFirst.Api.Areas.ProductDiscovery.Controllers;
 [Route("api/projects/{projectId}/problems")]
 public class ProblemsController : BaseApiController
 {
-    private readonly IRepository<Problem> _problemRepository;
-    private readonly IExternalEntityRepository _entityRepository;
+    private readonly IProblemService _problemService;
 
-    public ProblemsController(
-        IRepository<Problem> problemRepository,
-        IExternalEntityRepository entityRepository)
+    public ProblemsController(IProblemService problemService)
     {
-        _problemRepository = problemRepository;
-        _entityRepository = entityRepository;
+        _problemService = problemService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Problem>>> GetProblems(int projectId)
     {
-        var problems = await _problemRepository.FindAsync(p => p.ExternalEntity!.ProjectId == projectId);
+        var problems = await _problemService.GetAllByProjectAsync(projectId);
         return Ok(problems);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Problem>> GetProblem(int projectId, int id)
     {
-        var problem = await _problemRepository.FirstOrDefaultAsync(p => p.Id == id && p.ExternalEntity!.ProjectId == projectId);
-
+        var problem = await _problemService.GetByIdAsync(projectId, id);
         if (problem == null)
         {
             return NotFound();
@@ -43,62 +38,46 @@ public class ProblemsController : BaseApiController
     [HttpPost]
     public async Task<ActionResult<Problem>> CreateProblem(int projectId, Problem problem)
     {
-        var entity = await _entityRepository.FirstOrDefaultAsync(e => e.Id == problem.ExternalEntityId && e.ProjectId == projectId);
-
-        if (entity == null)
+        try
         {
-            return BadRequest("External entity not found or does not belong to this project");
+            var createdProblem = await _problemService.CreateAsync(projectId, problem);
+            return CreatedAtAction(nameof(GetProblem), new { projectId, id = createdProblem.Id }, createdProblem);
         }
-
-        problem.CreatedAt = DateTime.UtcNow;
-        problem.UpdatedAt = DateTime.UtcNow;
-
-        await _problemRepository.AddAsync(problem);
-        await _problemRepository.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetProblem), new { projectId, id = problem.Id }, problem);
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateProblem(int projectId, int id, Problem problem)
     {
-        if (id != problem.Id)
+        try
+        {
+            await _problemService.UpdateAsync(projectId, id, problem);
+            return NoContent();
+        }
+        catch (ArgumentException)
         {
             return BadRequest();
         }
-
-        var existingProblem = await _problemRepository.FirstOrDefaultAsync(p => p.Id == id && p.ExternalEntity!.ProjectId == projectId);
-
-        if (existingProblem == null)
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        existingProblem.Description = problem.Description;
-        existingProblem.Severity = problem.Severity;
-        existingProblem.Context = problem.Context;
-        existingProblem.ExternalEntityId = problem.ExternalEntityId;
-        existingProblem.UpdatedAt = DateTime.UtcNow;
-
-        _problemRepository.Update(existingProblem);
-        await _problemRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProblem(int projectId, int id)
     {
-        var problem = await _problemRepository.FirstOrDefaultAsync(p => p.Id == id && p.ExternalEntity!.ProjectId == projectId);
-
-        if (problem == null)
+        try
+        {
+            await _problemService.DeleteAsync(projectId, id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        _problemRepository.Remove(problem);
-        await _problemRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 }
