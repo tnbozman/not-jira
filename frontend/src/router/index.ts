@@ -30,6 +30,18 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/projects/:id/entities',
+      name: 'external-entities',
+      component: () => import('../views/ExternalEntitiesView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/projects/:id/graph',
+      name: 'graph-view',
+      component: () => import('../views/GraphView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting

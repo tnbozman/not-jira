@@ -96,6 +96,40 @@
           </Card>
         </TabPanel>
 
+        <TabPanel header="External Entities" value="entities">
+          <Card>
+            <template #content>
+              <div class="quick-nav-card">
+                <i class="pi pi-users" style="font-size: 2rem; color: #3b82f6;"></i>
+                <h3>External Entities</h3>
+                <p>Manage people and clients, track their problems, outcomes, and success metrics.</p>
+                <Button 
+                  label="Manage Entities" 
+                  icon="pi pi-arrow-right" 
+                  @click="navigateToEntities" 
+                />
+              </div>
+            </template>
+          </Card>
+        </TabPanel>
+
+        <TabPanel header="Knowledge Graph" value="graph">
+          <Card>
+            <template #content>
+              <div class="quick-nav-card">
+                <i class="pi pi-sitemap" style="font-size: 2rem; color: #10b981;"></i>
+                <h3>Knowledge Graph</h3>
+                <p>Visualize relationships between entities, problems, outcomes, and interviews.</p>
+                <Button 
+                  label="View Graph" 
+                  icon="pi pi-arrow-right" 
+                  @click="navigateToGraph" 
+                />
+              </div>
+            </template>
+          </Card>
+        </TabPanel>
+
         <TabPanel header="Members" value="members">
           <Card>
             <template #title>
@@ -371,6 +405,14 @@ const goBack = () => {
   router.push('/projects')
 }
 
+const navigateToEntities = () => {
+  router.push(`/projects/${project.value?.id}/entities`)
+}
+
+const navigateToGraph = () => {
+  router.push(`/projects/${project.value?.id}/graph`)
+}
+
 onMounted(() => {
   loadProject()
 })
@@ -485,5 +527,27 @@ onMounted(() => {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
+}
+
+.quick-nav-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.quick-nav-card h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.quick-nav-card p {
+  margin: 0;
+  color: #666;
+  max-width: 600px;
 }
 </style>

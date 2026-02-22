@@ -111,8 +111,45 @@ dotnet run
 - `PUT /api/tasks/{id}` - Update a task
 - `DELETE /api/tasks/{id}` - Delete a task
 
+### Projects
+- `GET /api/projects` - Get all projects
+- `GET /api/projects/{id}` - Get a specific project
+- `POST /api/projects` - Create a new project
+- `PUT /api/projects/{id}` - Update a project
+- `DELETE /api/projects/{id}` - Delete a project
+
+### External Entities (Product Discovery)
+- `GET /api/projects/{projectId}/external-entities` - List external entities
+- `POST /api/projects/{projectId}/external-entities` - Create an entity (person/client)
+- `GET /api/projects/{projectId}/problems` - List problems
+- `POST /api/projects/{projectId}/problems` - Record a problem
+- `GET /api/projects/{projectId}/interviews` - List interviews
+- `POST /api/projects/{projectId}/interviews` - Record an interview
+- `GET /api/projects/{projectId}/graph` - Get knowledge graph data
+- See [API_DOCUMENTATION_EXTERNAL_ENTITIES.md](./API_DOCUMENTATION_EXTERNAL_ENTITIES.md) for complete documentation
+
 ### Weather (Sample)
 - `GET /api/weatherforecast` - Get weather forecast
+
+## Features
+
+### Product Discovery & Management
+The application includes comprehensive product discovery tools for product managers:
+
+- **External Entities Management**: Track people and client organizations
+- **Problems & Outcomes**: Document stakeholder problems and desired outcomes
+- **Success Metrics**: Define measurable criteria for outcomes
+- **Interviews**: Conduct and record discovery, feedback, and clarification sessions
+- **Knowledge Graph**: Visualize relationships between entities, problems, and outcomes using Cytoscape.js
+- **Tag-based Deduplication**: Prevent duplicate concepts with keyword tagging
+
+See the [Product Manager Guide](./PRODUCT_MANAGER_GUIDE.md) for detailed usage instructions.
+
+### Technology Highlights
+- **PostgreSQL Graph Modeling**: Efficient relational graph storage
+- **Cytoscape.js Visualization**: Interactive network graphs
+- **Tag System**: Categorization and deduplication
+- **JWT Authentication**: Secure API access via Keycloak
 
 ## Database Migrations
 
