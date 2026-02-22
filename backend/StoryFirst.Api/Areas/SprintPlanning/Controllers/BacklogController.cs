@@ -1,27 +1,32 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoryFirst.Api.Data;
+using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
+using StoryFirst.Api.Repositories;
 
-namespace StoryFirst.Api.Controllers;
+namespace StoryFirst.Api.Areas.SprintPlanning.Controllers;
 
-[Authorize]
-[ApiController]
+[Area("SprintPlanning")]
 [Route("api/projects/{projectId}/[controller]")]
-public class BacklogController : ControllerBase
+public class BacklogController : BaseApiController
 {
-    private readonly AppDbContext _context;
+    private readonly IRepository<Sprint> _sprintRepository;
+    private readonly IStoryRepository _storyRepository;
+    private readonly ISpikeRepository _spikeRepository;
 
-    public BacklogController(AppDbContext context)
+    public BacklogController(
+        IRepository<Sprint> sprintRepository,
+        IStoryRepository storyRepository,
+        ISpikeRepository spikeRepository)
     {
-        _context = context;
+        _sprintRepository = sprintRepository;
+        _storyRepository = storyRepository;
+        _spikeRepository = spikeRepository;
     }
 
     public class BacklogItemDto
     {
         public int Id { get; set; }
-        public string Type { get; set; } = string.Empty; // "Story" or "Spike"
+        public string Type { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
         public int Order { get; set; }
@@ -65,53 +70,34 @@ public class BacklogController : ControllerBase
         [FromQuery] int? releaseId = null,
         [FromQuery] int? epicId = null)
     {
-        // Get all sprints for the project
-        var sprints = await _context.Sprints
-            .Where(s => s.ProjectId == projectId)
+        var sprints = (await _sprintRepository.FindAsync(s => s.ProjectId == projectId))
             .OrderBy(s => s.StartDate)
-            .ToListAsync();
+            .ToList();
 
-        // Query stories
-        var storiesQuery = _context.Stories
-            .Include(s => s.Epic)
-            .Include(s => s.Sprint)
-            .Include(s => s.Team)
-            .Include(s => s.Release)
-            .Where(s => s.Epic.Theme.ProjectId == projectId);
+        var storiesQuery = await _storyRepository.FindAsync(s => s.Epic!.Theme!.ProjectId == projectId);
+        var stories = storiesQuery.ToList();
 
-        // Apply filters
         if (teamId.HasValue)
-            storiesQuery = storiesQuery.Where(s => s.TeamId == teamId.Value);
+            stories = stories.Where(s => s.TeamId == teamId.Value).ToList();
         if (!string.IsNullOrEmpty(assigneeId))
-            storiesQuery = storiesQuery.Where(s => s.AssigneeId == assigneeId);
+            stories = stories.Where(s => s.AssigneeId == assigneeId).ToList();
         if (releaseId.HasValue)
-            storiesQuery = storiesQuery.Where(s => s.ReleaseId == releaseId.Value);
+            stories = stories.Where(s => s.ReleaseId == releaseId.Value).ToList();
         if (epicId.HasValue)
-            storiesQuery = storiesQuery.Where(s => s.EpicId == epicId.Value);
+            stories = stories.Where(s => s.EpicId == epicId.Value).ToList();
 
-        var stories = await storiesQuery.ToListAsync();
+        var spikesQuery = await _spikeRepository.FindAsync(s => s.Epic!.Theme!.ProjectId == projectId);
+        var spikes = spikesQuery.ToList();
 
-        // Query spikes
-        var spikesQuery = _context.Spikes
-            .Include(s => s.Epic)
-            .Include(s => s.Sprint)
-            .Include(s => s.Team)
-            .Include(s => s.Release)
-            .Where(s => s.Epic.Theme.ProjectId == projectId);
-
-        // Apply filters
         if (teamId.HasValue)
-            spikesQuery = spikesQuery.Where(s => s.TeamId == teamId.Value);
+            spikes = spikes.Where(s => s.TeamId == teamId.Value).ToList();
         if (!string.IsNullOrEmpty(assigneeId))
-            spikesQuery = spikesQuery.Where(s => s.AssigneeId == assigneeId);
+            spikes = spikes.Where(s => s.AssigneeId == assigneeId).ToList();
         if (releaseId.HasValue)
-            spikesQuery = spikesQuery.Where(s => s.ReleaseId == releaseId.Value);
+            spikes = spikes.Where(s => s.ReleaseId == releaseId.Value).ToList();
         if (epicId.HasValue)
-            spikesQuery = spikesQuery.Where(s => s.EpicId == epicId.Value);
+            spikes = spikes.Where(s => s.EpicId == epicId.Value).ToList();
 
-        var spikes = await spikesQuery.ToListAsync();
-
-        // Convert to DTOs
         var storyDtos = stories.Select(s => new BacklogItemDto
         {
             Id = s.Id,
@@ -158,7 +144,6 @@ public class BacklogController : ControllerBase
 
         var allItems = storyDtos.Concat(spikeDtos).ToList();
 
-        // Group by sprints
         var sprintGroups = sprints.Select(sprint => new SprintGroup
         {
             SprintId = sprint.Id,
@@ -170,7 +155,6 @@ public class BacklogController : ControllerBase
             Items = allItems.Where(i => i.SprintId == sprint.Id).OrderBy(i => i.Order).ToList()
         }).ToList();
 
-        // Get backlog items (no sprint assigned)
         var backlogItems = allItems.Where(i => !i.SprintId.HasValue).OrderBy(i => i.Order).ToList();
 
         return Ok(new BacklogResponse

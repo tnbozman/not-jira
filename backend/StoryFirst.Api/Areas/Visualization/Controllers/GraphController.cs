@@ -1,65 +1,50 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoryFirst.Api.Data;
-using Microsoft.AspNetCore.Authorization;
+using StoryFirst.Api.Common.Controllers;
+using StoryFirst.Api.Repositories;
 
-namespace StoryFirst.Api.Controllers;
+namespace StoryFirst.Api.Areas.Visualization.Controllers;
 
-[ApiController]
+[Area("Visualization")]
 [Route("api/projects/{projectId}/graph")]
-[Authorize]
-public class GraphController : ControllerBase
+public class GraphController : BaseApiController
 {
-    private readonly AppDbContext _context;
+    private readonly IProjectRepository _projectRepository;
+    private readonly IExternalEntityRepository _entityRepository;
+    private readonly IRepository<Models.Problem> _problemRepository;
+    private readonly IRepository<Models.Outcome> _outcomeRepository;
+    private readonly IRepository<Models.Interview> _interviewRepository;
 
-    public GraphController(AppDbContext context)
+    public GraphController(
+        IProjectRepository projectRepository,
+        IExternalEntityRepository entityRepository,
+        IRepository<Models.Problem> problemRepository,
+        IRepository<Models.Outcome> outcomeRepository,
+        IRepository<Models.Interview> interviewRepository)
     {
-        _context = context;
+        _projectRepository = projectRepository;
+        _entityRepository = entityRepository;
+        _problemRepository = problemRepository;
+        _outcomeRepository = outcomeRepository;
+        _interviewRepository = interviewRepository;
     }
 
-    // GET: api/projects/{projectId}/graph
     [HttpGet]
     public async Task<ActionResult<GraphData>> GetGraphData(int projectId)
     {
-        var project = await _context.Projects.FindAsync(projectId);
+        var project = await _projectRepository.GetByIdAsync(projectId);
         if (project == null)
         {
             return NotFound("Project not found");
         }
 
-        // Fetch all entities
-        var entities = await _context.ExternalEntities
-            .Where(e => e.ProjectId == projectId)
-            .Include(e => e.EntityTags)
-                .ThenInclude(et => et.Tag)
-            .ToListAsync();
+        var entities = await _entityRepository.GetByProjectIdAsync(projectId);
+        var problems = await _problemRepository.FindAsync(p => p.ExternalEntity!.ProjectId == projectId);
+        var outcomes = await _outcomeRepository.FindAsync(o => o.ExternalEntity!.ProjectId == projectId);
+        var interviews = await _interviewRepository.FindAsync(i => i.ProjectId == projectId);
 
-        // Fetch all problems
-        var problems = await _context.Problems
-            .Where(p => p.ExternalEntity!.ProjectId == projectId)
-            .Include(p => p.Outcomes)
-            .Include(p => p.ProblemTags)
-                .ThenInclude(pt => pt.Tag)
-            .ToListAsync();
-
-        // Fetch all outcomes
-        var outcomes = await _context.Outcomes
-            .Where(o => o.ExternalEntity!.ProjectId == projectId)
-            .Include(o => o.SuccessMetrics)
-            .Include(o => o.OutcomeTags)
-                .ThenInclude(ot => ot.Tag)
-            .ToListAsync();
-
-        // Fetch all interviews
-        var interviews = await _context.Interviews
-            .Where(i => i.ProjectId == projectId)
-            .ToListAsync();
-
-        // Build nodes
         var nodes = new List<GraphNode>();
         var edges = new List<GraphEdge>();
 
-        // Add entity nodes
         foreach (var entity in entities)
         {
             nodes.Add(new GraphNode
@@ -78,7 +63,6 @@ public class GraphController : ControllerBase
             });
         }
 
-        // Add problem nodes and edges
         foreach (var problem in problems)
         {
             nodes.Add(new GraphNode
@@ -95,7 +79,6 @@ public class GraphController : ControllerBase
                 }
             });
 
-            // Edge from entity to problem
             edges.Add(new GraphEdge
             {
                 Id = $"entity-{problem.ExternalEntityId}-problem-{problem.Id}",
@@ -104,7 +87,6 @@ public class GraphController : ControllerBase
                 Label = "has problem"
             });
 
-            // Edges from problem to outcomes
             foreach (var outcome in problem.Outcomes)
             {
                 edges.Add(new GraphEdge
@@ -117,7 +99,6 @@ public class GraphController : ControllerBase
             }
         }
 
-        // Add outcome nodes
         foreach (var outcome in outcomes)
         {
             nodes.Add(new GraphNode
@@ -135,7 +116,6 @@ public class GraphController : ControllerBase
                 }
             });
 
-            // Add success metric nodes
             foreach (var metric in outcome.SuccessMetrics)
             {
                 nodes.Add(new GraphNode
@@ -163,7 +143,6 @@ public class GraphController : ControllerBase
             }
         }
 
-        // Add interview connections
         foreach (var interview in interviews)
         {
             nodes.Add(new GraphNode
@@ -195,10 +174,10 @@ public class GraphController : ControllerBase
             Edges = edges,
             Stats = new GraphStats
             {
-                EntityCount = entities.Count,
-                ProblemCount = problems.Count,
-                OutcomeCount = outcomes.Count,
-                InterviewCount = interviews.Count
+                EntityCount = entities.Count(),
+                ProblemCount = problems.Count(),
+                OutcomeCount = outcomes.Count(),
+                InterviewCount = interviews.Count()
             }
         };
     }
@@ -212,7 +191,6 @@ public class GraphController : ControllerBase
     }
 }
 
-// DTOs for graph data
 public class GraphData
 {
     public List<GraphNode> Nodes { get; set; } = new();

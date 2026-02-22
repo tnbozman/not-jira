@@ -1,30 +1,27 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoryFirst.Api.Data;
+using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
+using StoryFirst.Api.Repositories;
 
-namespace StoryFirst.Api.Controllers;
+namespace StoryFirst.Api.Areas.SprintPlanning.Controllers;
 
-[Authorize]
-[ApiController]
+[Area("SprintPlanning")]
 [Route("api/projects/{projectId}/[controller]")]
-public class ReleasesController : ControllerBase
+public class ReleasesController : BaseApiController
 {
-    private readonly AppDbContext _context;
+    private readonly IRepository<Release> _releaseRepository;
 
-    public ReleasesController(AppDbContext context)
+    public ReleasesController(IRepository<Release> releaseRepository)
     {
-        _context = context;
+        _releaseRepository = releaseRepository;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Release>>> GetReleases(int projectId)
     {
-        var releases = await _context.Releases
-            .Where(r => r.ProjectId == projectId)
+        var releases = (await _releaseRepository.FindAsync(r => r.ProjectId == projectId))
             .OrderBy(r => r.ReleaseDate)
-            .ToListAsync();
+            .ToList();
             
         return Ok(releases);
     }
@@ -32,9 +29,7 @@ public class ReleasesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Release>> GetRelease(int projectId, int id)
     {
-        var release = await _context.Releases
-            .Where(r => r.ProjectId == projectId && r.Id == id)
-            .FirstOrDefaultAsync();
+        var release = await _releaseRepository.FirstOrDefaultAsync(r => r.ProjectId == projectId && r.Id == id);
 
         if (release == null)
         {
@@ -51,8 +46,8 @@ public class ReleasesController : ControllerBase
         release.CreatedAt = DateTime.UtcNow;
         release.UpdatedAt = DateTime.UtcNow;
 
-        _context.Releases.Add(release);
-        await _context.SaveChangesAsync();
+        await _releaseRepository.AddAsync(release);
+        await _releaseRepository.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetRelease), new { projectId, id = release.Id }, release);
     }
@@ -65,8 +60,7 @@ public class ReleasesController : ControllerBase
             return BadRequest();
         }
 
-        var existingRelease = await _context.Releases
-            .FirstOrDefaultAsync(r => r.Id == id && r.ProjectId == projectId);
+        var existingRelease = await _releaseRepository.FirstOrDefaultAsync(r => r.Id == id && r.ProjectId == projectId);
 
         if (existingRelease == null)
         {
@@ -80,7 +74,8 @@ public class ReleasesController : ControllerBase
         existingRelease.Status = release.Status;
         existingRelease.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _releaseRepository.Update(existingRelease);
+        await _releaseRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -88,16 +83,15 @@ public class ReleasesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteRelease(int projectId, int id)
     {
-        var release = await _context.Releases
-            .FirstOrDefaultAsync(r => r.Id == id && r.ProjectId == projectId);
+        var release = await _releaseRepository.FirstOrDefaultAsync(r => r.Id == id && r.ProjectId == projectId);
 
         if (release == null)
         {
             return NotFound();
         }
 
-        _context.Releases.Remove(release);
-        await _context.SaveChangesAsync();
+        _releaseRepository.Remove(release);
+        await _releaseRepository.SaveChangesAsync();
 
         return NoContent();
     }

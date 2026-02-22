@@ -1,30 +1,27 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoryFirst.Api.Data;
+using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
+using StoryFirst.Api.Repositories;
 
-namespace StoryFirst.Api.Controllers;
+namespace StoryFirst.Api.Areas.SprintPlanning.Controllers;
 
-[Authorize]
-[ApiController]
+[Area("SprintPlanning")]
 [Route("api/projects/{projectId}/[controller]")]
-public class TeamsController : ControllerBase
+public class TeamsController : BaseApiController
 {
-    private readonly AppDbContext _context;
+    private readonly IRepository<Team> _teamRepository;
 
-    public TeamsController(AppDbContext context)
+    public TeamsController(IRepository<Team> teamRepository)
     {
-        _context = context;
+        _teamRepository = teamRepository;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Team>>> GetTeams(int projectId)
     {
-        var teams = await _context.Teams
-            .Where(t => t.ProjectId == projectId)
+        var teams = (await _teamRepository.FindAsync(t => t.ProjectId == projectId))
             .OrderBy(t => t.Name)
-            .ToListAsync();
+            .ToList();
             
         return Ok(teams);
     }
@@ -32,9 +29,7 @@ public class TeamsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Team>> GetTeam(int projectId, int id)
     {
-        var team = await _context.Teams
-            .Where(t => t.ProjectId == projectId && t.Id == id)
-            .FirstOrDefaultAsync();
+        var team = await _teamRepository.FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == id);
 
         if (team == null)
         {
@@ -51,8 +46,8 @@ public class TeamsController : ControllerBase
         team.CreatedAt = DateTime.UtcNow;
         team.UpdatedAt = DateTime.UtcNow;
 
-        _context.Teams.Add(team);
-        await _context.SaveChangesAsync();
+        await _teamRepository.AddAsync(team);
+        await _teamRepository.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetTeam), new { projectId, id = team.Id }, team);
     }
@@ -65,8 +60,7 @@ public class TeamsController : ControllerBase
             return BadRequest();
         }
 
-        var existingTeam = await _context.Teams
-            .FirstOrDefaultAsync(t => t.Id == id && t.ProjectId == projectId);
+        var existingTeam = await _teamRepository.FirstOrDefaultAsync(t => t.Id == id && t.ProjectId == projectId);
 
         if (existingTeam == null)
         {
@@ -77,7 +71,8 @@ public class TeamsController : ControllerBase
         existingTeam.Description = team.Description;
         existingTeam.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _teamRepository.Update(existingTeam);
+        await _teamRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -85,16 +80,15 @@ public class TeamsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTeam(int projectId, int id)
     {
-        var team = await _context.Teams
-            .FirstOrDefaultAsync(t => t.Id == id && t.ProjectId == projectId);
+        var team = await _teamRepository.FirstOrDefaultAsync(t => t.Id == id && t.ProjectId == projectId);
 
         if (team == null)
         {
             return NotFound();
         }
 
-        _context.Teams.Remove(team);
-        await _context.SaveChangesAsync();
+        _teamRepository.Remove(team);
+        await _teamRepository.SaveChangesAsync();
 
         return NoContent();
     }

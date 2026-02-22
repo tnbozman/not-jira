@@ -1,32 +1,31 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoryFirst.Api.Data;
+using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
+using StoryFirst.Api.Repositories;
 
-namespace StoryFirst.Api.Controllers;
+namespace StoryFirst.Api.Areas.SprintPlanning.Controllers;
 
-[Authorize]
-[ApiController]
+[Area("SprintPlanning")]
 [Route("api/projects/{projectId}/[controller]")]
-public class SprintsController : ControllerBase
+public class SprintsController : BaseApiController
 {
-    private readonly AppDbContext _context;
+    private readonly IRepository<Sprint> _sprintRepository;
+    private readonly IRepository<TeamPlanning> _teamPlanningRepository;
 
-    public SprintsController(AppDbContext context)
+    public SprintsController(
+        IRepository<Sprint> sprintRepository,
+        IRepository<TeamPlanning> teamPlanningRepository)
     {
-        _context = context;
+        _sprintRepository = sprintRepository;
+        _teamPlanningRepository = teamPlanningRepository;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Sprint>>> GetSprints(int projectId)
     {
-        var sprints = await _context.Sprints
-            .Where(s => s.ProjectId == projectId)
-            .Include(s => s.Stories)
-            .Include(s => s.Spikes)
+        var sprints = (await _sprintRepository.FindAsync(s => s.ProjectId == projectId))
             .OrderByDescending(s => s.StartDate)
-            .ToListAsync();
+            .ToList();
             
         return Ok(sprints);
     }
@@ -34,11 +33,7 @@ public class SprintsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Sprint>> GetSprint(int projectId, int id)
     {
-        var sprint = await _context.Sprints
-            .Where(s => s.ProjectId == projectId && s.Id == id)
-            .Include(s => s.Stories)
-            .Include(s => s.Spikes)
-            .FirstOrDefaultAsync();
+        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.ProjectId == projectId && s.Id == id);
 
         if (sprint == null)
         {
@@ -55,8 +50,8 @@ public class SprintsController : ControllerBase
         sprint.CreatedAt = DateTime.UtcNow;
         sprint.UpdatedAt = DateTime.UtcNow;
 
-        _context.Sprints.Add(sprint);
-        await _context.SaveChangesAsync();
+        await _sprintRepository.AddAsync(sprint);
+        await _sprintRepository.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetSprint), new { projectId, id = sprint.Id }, sprint);
     }
@@ -69,8 +64,7 @@ public class SprintsController : ControllerBase
             return BadRequest();
         }
 
-        var existingSprint = await _context.Sprints
-            .FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
+        var existingSprint = await _sprintRepository.FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
 
         if (existingSprint == null)
         {
@@ -87,7 +81,8 @@ public class SprintsController : ControllerBase
         existingSprint.RetroNotes = sprint.RetroNotes;
         existingSprint.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _sprintRepository.Update(existingSprint);
+        await _sprintRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -95,23 +90,21 @@ public class SprintsController : ControllerBase
     [HttpGet("{id}/planning")]
     public async Task<ActionResult> GetSprintPlanning(int projectId, int id)
     {
-        var sprint = await _context.Sprints
-            .Where(s => s.ProjectId == projectId && s.Id == id)
-            .Include(s => s.TeamPlannings)
-                .ThenInclude(tp => tp.Team)
-            .FirstOrDefaultAsync();
+        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.ProjectId == projectId && s.Id == id);
 
         if (sprint == null)
         {
             return NotFound();
         }
 
+        var teamPlannings = await _teamPlanningRepository.FindAsync(tp => tp.SprintId == id);
+
         return Ok(new
         {
             sprint.Id,
             sprint.Name,
             sprint.PlanningOneNotes,
-            TeamPlannings = sprint.TeamPlannings.Select(tp => new
+            TeamPlannings = teamPlannings.Select(tp => new
             {
                 tp.Id,
                 tp.TeamId,
@@ -124,10 +117,7 @@ public class SprintsController : ControllerBase
     [HttpPut("{id}/planning")]
     public async Task<IActionResult> UpdateSprintPlanning(int projectId, int id, [FromBody] SprintPlanningDto dto)
     {
-        var sprint = await _context.Sprints
-            .Where(s => s.ProjectId == projectId && s.Id == id)
-            .Include(s => s.TeamPlannings)
-            .FirstOrDefaultAsync();
+        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.ProjectId == projectId && s.Id == id);
 
         if (sprint == null)
         {
@@ -137,20 +127,22 @@ public class SprintsController : ControllerBase
         sprint.PlanningOneNotes = dto.PlanningOneNotes;
         sprint.UpdatedAt = DateTime.UtcNow;
 
-        // Update or create team plannings
         if (dto.TeamPlannings != null)
         {
+            var existingPlannings = await _teamPlanningRepository.FindAsync(tp => tp.SprintId == sprint.Id);
+            
             foreach (var teamPlanningDto in dto.TeamPlannings)
             {
-                var existing = sprint.TeamPlannings.FirstOrDefault(tp => tp.TeamId == teamPlanningDto.TeamId);
+                var existing = existingPlannings.FirstOrDefault(tp => tp.TeamId == teamPlanningDto.TeamId);
                 if (existing != null)
                 {
                     existing.PlanningTwoNotes = teamPlanningDto.PlanningTwoNotes;
                     existing.UpdatedAt = DateTime.UtcNow;
+                    _teamPlanningRepository.Update(existing);
                 }
                 else
                 {
-                    sprint.TeamPlannings.Add(new TeamPlanning
+                    await _teamPlanningRepository.AddAsync(new TeamPlanning
                     {
                         SprintId = sprint.Id,
                         TeamId = teamPlanningDto.TeamId,
@@ -162,7 +154,8 @@ public class SprintsController : ControllerBase
             }
         }
 
-        await _context.SaveChangesAsync();
+        _sprintRepository.Update(sprint);
+        await _sprintRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -170,8 +163,7 @@ public class SprintsController : ControllerBase
     [HttpPut("{id}/review")]
     public async Task<IActionResult> UpdateSprintReview(int projectId, int id, [FromBody] SprintNotesDto dto)
     {
-        var sprint = await _context.Sprints
-            .FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
+        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
 
         if (sprint == null)
         {
@@ -181,7 +173,8 @@ public class SprintsController : ControllerBase
         sprint.ReviewNotes = dto.Notes;
         sprint.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _sprintRepository.Update(sprint);
+        await _sprintRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -189,8 +182,7 @@ public class SprintsController : ControllerBase
     [HttpPut("{id}/retro")]
     public async Task<IActionResult> UpdateSprintRetro(int projectId, int id, [FromBody] SprintNotesDto dto)
     {
-        var sprint = await _context.Sprints
-            .FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
+        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
 
         if (sprint == null)
         {
@@ -200,7 +192,8 @@ public class SprintsController : ControllerBase
         sprint.RetroNotes = dto.Notes;
         sprint.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _sprintRepository.Update(sprint);
+        await _sprintRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -225,16 +218,15 @@ public class SprintsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSprint(int projectId, int id)
     {
-        var sprint = await _context.Sprints
-            .FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
+        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
 
         if (sprint == null)
         {
             return NotFound();
         }
 
-        _context.Sprints.Remove(sprint);
-        await _context.SaveChangesAsync();
+        _sprintRepository.Remove(sprint);
+        await _sprintRepository.SaveChangesAsync();
 
         return NoContent();
     }
