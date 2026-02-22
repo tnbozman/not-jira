@@ -10,16 +10,19 @@ services:
       - ~/.gitconfig:/home/vscode/.gitconfig:ro
       - ~/.ssh:/home/vscode/.ssh:ro
     command: sleep infinity
-    network_mode: service:db
+    networks:
+      - notjira-dev
     depends_on:
       db:
         condition: service_healthy
+      keycloak:
+        condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=localhost;Database=notjira;Username=postgres;Password=postgres
+      - ConnectionStrings__DefaultConnection=Host=db;Database=notjira;Username=postgres;Password=postgres
       - Authentication__Keycloak__Authority=http://localhost:8180/realms/notjira
       - Authentication__Keycloak__Audience=notjira-api
-      - Authentication__Keycloak__MetadataAddress=http://localhost:8180/realms/notjira/.well-known/openid-configuration
+      - Authentication__Keycloak__MetadataAddress=http://keycloak:8080/realms/notjira/.well-known/openid-configuration
 
   db:
     image: postgres:17
@@ -31,7 +34,9 @@ services:
       POSTGRES_DB: notjira
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
-      - ../keycloak/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./keycloak/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - notjira-dev
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -57,16 +62,21 @@ services:
       - "8180:8080"
     command: start-dev --import-realm
     volumes:
-      - ../keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    networks:
+      - notjira-dev
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080;echo -e \"GET /health/ready HTTP/1.1\r\nhost: 127.0.0.1:8080\r\nConnection: close\r\n\r\n\" >&3;if [ $? -eq 0 ]; then echo \"Healthcheck Successful\";exit 0;else echo \"Healthcheck Failed\";exit 1;fi;"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      test: ["CMD-SHELL", "cat < /dev/null > /dev/tcp/127.0.0.1/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 90s
+
+networks:
+  notjira-dev:
 
 volumes:
   postgres_dev_data:
