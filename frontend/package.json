@@ -15,6 +15,9 @@
   },
   "dependencies": {
     "@primeuix/themes": "^2.0.3",
+    "@types/cytoscape": "^3.21.9",
+    "axios": "^1.13.5",
+    "cytoscape": "^3.33.1",
     "keycloak-js": "^26.2.3",
     "pinia": "^3.0.4",
     "primeicons": "^7.0.0",
