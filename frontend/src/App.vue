@@ -31,6 +31,12 @@ const handleLogin = () => {
               Home
             </RouterLink>
             <RouterLink 
+              to="/projects" 
+              class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors router-link"
+            >
+              Projects
+            </RouterLink>
+            <RouterLink 
               to="/about" 
               class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors router-link"
             >

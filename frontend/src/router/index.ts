@@ -12,6 +12,24 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/projects',
+      name: 'projects',
+      component: () => import('../views/ProjectsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/projects/new',
+      name: 'create-project',
+      component: () => import('../views/CreateProjectView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/projects/:id',
+      name: 'project-detail',
+      component: () => import('../views/ProjectDetailView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting
