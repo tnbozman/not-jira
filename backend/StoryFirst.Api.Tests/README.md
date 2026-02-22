@@ -41,10 +41,10 @@ StoryFirst.Api.Tests/
 ## Test Coverage
 
 ### Priority 1: Core Services ✅
-- **ProjectServiceTests** (26 tests): Full CRUD operations and member management
+- **ProjectServiceTests** (28 tests): Full CRUD operations and member management
 - **ThemeServiceTests** (13 tests): Theme CRUD with project scoping
-- **EpicServiceTests** (15 tests): Epic management within themes
-- **StoryServiceTests** (19 tests): Story CRUD and field validation
+- **EpicServiceTests** (16 tests): Epic management within themes
+- **StoryServiceTests** (16 tests): Story CRUD and field validation
 
 ### Priority 2: Additional Services ✅
 - **SpikeServiceTests** (9 tests): Spike management for research work items
