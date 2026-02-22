@@ -1,56 +1,60 @@
 <template>
-  <div class="create-project-view">
-    <Card>
+  <div class="max-w-2xl mx-auto">
+    <Card class="border border-surface-200">
       <template #title>
-        <div class="header">
-          <Button icon="pi pi-arrow-left" text @click="goBack" />
-          <h1>Create New Project</h1>
+        <div class="flex items-center gap-3">
+          <Button icon="pi pi-arrow-left" text rounded @click="goBack" />
+          <h1 class="text-xl font-bold text-surface-900">Create New Project</h1>
         </div>
       </template>
       <template #content>
-        <form @submit.prevent="handleSubmit">
-          <div class="form-field">
-            <label for="key">Project Key *</label>
+        <form @submit.prevent="handleSubmit" class="space-y-5">
+          <div class="space-y-1.5">
+            <label for="key" class="block text-sm font-medium text-surface-700">Project Key *</label>
             <InputText 
               id="key"
               v-model="project.key"
               placeholder="e.g., PROJ, WEB, APP"
               :class="{ 'p-invalid': errors.key }"
+              class="w-full"
               @blur="validateKey"
             />
-            <small v-if="errors.key" class="p-error">{{ errors.key }}</small>
-            <small class="help-text">Must be uppercase letters, numbers, and hyphens only</small>
+            <small v-if="errors.key" class="text-red-500 text-xs">{{ errors.key }}</small>
+            <small class="block text-surface-400 text-xs">Must be uppercase letters, numbers, and hyphens only</small>
           </div>
 
-          <div class="form-field">
-            <label for="name">Project Name *</label>
+          <div class="space-y-1.5">
+            <label for="name" class="block text-sm font-medium text-surface-700">Project Name *</label>
             <InputText 
               id="name"
               v-model="project.name"
               placeholder="Enter project name"
               :class="{ 'p-invalid': errors.name }"
+              class="w-full"
             />
-            <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
+            <small v-if="errors.name" class="text-red-500 text-xs">{{ errors.name }}</small>
           </div>
 
-          <div class="form-field">
-            <label for="description">Description</label>
+          <div class="space-y-1.5">
+            <label for="description" class="block text-sm font-medium text-surface-700">Description</label>
             <Textarea 
               id="description"
               v-model="project.description"
               placeholder="Enter project description"
               rows="5"
               auto-resize
+              class="w-full"
             />
           </div>
 
           <Message v-if="error" severity="error" :closable="false">{{ error }}</Message>
 
-          <div class="form-actions">
+          <div class="flex justify-end gap-3 pt-4 border-t border-surface-200">
             <Button label="Cancel" severity="secondary" text @click="goBack" />
             <Button 
               label="Create Project" 
               type="submit" 
+              icon="pi pi-check"
               :loading="submitting"
               :disabled="!isValid"
             />
@@ -145,62 +149,3 @@ const goBack = () => {
 }
 </script>
 
-<style scoped>
-.create-project-view {
-  padding: 2rem;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 1.75rem;
-  font-weight: 600;
-}
-
-.form-field {
-  margin-bottom: 1.5rem;
-}
-
-.form-field label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-.form-field input,
-.form-field textarea {
-  width: 100%;
-}
-
-.help-text {
-  display: block;
-  margin-top: 0.25rem;
-  color: var(--text-color-secondary);
-  font-size: 0.875rem;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 2rem;
-}
-
-.p-error {
-  color: var(--red-500);
-  font-size: 0.875rem;
-  display: block;
-  margin-top: 0.25rem;
-}
-
-.p-invalid {
-  border-color: var(--red-500);
-}
-</style>

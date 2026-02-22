@@ -30,6 +30,18 @@
       {
         "name": "manager",
         "description": "Manager role"
+      },
+      {
+        "name": "product_manager",
+        "description": "Product Manager role"
+      },
+      {
+        "name": "developer",
+        "description": "Developer role"
+      },
+      {
+        "name": "product_sponsor",
+        "description": "Product Sponsor role"
       }
     ]
   },
@@ -97,6 +109,54 @@
         }
       ],
       "realmRoles": ["user"],
+      "groups": ["/users"]
+    },
+    {
+      "username": "product.manager",
+      "enabled": true,
+      "email": "product.manager@notjira.local",
+      "firstName": "Product",
+      "lastName": "Manager",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["product_manager", "user"],
+      "groups": ["/users"]
+    },
+    {
+      "username": "developer",
+      "enabled": true,
+      "email": "developer@notjira.local",
+      "firstName": "Dev",
+      "lastName": "Eloper",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["developer", "user"],
+      "groups": ["/users"]
+    },
+    {
+      "username": "sponsor",
+      "enabled": true,
+      "email": "sponsor@notjira.local",
+      "firstName": "Product",
+      "lastName": "Sponsor",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["product_sponsor", "user"],
       "groups": ["/users"]
     }
   ],

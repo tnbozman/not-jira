@@ -1,135 +1,137 @@
 <template>
-  <div class="external-entities-view">
-    <div class="card">
-      <div class="card-header">
-        <h2>External Entities</h2>
-        <Button label="Add Entity" icon="pi pi-plus" @click="showCreateDialog = true" />
+  <div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-bold text-surface-900">External Entities</h2>
+        <p class="text-surface-500 text-sm mt-1">Manage people and clients for this project</p>
       </div>
-
-      <div v-if="loading" class="loading-container">
-        <ProgressSpinner />
-      </div>
-
-      <DataTable v-else :value="entities" class="p-datatable-sm" striped-rows>
-        <Column field="name" header="Name" sortable></Column>
-        <Column field="type" header="Type" sortable>
-          <template #body="{ data }">
-            <Tag :value="data.type" :severity="data.type === 'Person' ? 'info' : 'success'" />
-          </template>
-        </Column>
-        <Column field="email" header="Email"></Column>
-        <Column field="organization" header="Organization"></Column>
-        <Column header="Actions" style="width: 12rem">
-          <template #body="{ data }">
-            <Button icon="pi pi-eye" class="p-button-rounded p-button-text" 
-                    @click="viewEntity(data)" title="View Details" />
-            <Button icon="pi pi-pencil" class="p-button-rounded p-button-text" 
-                    @click="editEntity(data)" title="Edit" />
-            <Button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" 
-                    @click="confirmDelete(data)" title="Delete" />
-          </template>
-        </Column>
-      </DataTable>
+      <Button label="Add Entity" icon="pi pi-plus" @click="showCreateDialog = true" />
     </div>
 
-    <!-- Create/Edit Dialog -->
-    <Dialog v-model:visible="showCreateDialog" :header="editingEntity?.id ? 'Edit Entity' : 'Create Entity'" 
-            :style="{ width: '600px' }" :modal="true">
-      <div class="entity-form">
-        <div class="field">
-          <label>Type *</label>
-          <Dropdown v-model="formData.type" :options="['Person', 'Client']" placeholder="Select Type" 
-                    class="w-full" />
+    <Card class="border border-surface-200">
+      <template #content>
+        <div v-if="loading" class="flex justify-center py-12">
+          <ProgressSpinner />
         </div>
 
-        <div class="field">
-          <label>Name *</label>
+        <DataTable v-else :value="entities" stripedRows responsiveLayout="scroll" class="text-sm">
+          <Column field="name" header="Name" sortable></Column>
+          <Column field="type" header="Type" sortable style="width: 8rem">
+            <template #body="{ data }">
+              <Tag :value="data.type" :severity="data.type === 'Person' ? 'info' : 'success'" />
+            </template>
+          </Column>
+          <Column field="email" header="Email"></Column>
+          <Column field="organization" header="Organization"></Column>
+          <Column header="Actions" style="width: 10rem">
+            <template #body="{ data }">
+              <div class="flex gap-1">
+                <Button icon="pi pi-eye" text rounded size="small" @click="viewEntity(data)" v-tooltip="'View Details'" />
+                <Button icon="pi pi-pencil" text rounded size="small" @click="editEntity(data)" v-tooltip="'Edit'" />
+                <Button icon="pi pi-trash" text rounded size="small" severity="danger" @click="confirmDelete(data)" v-tooltip="'Delete'" />
+              </div>
+            </template>
+          </Column>
+        </DataTable>
+      </template>
+    </Card>
+
+    <!-- Create/Edit Dialog -->
+    <Dialog v-model:visible="showCreateDialog" :header="editingEntity?.id ? 'Edit Entity' : 'Create Entity'"
+            :style="{ width: '32rem' }" :modal="true">
+      <div class="space-y-4">
+        <div class="space-y-1.5">
+          <label class="block text-sm font-medium text-surface-700">Type *</label>
+          <Dropdown v-model="formData.type" :options="['Person', 'Client']" placeholder="Select Type" class="w-full" />
+        </div>
+        <div class="space-y-1.5">
+          <label class="block text-sm font-medium text-surface-700">Name *</label>
           <InputText v-model="formData.name" class="w-full" placeholder="Enter name" />
         </div>
-
-        <div class="field">
-          <label>Email</label>
+        <div class="space-y-1.5">
+          <label class="block text-sm font-medium text-surface-700">Email</label>
           <InputText v-model="formData.email" class="w-full" type="email" placeholder="email@example.com" />
         </div>
-
-        <div class="field">
-          <label>Organization</label>
+        <div class="space-y-1.5">
+          <label class="block text-sm font-medium text-surface-700">Organization</label>
           <InputText v-model="formData.organization" class="w-full" placeholder="Organization name" />
         </div>
-
-        <div class="field">
-          <label>Phone</label>
+        <div class="space-y-1.5">
+          <label class="block text-sm font-medium text-surface-700">Phone</label>
           <InputText v-model="formData.phone" class="w-full" placeholder="Phone number" />
         </div>
-
-        <div class="field">
-          <label>Notes</label>
+        <div class="space-y-1.5">
+          <label class="block text-sm font-medium text-surface-700">Notes</label>
           <Textarea v-model="formData.notes" class="w-full" rows="4" placeholder="Additional notes" />
         </div>
       </div>
-
       <template #footer>
-        <Button label="Cancel" icon="pi pi-times" @click="showCreateDialog = false" class="p-button-text" />
+        <Button label="Cancel" text @click="showCreateDialog = false" />
         <Button label="Save" icon="pi pi-check" @click="saveEntity" :loading="saving" />
       </template>
     </Dialog>
 
     <!-- View Dialog -->
-    <Dialog v-model:visible="showViewDialog" header="Entity Details" :style="{ width: '800px' }" :modal="true">
-      <div v-if="selectedEntity" class="entity-details">
-        <div class="detail-section">
-          <h3>Basic Information</h3>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <span class="label">Name:</span>
-              <span class="value">{{ selectedEntity.name }}</span>
+    <Dialog v-model:visible="showViewDialog" header="Entity Details" :style="{ width: '48rem' }" :modal="true">
+      <div v-if="selectedEntity" class="space-y-6">
+        <div>
+          <h3 class="text-lg font-semibold text-surface-800 mb-3">Basic Information</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider">Name</span>
+              <p class="text-surface-800 mt-0.5">{{ selectedEntity.name }}</p>
             </div>
-            <div class="detail-item">
-              <span class="label">Type:</span>
-              <Tag :value="selectedEntity.type" :severity="selectedEntity.type === 'Person' ? 'info' : 'success'" />
+            <div>
+              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider">Type</span>
+              <div class="mt-0.5">
+                <Tag :value="selectedEntity.type" :severity="selectedEntity.type === 'Person' ? 'info' : 'success'" />
+              </div>
             </div>
-            <div class="detail-item" v-if="selectedEntity.email">
-              <span class="label">Email:</span>
-              <span class="value">{{ selectedEntity.email }}</span>
+            <div v-if="selectedEntity.email">
+              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider">Email</span>
+              <p class="text-surface-800 mt-0.5">{{ selectedEntity.email }}</p>
             </div>
-            <div class="detail-item" v-if="selectedEntity.organization">
-              <span class="label">Organization:</span>
-              <span class="value">{{ selectedEntity.organization }}</span>
+            <div v-if="selectedEntity.organization">
+              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider">Organization</span>
+              <p class="text-surface-800 mt-0.5">{{ selectedEntity.organization }}</p>
             </div>
-            <div class="detail-item" v-if="selectedEntity.phone">
-              <span class="label">Phone:</span>
-              <span class="value">{{ selectedEntity.phone }}</span>
+            <div v-if="selectedEntity.phone">
+              <span class="text-xs font-semibold text-surface-400 uppercase tracking-wider">Phone</span>
+              <p class="text-surface-800 mt-0.5">{{ selectedEntity.phone }}</p>
             </div>
           </div>
         </div>
 
-        <div class="detail-section" v-if="selectedEntity.notes">
-          <h3>Notes</h3>
-          <p>{{ selectedEntity.notes }}</p>
+        <div v-if="selectedEntity.notes">
+          <h3 class="text-lg font-semibold text-surface-800 mb-2">Notes</h3>
+          <p class="text-surface-600 text-sm">{{ selectedEntity.notes }}</p>
         </div>
 
-        <div class="detail-section" v-if="selectedEntity.problems && selectedEntity.problems.length > 0">
-          <h3>Problems ({{ selectedEntity.problems.length }})</h3>
-          <div v-for="problem in selectedEntity.problems" :key="problem.id" class="problem-card">
-            <Tag :value="problem.severity" :severity="getSeverityColor(problem.severity)" class="mb-2" />
-            <p>{{ problem.description }}</p>
+        <div v-if="selectedEntity.problems && selectedEntity.problems.length > 0">
+          <h3 class="text-lg font-semibold text-surface-800 mb-3">Problems ({{ selectedEntity.problems.length }})</h3>
+          <div class="space-y-2">
+            <div v-for="problem in selectedEntity.problems" :key="problem.id" class="p-3 bg-surface-50 rounded-lg">
+              <Tag :value="problem.severity" :severity="getSeverityColor(problem.severity)" class="mb-2" />
+              <p class="text-sm text-surface-700">{{ problem.description }}</p>
+            </div>
           </div>
         </div>
 
-        <div class="detail-section" v-if="selectedEntity.interviews && selectedEntity.interviews.length > 0">
-          <h3>Interviews ({{ selectedEntity.interviews.length }})</h3>
-          <div v-for="interview in selectedEntity.interviews" :key="interview.id" class="interview-card">
-            <div class="interview-header">
-              <Tag :value="interview.type" />
-              <span>{{ formatDate(interview.interviewDate) }}</span>
+        <div v-if="selectedEntity.interviews && selectedEntity.interviews.length > 0">
+          <h3 class="text-lg font-semibold text-surface-800 mb-3">Interviews ({{ selectedEntity.interviews.length }})</h3>
+          <div class="space-y-2">
+            <div v-for="interview in selectedEntity.interviews" :key="interview.id" class="p-3 bg-surface-50 rounded-lg">
+              <div class="flex items-center justify-between mb-1">
+                <Tag :value="interview.type" />
+                <span class="text-xs text-surface-400">{{ formatDate(interview.interviewDate) }}</span>
+              </div>
+              <p v-if="interview.summary" class="text-sm text-surface-700">{{ interview.summary }}</p>
             </div>
-            <p v-if="interview.summary">{{ interview.summary }}</p>
           </div>
         </div>
       </div>
-
       <template #footer>
-        <Button label="Close" icon="pi pi-times" @click="showViewDialog = false" />
+        <Button label="Close" @click="showViewDialog = false" />
       </template>
     </Dialog>
   </div>
