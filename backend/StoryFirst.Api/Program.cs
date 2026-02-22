@@ -102,11 +102,6 @@ builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.IEpicS
 builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.IStoryService, StoryFirst.Api.Areas.UserStoryMapping.Services.StoryService>();
 builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.ISpikeService, StoryFirst.Api.Areas.UserStoryMapping.Services.SpikeService>();
 builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.ITaskService, StoryFirst.Api.Areas.UserStoryMapping.Services.TaskService>();
-builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.IThemeService, StoryFirst.Api.Areas.UserStoryMapping.Services.ThemeService>();
-builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.IEpicService, StoryFirst.Api.Areas.UserStoryMapping.Services.EpicService>();
-builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.IStoryService, StoryFirst.Api.Areas.UserStoryMapping.Services.StoryService>();
-builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.ISpikeService, StoryFirst.Api.Areas.UserStoryMapping.Services.SpikeService>();
-builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.ITaskService, StoryFirst.Api.Areas.UserStoryMapping.Services.TaskService>();
 builder.Services.AddScoped<StoryFirst.Api.Areas.SprintPlanning.Services.IBacklogService, StoryFirst.Api.Areas.SprintPlanning.Services.BacklogService>();
 builder.Services.AddScoped<StoryFirst.Api.Areas.SprintPlanning.Services.ISprintService, StoryFirst.Api.Areas.SprintPlanning.Services.SprintService>();
 builder.Services.AddScoped<StoryFirst.Api.Areas.SprintPlanning.Services.ITeamService, StoryFirst.Api.Areas.SprintPlanning.Services.TeamService>();
