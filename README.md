@@ -1,4 +1,4 @@
-# Not JIRA
+# StoryFirst
 
 A modern task management application built with a monorepo architecture.
 
@@ -23,13 +23,13 @@ A modern task management application built with a monorepo architecture.
 ## Project Structure
 
 ```
-not-jira/
+story-first/
 ├── frontend/              # Vue 3 frontend application
 │   ├── src/
 │   ├── Dockerfile
 │   └── nginx.conf
 ├── backend/              # .NET 10 backend API
-│   └── NotJira.Api/
+│   └── StoryFirst.Api/
 │       ├── Controllers/
 │       ├── Data/
 │       ├── Models/
@@ -51,8 +51,8 @@ not-jira/
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/tnbozman/not-jira.git
-cd not-jira
+git clone https://github.com/tnbozman/story-first.git
+cd story-first
 ```
 
 2. Start all services:
@@ -80,7 +80,7 @@ npm run dev
 
 #### Running Backend in DevContainer
 ```bash
-cd backend/NotJira.Api
+cd backend/StoryFirst.Api
 dotnet run
 ```
 
@@ -95,7 +95,7 @@ npm run dev
 
 #### Backend Setup
 ```bash
-cd backend/NotJira.Api
+cd backend/StoryFirst.Api
 dotnet restore
 dotnet run
 ```
@@ -157,7 +157,7 @@ To create and apply database migrations:
 
 ```bash
 # Navigate to the API project
-cd backend/NotJira.Api
+cd backend/StoryFirst.Api
 
 # Create a new migration
 dotnet ef migrations add InitialCreate

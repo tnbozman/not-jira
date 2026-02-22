@@ -1,11 +1,11 @@
 services:
   db:
     image: postgres:17
-    container_name: notjira-db
+    container_name: storyfirst-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: notjira
+      POSTGRES_DB: storyfirst
     ports:
       - "5432:5432"
     volumes:
@@ -19,7 +19,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
-    container_name: notjira-keycloak
+    container_name: storyfirst-keycloak
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -27,6 +27,7 @@ services:
       KC_DB_URL: jdbc:postgresql://db:5432/keycloak
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: postgres
+      KC_HOSTNAME_URL: http://localhost:8180
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT: "false"
       KC_PROXY_HEADERS: xforwarded
@@ -39,7 +40,11 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080;echo -e \"GET /health/ready HTTP/1.1\r\nhost: 127.0.0.1:8080\r\nConnection: close\r\n\r\n\" >&3;if [ $? -eq 0 ]; then echo \"Healthcheck Successful\";exit 0;else echo \"Healthcheck Failed\";exit 1;fi;"]
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/127.0.0.1/8080;echo -e \"GET /health/ready HTTP/1.1\r\nhost: 127.0.0.1:8080\r\nConnection: close\r\n\r\n\" >&3;if [ $? -eq 0 ]; then echo \"Healthcheck Successful\";exit 0;else echo \"Healthcheck Failed\";exit 1;fi;",
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -49,17 +54,22 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: notjira-backend
+    container_name: storyfirst-backend
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Host=db;Database=notjira;Username=postgres;Password=postgres
-      - Authentication__Keycloak__Authority=http://keycloak:8080/realms/notjira
-      - Authentication__Keycloak__Audience=notjira-api
-      - Authentication__Keycloak__MetadataAddress=http://keycloak:8080/realms/notjira/.well-known/openid-configuration
-      - Authentication__Keycloak__ValidIssuers__0=http://localhost:8180/realms/notjira
-      - Authentication__Keycloak__ValidIssuers__1=http://localhost:8080/realms/notjira
-      - Authentication__Keycloak__ValidIssuers__2=http://keycloak:8080/realms/notjira
+      - ConnectionStrings__DefaultConnection=Host=db;Database=storyfirst;Username=postgres;Password=postgres
+      - Authentication__Keycloak__Authority=http://localhost:8180/realms/storyfirst
+      - Authentication__Keycloak__Audience=storyfirst-api
+      - Authentication__Keycloak__MetadataAddress=http://keycloak:8080/realms/storyfirst/.well-known/openid-configuration
+      - Authentication__Keycloak__InternalUrl=http://keycloak:8080
+      - Authentication__Keycloak__ValidIssuers__0=http://localhost:8180/realms/storyfirst
+      - Authentication__Keycloak__ValidIssuers__1=http://localhost:8080/realms/storyfirst
+      - Authentication__Keycloak__ValidIssuers__2=http://keycloak:8080/realms/storyfirst
+      - Authentication__Keycloak__RequireHttpsMetadata=false
+      - Authentication__Keycloak__ValidateIssuer=true
+      - Authentication__Keycloak__ValidateAudience=true
+      - Authentication__Keycloak__ValidateLifetime=true
     ports:
       - "8080:8080"
     depends_on:
@@ -68,7 +78,11 @@ services:
       keycloak:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/weatherforecast || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:8080/api/weatherforecast || exit 1",
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -78,7 +92,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: notjira-frontend
+    container_name: storyfirst-frontend
+    environment:
+      - API_BASE_URL=/api
+      - KEYCLOAK_URL=http://localhost:8180
+      - KEYCLOAK_REALM=storyfirst
+      - KEYCLOAK_CLIENT_ID=storyfirst-frontend
     ports:
       - "80:80"
     depends_on:

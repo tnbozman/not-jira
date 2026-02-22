@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-This guide will help you get the Not JIRA application up and running quickly with Keycloak authentication.
+This guide will help you get the StoryFirst application up and running quickly with Keycloak authentication.
 
 ## Option 1: Docker Compose (Recommended for Production)
 
@@ -64,7 +64,7 @@ Best for development with VS Code.
 
 3. **Run the backend (in DevContainer terminal):**
    ```bash
-   cd backend/NotJira.Api
+   cd backend/StoryFirst.Api
    dotnet run
    ```
    Access at: http://localhost:8080
@@ -87,7 +87,7 @@ Run services locally without Docker (requires running Keycloak separately).
    Ensure PostgreSQL is running on localhost:5432 with:
    - Username: postgres
    - Password: postgres
-   - Database: notjira
+   - Database: storyfirst
 
 2. **Start Keycloak (recommended via Docker):**
    ```bash
@@ -97,7 +97,7 @@ Run services locally without Docker (requires running Keycloak separately).
 
 3. **Run the backend:**
    ```bash
-   cd backend/NotJira.Api
+   cd backend/StoryFirst.Api
    dotnet restore
    dotnet ef database update  # Apply migrations
    dotnet run
@@ -142,12 +142,12 @@ See `keycloak/README.md` for complete user information. Quick reference:
 **Login to get a token:**
 ```bash
 # Get access token
-TOKEN=$(curl -X POST "http://localhost:8180/realms/notjira/protocol/openid-connect/token" \
+TOKEN=$(curl -X POST "http://localhost:8180/realms/storyfirst/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "username=testuser" \
   -d "password=testuser123" \
   -d "grant_type=password" \
-  -d "client_id=notjira-frontend" | jq -r '.access_token')
+  -d "client_id=storyfirst-frontend" | jq -r '.access_token')
 ```
 
 **Get all tasks:**
@@ -206,7 +206,7 @@ npm install
 
 **NuGet package issues:**
 ```bash
-cd backend/NotJira.Api
+cd backend/StoryFirst.Api
 dotnet clean
 dotnet restore
 dotnet build
@@ -214,7 +214,7 @@ dotnet build
 
 **Database migration issues:**
 ```bash
-cd backend/NotJira.Api
+cd backend/StoryFirst.Api
 dotnet ef database drop  # WARNING: This deletes all data
 dotnet ef database update
 ```

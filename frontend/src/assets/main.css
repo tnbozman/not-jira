@@ -1,39 +1,991 @@
-@import './base.css';
+@import "tailwindcss";
+@import "./base.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*
+ * ── PrimeVue CSS custom-property fallbacks ──────────────────
+ * PrimeVue Aura generates CSS vars like var(--p-text-color) at
+ * runtime.  Firefox + Tailwind v4 sometimes fail to resolve them.
+ * Setting them explicitly on :root guarantees a sane fallback for
+ * ANY PrimeVue component — not just the ones we override below.
+ */
+:root {
+  /* Text */
+  --p-text-color: #0f172a;
+  --p-text-muted-color: #64748b;
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  /* Primary */
+  --p-primary-color: #2563eb;
+  --p-primary-hover-color: #1d4ed8;
+  --p-primary-contrast-color: #ffffff;
+  --p-primary-50: #eff6ff;
+  --p-primary-100: #dbeafe;
+  --p-primary-200: #bfdbfe;
+  --p-primary-500: #3b82f6;
+  --p-primary-600: #2563eb;
+  --p-primary-700: #1d4ed8;
+  --p-primary-800: #1e40af;
+
+  /* Surface */
+  --p-surface-0: #ffffff;
+  --p-surface-50: #f8fafc;
+  --p-surface-100: #f1f5f9;
+  --p-surface-200: #e2e8f0;
+  --p-surface-300: #cbd5e1;
+  --p-surface-400: #94a3b8;
+  --p-surface-500: #64748b;
+  --p-surface-600: #475569;
+  --p-surface-700: #334155;
+  --p-surface-800: #1e293b;
+  --p-surface-900: #0f172a;
+  --p-surface-950: #020617;
+
+  /* Content */
+  --p-content-background: #ffffff;
+  --p-content-color: #1e293b;
+  --p-content-border-color: #e2e8f0;
+  --p-content-hover-background: #f1f5f9;
+  --p-content-hover-color: #0f172a;
+
+  /* Highlight (selected items) */
+  --p-highlight-background: #eff6ff;
+  --p-highlight-color: #2563eb;
+  --p-highlight-focus-background: #dbeafe;
+  --p-highlight-focus-color: #1d4ed8;
+
+  /* Form field */
+  --p-form-field-background: #ffffff;
+  --p-form-field-color: #1e293b;
+  --p-form-field-border-color: #cbd5e1;
+  --p-form-field-hover-border-color: #94a3b8;
+  --p-form-field-focus-border-color: #2563eb;
+  --p-form-field-placeholder-color: #94a3b8;
+  --p-form-field-disabled-background: #f1f5f9;
+  --p-form-field-disabled-color: #94a3b8;
+
+  /* TabView specific tokens */
+  --p-tabview-tab-list-background: #ffffff;
+  --p-tabview-tab-list-border-color: #e2e8f0;
+  --p-tabview-tab-border-color: #e2e8f0;
+  --p-tabview-tab-active-border-color: #2563eb;
+  --p-tabview-tab-color: #64748b;
+  --p-tabview-tab-hover-color: #0f172a;
+  --p-tabview-tab-active-color: #2563eb;
+  --p-tabview-tab-panel-background: transparent;
+  --p-tabview-tab-panel-color: #1e293b;
+  --p-tabview-nav-button-background: #ffffff;
+  --p-tabview-nav-button-color: #64748b;
+  --p-tabview-nav-button-hover-color: #0f172a;
+
+  /* DataTable specific tokens */
+  --p-datatable-border-color: #e2e8f0;
+  --p-datatable-header-cell-background: #f8fafc;
+  --p-datatable-header-cell-color: #475569;
+  --p-datatable-header-cell-border-color: #e2e8f0;
+  --p-datatable-row-background: #ffffff;
+  --p-datatable-row-color: #334155;
+  --p-datatable-row-hover-background: #eff6ff;
+  --p-datatable-row-hover-color: #1e293b;
+  --p-datatable-row-striped-background: #f8fafc;
+  --p-datatable-row-selected-background: #dbeafe;
+  --p-datatable-row-selected-color: #1e40af;
+  --p-datatable-body-cell-border-color: #f1f5f9;
+  --p-datatable-footer-cell-background: #f8fafc;
+  --p-datatable-footer-cell-color: #475569;
+  --p-datatable-footer-cell-border-color: #e2e8f0;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+/*
+ * Surface color utilities — explicit hex values so they render
+ * identically across Chrome, Firefox, Safari.  These replace the
+ * PrimeVue `surface-*` design-token Tailwind classes which rely on
+ * CSS custom-properties that Tailwind v4 doesn't auto-resolve.
+ */
+@utility text-surface-50 {
+  color: #f8fafc;
+}
+@utility text-surface-100 {
+  color: #f1f5f9;
+}
+@utility text-surface-200 {
+  color: #e2e8f0;
+}
+@utility text-surface-300 {
+  color: #cbd5e1;
+}
+@utility text-surface-400 {
+  color: #94a3b8;
+}
+@utility text-surface-500 {
+  color: #64748b;
+}
+@utility text-surface-600 {
+  color: #475569;
+}
+@utility text-surface-700 {
+  color: #334155;
+}
+@utility text-surface-800 {
+  color: #1e293b;
+}
+@utility text-surface-900 {
+  color: #0f172a;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+@utility bg-surface-50 {
+  background-color: #f8fafc;
+}
+@utility bg-surface-100 {
+  background-color: #f1f5f9;
+}
+@utility bg-surface-200 {
+  background-color: #e2e8f0;
+}
+@utility bg-surface-300 {
+  background-color: #cbd5e1;
+}
+@utility bg-surface-400 {
+  background-color: #94a3b8;
+}
+@utility bg-surface-500 {
+  background-color: #64748b;
+}
+@utility bg-surface-600 {
+  background-color: #475569;
+}
+@utility bg-surface-700 {
+  background-color: #334155;
+}
+@utility bg-surface-800 {
+  background-color: #1e293b;
+}
+@utility bg-surface-900 {
+  background-color: #0f172a;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+@utility border-surface-50 {
+  border-color: #f8fafc;
+}
+@utility border-surface-100 {
+  border-color: #f1f5f9;
+}
+@utility border-surface-200 {
+  border-color: #e2e8f0;
+}
+@utility border-surface-300 {
+  border-color: #cbd5e1;
+}
+@utility border-surface-400 {
+  border-color: #94a3b8;
+}
+@utility border-surface-500 {
+  border-color: #64748b;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+/*
+ * ── PrimeVue component overrides ────────────────────────────
+ * Override PrimeVue Aura theme CSS-variable-based styling with
+ * hardcoded hex colors so everything renders consistently across
+ * Chrome, Firefox, and Safari.  We use !important sparingly — only
+ * where PrimeVue injects inline <style> blocks with high specificity.
+ */
+
+/* ── TabView / Tabs ────────────────────────────────────────── */
+.p-tabview .p-tabview-tablist,
+.p-tabview .p-tabview-tab-list,
+.p-tablist {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Default (inactive) tab link */
+.p-tabview-tab-header,
+.p-tabview .p-tabview-header .p-tabview-header-action,
+.p-tabview .p-tabview-nav-link,
+.p-tab {
+  color: #64748b !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+}
+
+/* Tab title text */
+.p-tabview-tab-title {
+  color: inherit !important;
+}
+
+/*
+ * Tab hover — the critical WCAG fix.
+ * PrimeVue's actual selector is:
+ *   .p-tabview-tablist-item:not(.p-highlight):not(.p-disabled):hover > .p-tabview-tab-header
+ * We match it exactly + add fallback selectors.
+ */
+.p-tabview-tablist-item:not(.p-highlight):not(.p-disabled):hover > .p-tabview-tab-header,
+.p-tabview-tablist-item:not(.p-tabview-tablist-item-active):not(.p-disabled):hover
+  > .p-tabview-tab-header,
+.p-tabview .p-tabview-header:not(.p-highlight):not(.p-disabled):hover .p-tabview-header-action,
+.p-tabview .p-tabview-nav-link:hover,
+.p-tab:hover,
+.p-tab:hover > * {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+}
+
+/* Active tab */
+.p-tabview-tablist-item.p-highlight > .p-tabview-tab-header,
+.p-tabview-tablist-item.p-tabview-tablist-item-active > .p-tabview-tab-header,
+.p-tabview .p-tabview-header.p-tabview-header-active .p-tabview-header-action,
+.p-tabview .p-highlight .p-tabview-nav-link,
+.p-tab[data-p-active="true"] {
+  color: #2563eb !important;
+  border-color: #2563eb !important;
+  background: transparent !important;
+}
+
+/* Active tab hover */
+.p-tabview-tablist-item.p-highlight:hover > .p-tabview-tab-header,
+.p-tabview-tablist-item.p-tabview-tablist-item-active:hover > .p-tabview-tab-header,
+.p-tabview .p-tabview-header.p-tabview-header-active:hover .p-tabview-header-action,
+.p-tab[data-p-active="true"]:hover {
+  color: #1d4ed8 !important;
+  background: #eff6ff !important;
+}
+
+.p-tabview .p-tabview-panels,
+.p-tabpanels {
+  background: transparent !important;
+  color: #1e293b !important;
+  padding: 1rem 0 0;
+}
+
+.p-tabview .p-tabview-panel,
+.p-tabpanel {
+  background: transparent !important;
+}
+
+.p-tablist {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Active tab indicator bar (ink bar) */
+.p-tabview-ink-bar,
+.p-tablist .p-tablist-active-bar {
+  background: #2563eb !important;
+}
+
+/* ── Buttons — text / outlined / link variants ─────────────── */
+/* Text buttons */
+.p-button-text,
+.p-button.p-button-text {
+  color: #334155 !important;
+  background: transparent !important;
+}
+
+.p-button-text:hover,
+.p-button.p-button-text:hover,
+.p-button-text:enabled:hover,
+.p-button.p-button-text:enabled:hover {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+}
+
+/* Text button — primary severity */
+.p-button-text.p-button-primary,
+.p-button.p-button-text.p-button-primary {
+  color: #2563eb !important;
+}
+
+.p-button-text.p-button-primary:hover,
+.p-button-text.p-button-primary:enabled:hover {
+  color: #1d4ed8 !important;
+  background: #eff6ff !important;
+}
+
+/* Text button — danger severity */
+.p-button-text.p-button-danger,
+.p-button.p-button-text.p-button-danger {
+  color: #dc2626 !important;
+}
+
+.p-button-text.p-button-danger:hover,
+.p-button-text.p-button-danger:enabled:hover {
+  color: #b91c1c !important;
+  background: #fef2f2 !important;
+}
+
+/* Text button — secondary severity */
+.p-button-text.p-button-secondary,
+.p-button.p-button-text.p-button-secondary {
+  color: #64748b !important;
+}
+
+.p-button-text.p-button-secondary:hover,
+.p-button-text.p-button-secondary:enabled:hover {
+  color: #334155 !important;
+  background: #f1f5f9 !important;
+}
+
+/* Outlined buttons */
+.p-button-outlined,
+.p-button.p-button-outlined {
+  color: #2563eb !important;
+  border-color: #2563eb !important;
+  background: transparent !important;
+}
+
+.p-button-outlined:hover,
+.p-button-outlined:enabled:hover,
+.p-button.p-button-outlined:hover {
+  color: #1d4ed8 !important;
+  background: #eff6ff !important;
+  border-color: #1d4ed8 !important;
+}
+
+/* Primary filled buttons (keep readable on hover) */
+.p-button-primary:not(.p-button-text):not(.p-button-outlined):not(.p-button-link),
+.p-button.p-button-primary:not(.p-button-text):not(.p-button-outlined):not(.p-button-link) {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.p-button-primary:not(.p-button-text):not(.p-button-outlined):not(.p-button-link):hover,
+.p-button-primary:not(.p-button-text):not(.p-button-outlined):not(.p-button-link):enabled:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+/* Danger filled buttons */
+.p-button-danger:not(.p-button-text):not(.p-button-outlined):not(.p-button-link),
+.p-button.p-button-danger:not(.p-button-text):not(.p-button-outlined):not(.p-button-link) {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.p-button-danger:not(.p-button-text):not(.p-button-outlined):not(.p-button-link):hover,
+.p-button-danger:not(.p-button-text):not(.p-button-outlined):not(.p-button-link):enabled:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+/* ── DataTable ─────────────────────────────────────────────── */
+
+/* Table container */
+.p-datatable {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.p-datatable .p-datatable-table-container {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* Header cells */
+.p-datatable .p-datatable-thead > tr > th,
+.p-datatable .p-datatable-header-cell {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem;
+}
+
+/* Body rows — all rows get white background by default */
+.p-datatable .p-datatable-tbody > tr {
+  background: #ffffff !important;
+  color: #334155 !important;
+  transition: background 0.15s ease;
+}
+
+/* Body cells */
+.p-datatable .p-datatable-tbody > tr > td,
+.p-datatable .p-datatable-tbody > tr > td.p-datatable-body-cell {
+  border-color: #f1f5f9 !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  padding: 0.75rem 1rem;
+  color: #334155 !important;
+  font-size: 0.875rem;
+}
+
+/* Striped rows — very subtle alternating shade, NOT black */
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr.p-row-odd,
+.p-datatable .p-datatable-tbody > tr.p-row-odd {
+  background: #f8fafc !important;
+  color: #334155 !important;
+}
+
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr.p-row-even,
+.p-datatable .p-datatable-tbody > tr.p-row-even {
+  background: #ffffff !important;
+  color: #334155 !important;
+}
+
+/* Row hover */
+.p-datatable .p-datatable-tbody > tr:hover,
+.p-datatable-hoverable .p-datatable-tbody > tr:not(.p-datatable-row-selected):hover,
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr:hover,
+.p-datatable-striped.p-datatable-hoverable
+  .p-datatable-tbody
+  > tr:not(.p-datatable-row-selected):hover {
+  background: #eff6ff !important;
+  color: #1e293b !important;
+}
+
+/* Selected row */
+.p-datatable .p-datatable-tbody > tr.p-datatable-row-selected {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+}
+
+/* Sortable column header hover */
+.p-datatable .p-sortable-column:hover,
+.p-datatable .p-datatable-header-cell.p-datatable-sortable-column:hover {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+}
+
+.p-datatable .p-sortable-column:hover .p-sortable-column-icon,
+.p-datatable .p-datatable-sort-icon {
+  color: #94a3b8 !important;
+}
+
+.p-datatable .p-sortable-column.p-datatable-column-sorted .p-datatable-sort-icon {
+  color: #2563eb !important;
+}
+
+/* Empty message */
+.p-datatable .p-datatable-tbody > tr > td.p-datatable-empty-message,
+.p-datatable .p-datatable-empty-message {
+  color: #94a3b8 !important;
+  text-align: center;
+  padding: 2rem 1rem;
+  font-style: italic;
+}
+
+/* Paginator (if used) */
+.p-datatable .p-paginator {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+/* Row action buttons within table */
+.p-datatable .p-datatable-tbody .p-button-text,
+.p-datatable .p-datatable-tbody .p-button.p-button-text {
+  color: #64748b !important;
+}
+
+.p-datatable .p-datatable-tbody .p-button-text:hover,
+.p-datatable .p-datatable-tbody .p-button.p-button-text:hover {
+  color: #334155 !important;
+  background: #f1f5f9 !important;
+}
+
+.p-datatable .p-datatable-tbody .p-button-text.p-button-danger,
+.p-datatable .p-datatable-tbody .p-button.p-button-text.p-button-danger {
+  color: #dc2626 !important;
+}
+
+.p-datatable .p-datatable-tbody .p-button-text.p-button-danger:hover,
+.p-datatable .p-datatable-tbody .p-button.p-button-text.p-button-danger:hover {
+  color: #b91c1c !important;
+  background: #fef2f2 !important;
+}
+
+/* ── Tag ───────────────────────────────────────────────────── */
+.p-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ── Dialog ────────────────────────────────────────────────── */
+.p-dialog {
+  background: #ffffff !important;
+}
+
+.p-dialog .p-dialog-header {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.p-dialog .p-dialog-header-actions .p-dialog-header-close {
+  color: #64748b !important;
+  background: transparent !important;
+}
+
+.p-dialog .p-dialog-header-actions .p-dialog-header-close:hover {
+  color: #334155 !important;
+  background: #f1f5f9 !important;
+}
+
+.p-dialog .p-dialog-content {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+
+.p-dialog .p-dialog-footer {
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+/* Dialog mask / overlay */
+.p-dialog-mask {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ── InputText / Textarea / Dropdown / Select / InputNumber ─ */
+/* Force light-mode styling on ALL form inputs — prevents dark
+   backgrounds that PrimeVue Aura may inject via system dark mode. */
+.p-inputtext,
+.p-textarea,
+.p-dropdown,
+.p-select,
+.p-multiselect,
+.p-autocomplete-input,
+.p-inputnumber-input,
+.p-datepicker-input,
+.p-password-input,
+.p-cascadeselect,
+.p-treeselect,
+.p-chips-input-token input,
+.p-inputmask,
+.p-inputotp-input,
+.p-knob,
+.p-listbox,
+.p-mention-input {
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+  background: #ffffff !important;
+}
+
+.p-inputtext:enabled:hover,
+.p-textarea:enabled:hover,
+.p-dropdown:not(.p-disabled):hover,
+.p-select:not(.p-disabled):hover,
+.p-multiselect:not(.p-disabled):hover,
+.p-autocomplete-input:enabled:hover,
+.p-inputnumber-input:enabled:hover,
+.p-datepicker-input:enabled:hover,
+.p-cascadeselect:not(.p-disabled):hover,
+.p-treeselect:not(.p-disabled):hover {
+  border-color: #94a3b8 !important;
+}
+
+.p-inputtext:enabled:focus,
+.p-textarea:enabled:focus,
+.p-dropdown:not(.p-disabled).p-focus,
+.p-select:not(.p-disabled).p-focus,
+.p-multiselect:not(.p-disabled).p-focus,
+.p-autocomplete-input:enabled:focus,
+.p-inputnumber-input:enabled:focus,
+.p-datepicker-input:enabled:focus,
+.p-cascadeselect:not(.p-disabled).p-focus,
+.p-treeselect:not(.p-disabled).p-focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 1px #2563eb33 !important;
+}
+
+.p-inputtext::placeholder,
+.p-textarea::placeholder,
+.p-autocomplete-input::placeholder,
+.p-inputnumber-input::placeholder,
+.p-datepicker-input::placeholder,
+.p-password-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.p-inputtext:disabled,
+.p-textarea:disabled,
+.p-autocomplete-input:disabled,
+.p-inputnumber-input:disabled,
+.p-datepicker-input:disabled,
+.p-password-input:disabled {
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
+}
+
+/* Select / Dropdown trigger button & label */
+.p-select-label,
+.p-dropdown-label,
+.p-multiselect-label,
+.p-cascadeselect-label,
+.p-treeselect-label {
+  color: #1e293b !important;
+  background: transparent !important;
+}
+
+.p-select-label.p-placeholder,
+.p-dropdown-label.p-placeholder,
+.p-multiselect-label.p-placeholder,
+.p-cascadeselect-label.p-placeholder,
+.p-treeselect-label.p-placeholder {
+  color: #94a3b8 !important;
+}
+
+.p-select-dropdown,
+.p-dropdown-trigger,
+.p-multiselect-trigger,
+.p-datepicker-dropdown,
+.p-cascadeselect-trigger,
+.p-treeselect-trigger {
+  color: #64748b !important;
+  background: transparent !important;
+}
+
+.p-select-clear-icon,
+.p-dropdown-clear-icon,
+.p-multiselect-clear-icon {
+  color: #94a3b8 !important;
+}
+
+/* InputNumber buttons */
+.p-inputnumber-button {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.p-inputnumber-button:hover {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+/* Chips / Token input */
+.p-chips,
+.p-chips-multiple-container {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.p-chips-token {
+  background: #eff6ff !important;
+  color: #1e40af !important;
+}
+
+/* Listbox */
+.p-listbox {
+  border-color: #cbd5e1 !important;
+}
+
+.p-listbox-option {
+  color: #334155 !important;
+}
+
+.p-listbox-option:hover,
+.p-listbox-option.p-focus {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.p-listbox-option.p-selected,
+.p-listbox-option[data-p-selected="true"] {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+}
+
+/* ── Menu / Popup (quick-create, user dropdown) ────────────── */
+.p-menu {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+.p-menu .p-menuitem-link,
+.p-menu .p-menuitem-content {
+  color: #334155 !important;
+  background: transparent !important;
+}
+
+.p-menu .p-menuitem-link:hover,
+.p-menu .p-menuitem:hover > .p-menuitem-content {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.p-menu .p-menuitem-icon {
+  color: #64748b !important;
+}
+
+.p-menu .p-menuitem-link:hover .p-menuitem-icon {
+  color: #334155 !important;
+}
+
+/* ── Tooltip ───────────────────────────────────────────────── */
+.p-tooltip .p-tooltip-text {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+/* ── Select / Dropdown overlay list ────────────────────────── */
+.p-select-overlay,
+.p-dropdown-panel,
+.p-multiselect-overlay,
+.p-autocomplete-overlay,
+.p-cascadeselect-overlay,
+.p-treeselect-overlay {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+.p-select-option,
+.p-dropdown-item,
+.p-multiselect-option,
+.p-autocomplete-option,
+.p-cascadeselect-option,
+.p-treeselect-node {
+  color: #334155 !important;
+}
+
+.p-select-option:hover,
+.p-select-option.p-focus,
+.p-dropdown-item:hover,
+.p-dropdown-item.p-focus,
+.p-multiselect-option:hover,
+.p-multiselect-option.p-focus,
+.p-autocomplete-option:hover,
+.p-autocomplete-option.p-focus {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.p-select-option.p-selected,
+.p-select-option[data-p-selected="true"],
+.p-dropdown-item.p-highlight,
+.p-multiselect-option.p-selected,
+.p-multiselect-option[data-p-selected="true"] {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+}
+
+.p-select-option.p-selected.p-focus,
+.p-select-option[data-p-selected="true"].p-focus,
+.p-dropdown-item.p-highlight.p-focus,
+.p-multiselect-option.p-selected.p-focus,
+.p-multiselect-option[data-p-selected="true"].p-focus {
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+/* Select / Dropdown filter input inside overlay */
+.p-select-overlay .p-select-filter,
+.p-dropdown-panel .p-dropdown-filter,
+.p-multiselect-overlay .p-multiselect-filter,
+.p-select-overlay .p-select-filter-container .p-inputtext,
+.p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
+.p-multiselect-overlay .p-multiselect-filter-container .p-inputtext {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Dropdown overlay header/footer (e.g. MultiSelect header) */
+.p-multiselect-header,
+.p-select-overlay .p-select-header {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Empty message inside overlays */
+.p-select-empty-message,
+.p-dropdown-empty-message,
+.p-multiselect-empty-message,
+.p-autocomplete-empty-message {
+  color: #94a3b8 !important;
+}
+
+/* ── DatePicker ────────────────────────────────────────────── */
+.p-datepicker-panel,
+.p-datepicker-overlay {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+.p-datepicker-panel .p-datepicker-day-cell,
+.p-datepicker-panel .p-datepicker-day {
+  color: #334155 !important;
+}
+
+.p-datepicker-panel .p-datepicker-day:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.p-datepicker-panel .p-datepicker-day.p-datepicker-day-selected,
+.p-datepicker-panel .p-datepicker-day[data-p-selected="true"] {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.p-datepicker-panel .p-datepicker-day.p-datepicker-today,
+.p-datepicker-panel .p-datepicker-day[data-p-today="true"] {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+}
+
+.p-datepicker-panel .p-datepicker-header {
+  color: #334155 !important;
+  background: #ffffff !important;
+}
+
+.p-datepicker-panel .p-datepicker-title button,
+.p-datepicker-panel .p-datepicker-header button,
+.p-datepicker-panel .p-datepicker-prev-button,
+.p-datepicker-panel .p-datepicker-next-button {
+  color: #64748b !important;
+  background: transparent !important;
+}
+
+.p-datepicker-panel .p-datepicker-title button:hover,
+.p-datepicker-panel .p-datepicker-header button:hover,
+.p-datepicker-panel .p-datepicker-prev-button:hover,
+.p-datepicker-panel .p-datepicker-next-button:hover {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+}
+
+.p-datepicker-panel .p-datepicker-weekday-cell,
+.p-datepicker-panel .p-datepicker-weekday {
+  color: #64748b !important;
+}
+
+/* DatePicker month/year picker */
+.p-datepicker-panel .p-datepicker-month,
+.p-datepicker-panel .p-datepicker-year {
+  color: #334155 !important;
+}
+
+.p-datepicker-panel .p-datepicker-month:hover,
+.p-datepicker-panel .p-datepicker-year:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.p-datepicker-panel .p-datepicker-month.p-datepicker-month-selected,
+.p-datepicker-panel .p-datepicker-year.p-datepicker-year-selected {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+/* ── Message ───────────────────────────────────────────────── */
+.p-message.p-message-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.p-message.p-message-success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.p-message.p-message-warn {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.p-message.p-message-info {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+/* ── ConfirmDialog ─────────────────────────────────────────── */
+.p-confirmdialog .p-confirmdialog-message {
+  color: #334155 !important;
+}
+
+.p-confirmdialog .p-confirmdialog-icon {
+  color: #f59e0b !important;
+}
+
+/* ── Popover / OverlayPanel ────────────────────────────────── */
+.p-popover,
+.p-overlaypanel {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+/* ── Toast ─────────────────────────────────────────────────── */
+.p-toast-message {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.p-toast-message-text {
+  color: #1e293b !important;
+}
+
+.p-toast-detail {
+  color: #475569 !important;
+}
+
+/* ── Anchor / Link hover fix ───────────────────────────────── */
+a:hover {
+  color: inherit;
+}
+
+/*
+ * ── Force light-mode CSS variables ──────────────────────────
+ * PrimeVue Aura theme injects dark-mode overrides via
+ * @media (prefers-color-scheme: dark). Even though we set
+ * darkModeSelector: false, some cached/pre-built theme CSS may
+ * still attempt dark overrides. This block re-asserts all key
+ * design tokens to their light-mode values with !important.
+ */
+:root {
+  --p-text-color: #0f172a !important;
+  --p-text-muted-color: #64748b !important;
+
+  --p-content-background: #ffffff !important;
+  --p-content-color: #1e293b !important;
+  --p-content-border-color: #e2e8f0 !important;
+  --p-content-hover-background: #f1f5f9 !important;
+  --p-content-hover-color: #0f172a !important;
+
+  --p-surface-0: #ffffff !important;
+  --p-surface-50: #f8fafc !important;
+  --p-surface-100: #f1f5f9 !important;
+  --p-surface-200: #e2e8f0 !important;
+  --p-surface-300: #cbd5e1 !important;
+  --p-surface-400: #94a3b8 !important;
+  --p-surface-500: #64748b !important;
+  --p-surface-600: #475569 !important;
+  --p-surface-700: #334155 !important;
+  --p-surface-800: #1e293b !important;
+  --p-surface-900: #0f172a !important;
+  --p-surface-950: #020617 !important;
+
+  --p-form-field-background: #ffffff !important;
+  --p-form-field-color: #1e293b !important;
+  --p-form-field-border-color: #cbd5e1 !important;
+  --p-form-field-hover-border-color: #94a3b8 !important;
+  --p-form-field-focus-border-color: #2563eb !important;
+  --p-form-field-placeholder-color: #94a3b8 !important;
+  --p-form-field-disabled-background: #f1f5f9 !important;
+  --p-form-field-disabled-color: #94a3b8 !important;
+
+  --p-highlight-background: #eff6ff !important;
+  --p-highlight-color: #2563eb !important;
+  --p-highlight-focus-background: #dbeafe !important;
+  --p-highlight-focus-color: #1d4ed8 !important;
+
+  --p-primary-color: #2563eb !important;
+  --p-primary-hover-color: #1d4ed8 !important;
+  --p-primary-contrast-color: #ffffff !important;
+
+  color-scheme: light !important;
 }

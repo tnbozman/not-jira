@@ -1,81 +1,82 @@
-import keycloakService from './keycloakService'
+import keycloakService from "./keycloakService";
+import config from "@/config";
 
 export interface TaskItem {
-  id?: number
-  title: string
-  description?: string
-  status: string
-  priority: string
-  createdAt?: string
-  updatedAt?: string
+  id?: number;
+  title: string;
+  description?: string;
+  status: string;
+  priority: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+const API_BASE_URL = config.API_BASE_URL;
 
 async function getHeaders(): Promise<HeadersInit> {
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  }
+    "Content-Type": "application/json",
+  };
 
-  const token = keycloakService.getToken()
+  const token = keycloakService.getToken();
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
-  return headers
+  return headers;
 }
 
 export const taskService = {
   async getAllTasks(): Promise<TaskItem[]> {
     const response = await fetch(`${API_BASE_URL}/tasks`, {
       headers: await getHeaders(),
-    })
+    });
     if (!response.ok) {
-      throw new Error('Failed to fetch tasks')
+      throw new Error("Failed to fetch tasks");
     }
-    return response.json()
+    return response.json();
   },
 
   async getTask(id: number): Promise<TaskItem> {
     const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
       headers: await getHeaders(),
-    })
+    });
     if (!response.ok) {
-      throw new Error('Failed to fetch task')
+      throw new Error("Failed to fetch task");
     }
-    return response.json()
+    return response.json();
   },
 
   async createTask(task: TaskItem): Promise<TaskItem> {
     const response = await fetch(`${API_BASE_URL}/tasks`, {
-      method: 'POST',
+      method: "POST",
       headers: await getHeaders(),
       body: JSON.stringify(task),
-    })
+    });
     if (!response.ok) {
-      throw new Error('Failed to create task')
+      throw new Error("Failed to create task");
     }
-    return response.json()
+    return response.json();
   },
 
   async updateTask(id: number, task: TaskItem): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: await getHeaders(),
       body: JSON.stringify(task),
-    })
+    });
     if (!response.ok) {
-      throw new Error('Failed to update task')
+      throw new Error("Failed to update task");
     }
   },
 
   async deleteTask(id: number): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: await getHeaders(),
-    })
+    });
     if (!response.ok) {
-      throw new Error('Failed to delete task')
+      throw new Error("Failed to delete task");
     }
   },
-}
+};

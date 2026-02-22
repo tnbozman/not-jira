@@ -1,9 +1,9 @@
 {
-  "name": "Not JIRA DevContainer",
+  "name": "StoryFirst DevContainer",
   "dockerComposeFile": "../docker-compose.dev.yml",
   "service": "devcontainer",
   "workspaceFolder": "/workspace",
-  
+
   "customizations": {
     "vscode": {
       "extensions": [
@@ -26,7 +26,7 @@
     }
   },
 
-  "forwardPorts": [8080, 5432, 5173],
+  "forwardPorts": [8080, 5432, 5173, 8180],
   "portsAttributes": {
     "8080": {
       "label": "Backend API",
@@ -39,10 +39,14 @@
     "5173": {
       "label": "Frontend Dev Server",
       "onAutoForward": "notify"
+    },
+    "8180": {
+      "label": "Keycloak",
+      "onAutoForward": "silent"
     }
   },
 
-  "postCreateCommand": "cd /workspace/frontend && npm install && cd /workspace/backend/NotJira.Api && dotnet restore",
-  
+  "postCreateCommand": "cd /workspace/frontend && npm install && cd /workspace/backend/StoryFirst.Api && dotnet restore",
+
   "remoteUser": "vscode"
 }

@@ -1,28 +1,35 @@
-import './assets/main.css'
-import 'primeicons/primeicons.css'
+import "./assets/main.css";
+import "primeicons/primeicons.css";
 
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import PrimeVue from 'primevue/config'
-import Aura from '@primeuix/themes/aura'
+import { createApp } from "vue";
+import { createPinia } from "pinia";
+import PrimeVue from "primevue/config";
+import Aura from "@primeuix/themes/aura";
+import ConfirmationService from "primevue/confirmationservice";
+import ToastService from "primevue/toastservice";
 
-import App from './App.vue'
-import router from './router'
-import { useAuthStore } from './stores/auth'
+import App from "./App.vue";
+import router from "./router";
+import { useAuthStore } from "./stores/auth";
 
-const pinia = createPinia()
-const app = createApp(App)
+const pinia = createPinia();
+const app = createApp(App);
 
-app.use(pinia)
-app.use(router)
+app.use(pinia);
+app.use(router);
 app.use(PrimeVue, {
   theme: {
-    preset: Aura
-  }
-})
+    preset: Aura,
+    options: {
+      darkModeSelector: false,
+    },
+  },
+});
+app.use(ConfirmationService);
+app.use(ToastService);
 
 // Initialize Keycloak before mounting
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 authStore.initialize().then(() => {
-  app.mount('#app')
-})
+  app.mount("#app");
+});

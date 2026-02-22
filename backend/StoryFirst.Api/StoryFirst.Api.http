@@ -1,0 +1,6 @@
+@StoryFirst.Api_HostAddress = http://localhost:5055
+
+GET {{StoryFirst.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,14 +1,14 @@
 # Keycloak Configuration
 
-This directory contains the Keycloak realm configuration for the Not JIRA application.
+This directory contains the Keycloak realm configuration for the StoryFirst application.
 
 ## Overview
 
 The `realm-export.json` file defines:
-- **Realm**: `notjira`
+- **Realm**: `storyfirst`
 - **Clients**: 
-  - `notjira-api` (Backend API - bearer only)
-  - `notjira-frontend` (Frontend SPA - public client with PKCE)
+  - `storyfirst-api` (Backend API - bearer only)
+  - `storyfirst-frontend` (Frontend SPA - public client with PKCE)
 - **Users**: Three test users with different roles
 - **Groups**: `users`, `admins`, `managers`
 - **Roles**: `user`, `admin`, `manager`
@@ -19,9 +19,9 @@ The realm comes pre-configured with three test users:
 
 | Username   | Password     | Email                    | Role    | Group     |
 |------------|--------------|--------------------------|---------|-----------|
-| admin      | admin123     | admin@notjira.local      | admin   | /admins   |
-| manager    | manager123   | manager@notjira.local    | manager | /managers |
-| testuser   | testuser123  | testuser@notjira.local   | user    | /users    |
+| admin      | admin123     | admin@storyfirst.local      | admin   | /admins   |
+| manager    | manager123   | manager@storyfirst.local    | manager | /managers |
+| testuser   | testuser123  | testuser@storyfirst.local   | user    | /users    |
 
 **Note**: These are test credentials for development only. In production, you should:
 1. Remove or disable these users
@@ -46,9 +46,9 @@ From the admin console, you can:
 
 ## Client Configuration
 
-### Frontend Client (`notjira-frontend`)
+### Frontend Client (`storyfirst-frontend`)
 
-- **Client ID**: `notjira-frontend`
+- **Client ID**: `storyfirst-frontend`
 - **Access Type**: Public
 - **Authentication Flow**: Authorization Code with PKCE (S256)
 - **Valid Redirect URIs**:
@@ -57,9 +57,9 @@ From the admin console, you can:
   - `http://localhost:80/*` (Production)
 - **Web Origins**: Same as redirect URIs
 
-### Backend Client (`notjira-api`)
+### Backend Client (`storyfirst-api`)
 
-- **Client ID**: `notjira-api`
+- **Client ID**: `storyfirst-api`
 - **Access Type**: Bearer-only
 - **Purpose**: Validates JWT tokens from frontend
 
@@ -117,8 +117,8 @@ To modify the realm configuration:
 1. Make changes through the Keycloak Admin Console
 2. Export the realm:
    ```bash
-   docker exec -it notjira-keycloak /opt/keycloak/bin/kc.sh export --dir /tmp --realm notjira
-   docker cp notjira-keycloak:/tmp/notjira-realm.json ./keycloak/realm-export.json
+   docker exec -it storyfirst-keycloak /opt/keycloak/bin/kc.sh export --dir /tmp --realm storyfirst
+   docker cp storyfirst-keycloak:/tmp/storyfirst-realm.json ./keycloak/realm-export.json
    ```
 3. Commit the updated `realm-export.json` file
 
