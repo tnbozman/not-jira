@@ -1,11 +1,14 @@
 services:
   devcontainer:
     build:
-      context: .
+      context: .devcontainer
       dockerfile: Dockerfile
     container_name: notjira-devcontainer
     volumes:
-      - ..:/workspace:cached
+      - .:/workspace:cached
+      # Mount .gitconfig and .ssh for seamless git integration
+      - ~/.gitconfig:/home/vscode/.gitconfig:ro
+      - ~/.ssh:/home/vscode/.ssh:ro
     command: sleep infinity
     network_mode: service:db
     depends_on:

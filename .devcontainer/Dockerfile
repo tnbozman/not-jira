@@ -6,8 +6,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest
 
-# Install PostgreSQL client tools
-RUN apt-get update && apt-get install -y postgresql-client
+# Install PostgreSQL client tools and Git
+RUN apt-get update && apt-get install -y postgresql-client git
 
 # Install global npm packages for development
 RUN npm install -g @vue/cli vite
