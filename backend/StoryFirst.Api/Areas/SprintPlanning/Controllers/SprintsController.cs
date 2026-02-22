@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
-using StoryFirst.Api.Repositories;
+using StoryFirst.Api.Areas.SprintPlanning.Models;
+using StoryFirst.Api.Areas.SprintPlanning.Services;
 
 namespace StoryFirst.Api.Areas.SprintPlanning.Controllers;
 
@@ -9,31 +10,24 @@ namespace StoryFirst.Api.Areas.SprintPlanning.Controllers;
 [Route("api/projects/{projectId}/[controller]")]
 public class SprintsController : BaseApiController
 {
-    private readonly IRepository<Sprint> _sprintRepository;
-    private readonly IRepository<TeamPlanning> _teamPlanningRepository;
+    private readonly ISprintService _sprintService;
 
-    public SprintsController(
-        IRepository<Sprint> sprintRepository,
-        IRepository<TeamPlanning> teamPlanningRepository)
+    public SprintsController(ISprintService sprintService)
     {
-        _sprintRepository = sprintRepository;
-        _teamPlanningRepository = teamPlanningRepository;
+        _sprintService = sprintService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Sprint>>> GetSprints(int projectId)
     {
-        var sprints = (await _sprintRepository.FindAsync(s => s.ProjectId == projectId))
-            .OrderByDescending(s => s.StartDate)
-            .ToList();
-            
+        var sprints = await _sprintService.GetAllByProjectAsync(projectId);
         return Ok(sprints);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Sprint>> GetSprint(int projectId, int id)
     {
-        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.ProjectId == projectId && s.Id == id);
+        var sprint = await _sprintService.GetByIdAsync(projectId, id);
 
         if (sprint == null)
         {
@@ -46,14 +40,8 @@ public class SprintsController : BaseApiController
     [HttpPost]
     public async Task<ActionResult<Sprint>> CreateSprint(int projectId, Sprint sprint)
     {
-        sprint.ProjectId = projectId;
-        sprint.CreatedAt = DateTime.UtcNow;
-        sprint.UpdatedAt = DateTime.UtcNow;
-
-        await _sprintRepository.AddAsync(sprint);
-        await _sprintRepository.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetSprint), new { projectId, id = sprint.Id }, sprint);
+        var createdSprint = await _sprintService.CreateAsync(projectId, sprint);
+        return CreatedAtAction(nameof(GetSprint), new { projectId, id = createdSprint.Id }, createdSprint);
     }
 
     [HttpPut("{id}")]
@@ -64,150 +52,75 @@ public class SprintsController : BaseApiController
             return BadRequest();
         }
 
-        var existingSprint = await _sprintRepository.FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
-
-        if (existingSprint == null)
+        try
+        {
+            await _sprintService.UpdateAsync(projectId, id, sprint);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        existingSprint.Name = sprint.Name;
-        existingSprint.Goal = sprint.Goal;
-        existingSprint.StartDate = sprint.StartDate;
-        existingSprint.EndDate = sprint.EndDate;
-        existingSprint.Status = sprint.Status;
-        existingSprint.PlanningOneNotes = sprint.PlanningOneNotes;
-        existingSprint.ReviewNotes = sprint.ReviewNotes;
-        existingSprint.RetroNotes = sprint.RetroNotes;
-        existingSprint.UpdatedAt = DateTime.UtcNow;
-
-        _sprintRepository.Update(existingSprint);
-        await _sprintRepository.SaveChangesAsync();
-
-        return NoContent();
+        catch (ArgumentException)
+        {
+            return BadRequest();
+        }
     }
 
     [HttpGet("{id}/planning")]
-    public async Task<ActionResult> GetSprintPlanning(int projectId, int id)
+    public async Task<ActionResult<SprintPlanningResponse>> GetSprintPlanning(int projectId, int id)
     {
-        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.ProjectId == projectId && s.Id == id);
-
-        if (sprint == null)
+        try
+        {
+            var planning = await _sprintService.GetTeamPlanningAsync(projectId, id);
+            return Ok(planning);
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        var teamPlannings = await _teamPlanningRepository.FindAsync(tp => tp.SprintId == id);
-
-        return Ok(new
-        {
-            sprint.Id,
-            sprint.Name,
-            sprint.PlanningOneNotes,
-            TeamPlannings = teamPlannings.Select(tp => new
-            {
-                tp.Id,
-                tp.TeamId,
-                TeamName = tp.Team?.Name,
-                tp.PlanningTwoNotes
-            })
-        });
     }
 
     [HttpPut("{id}/planning")]
     public async Task<IActionResult> UpdateSprintPlanning(int projectId, int id, [FromBody] SprintPlanningDto dto)
     {
-        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.ProjectId == projectId && s.Id == id);
-
-        if (sprint == null)
+        try
+        {
+            await _sprintService.SaveTeamPlanningAsync(projectId, id, dto);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        sprint.PlanningOneNotes = dto.PlanningOneNotes;
-        sprint.UpdatedAt = DateTime.UtcNow;
-
-        if (dto.TeamPlannings != null)
-        {
-            var existingPlannings = await _teamPlanningRepository.FindAsync(tp => tp.SprintId == sprint.Id);
-            
-            foreach (var teamPlanningDto in dto.TeamPlannings)
-            {
-                var existing = existingPlannings.FirstOrDefault(tp => tp.TeamId == teamPlanningDto.TeamId);
-                if (existing != null)
-                {
-                    existing.PlanningTwoNotes = teamPlanningDto.PlanningTwoNotes;
-                    existing.UpdatedAt = DateTime.UtcNow;
-                    _teamPlanningRepository.Update(existing);
-                }
-                else
-                {
-                    await _teamPlanningRepository.AddAsync(new TeamPlanning
-                    {
-                        SprintId = sprint.Id,
-                        TeamId = teamPlanningDto.TeamId,
-                        PlanningTwoNotes = teamPlanningDto.PlanningTwoNotes,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    });
-                }
-            }
-        }
-
-        _sprintRepository.Update(sprint);
-        await _sprintRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 
     [HttpPut("{id}/review")]
     public async Task<IActionResult> UpdateSprintReview(int projectId, int id, [FromBody] SprintNotesDto dto)
     {
-        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
-
-        if (sprint == null)
+        try
+        {
+            await _sprintService.UpdateReviewNotesAsync(projectId, id, dto.Notes);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        sprint.ReviewNotes = dto.Notes;
-        sprint.UpdatedAt = DateTime.UtcNow;
-
-        _sprintRepository.Update(sprint);
-        await _sprintRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 
     [HttpPut("{id}/retro")]
     public async Task<IActionResult> UpdateSprintRetro(int projectId, int id, [FromBody] SprintNotesDto dto)
     {
-        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
-
-        if (sprint == null)
+        try
+        {
+            await _sprintService.UpdateRetroNotesAsync(projectId, id, dto.Notes);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        sprint.RetroNotes = dto.Notes;
-        sprint.UpdatedAt = DateTime.UtcNow;
-
-        _sprintRepository.Update(sprint);
-        await _sprintRepository.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-    public class SprintPlanningDto
-    {
-        public string? PlanningOneNotes { get; set; }
-        public List<TeamPlanningDto>? TeamPlannings { get; set; }
-    }
-
-    public class TeamPlanningDto
-    {
-        public int TeamId { get; set; }
-        public string? PlanningTwoNotes { get; set; }
     }
 
     public class SprintNotesDto
@@ -218,16 +131,14 @@ public class SprintsController : BaseApiController
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSprint(int projectId, int id)
     {
-        var sprint = await _sprintRepository.FirstOrDefaultAsync(s => s.Id == id && s.ProjectId == projectId);
-
-        if (sprint == null)
+        try
+        {
+            await _sprintService.DeleteAsync(projectId, id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        _sprintRepository.Remove(sprint);
-        await _sprintRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 }
