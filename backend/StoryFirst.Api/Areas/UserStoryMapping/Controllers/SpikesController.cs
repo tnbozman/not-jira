@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
-using StoryFirst.Api.Repositories;
+using StoryFirst.Api.Areas.UserStoryMapping.Services;
 
 namespace StoryFirst.Api.Areas.UserStoryMapping.Controllers;
 
@@ -9,94 +9,84 @@ namespace StoryFirst.Api.Areas.UserStoryMapping.Controllers;
 [Route("api/projects/{projectId}/epics/{epicId}/[controller]")]
 public class SpikesController : BaseApiController
 {
-    private readonly ISpikeRepository _spikeRepository;
+    private readonly ISpikeService _spikeService;
 
-    public SpikesController(ISpikeRepository spikeRepository)
+    public SpikesController(ISpikeService spikeService)
     {
-        _spikeRepository = spikeRepository;
+        _spikeService = spikeService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Spike>>> GetSpikes(int projectId, int epicId)
     {
-        var spikes = await _spikeRepository.GetByEpicIdAsync(epicId);
+        var spikes = await _spikeService.GetByEpicIdAsync(epicId);
         return Ok(spikes);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Spike>> GetSpike(int projectId, int epicId, int id)
     {
-        var spike = await _spikeRepository.FirstOrDefaultAsync(s => s.EpicId == epicId && s.Id == id);
+        var spike = await _spikeService.GetByIdAsync(epicId, id);
 
         if (spike == null)
         {
             return NotFound();
         }
 
-        var spikeDetails = await _spikeRepository.GetWithDetailsAsync(id);
-        return Ok(spikeDetails);
+        return Ok(spike);
     }
 
     [HttpPost]
     public async Task<ActionResult<Spike>> CreateSpike(int projectId, int epicId, Spike spike)
     {
-        spike.EpicId = epicId;
-        spike.CreatedAt = DateTime.UtcNow;
-        spike.UpdatedAt = DateTime.UtcNow;
-
-        await _spikeRepository.AddAsync(spike);
-        await _spikeRepository.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetSpike), new { projectId, epicId, id = spike.Id }, spike);
+        try
+        {
+            var result = await _spikeService.CreateAsync(epicId, spike);
+            return CreatedAtAction(nameof(GetSpike), new { projectId, epicId, id = result.Id }, result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateSpike(int projectId, int epicId, int id, Spike spike)
     {
-        if (id != spike.Id)
+        try
+        {
+            await _spikeService.UpdateAsync(epicId, id, spike);
+            return NoContent();
+        }
+        catch (ArgumentException)
         {
             return BadRequest();
         }
-
-        var existingSpike = await _spikeRepository.FirstOrDefaultAsync(s => s.Id == id && s.EpicId == epicId);
-
-        if (existingSpike == null)
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        existingSpike.Title = spike.Title;
-        existingSpike.Description = spike.Description;
-        existingSpike.InvestigationGoal = spike.InvestigationGoal;
-        existingSpike.Findings = spike.Findings;
-        existingSpike.Order = spike.Order;
-        existingSpike.Priority = spike.Priority;
-        existingSpike.Status = spike.Status;
-        existingSpike.StoryPoints = spike.StoryPoints;
-        existingSpike.SprintId = spike.SprintId;
-        existingSpike.ReleaseId = spike.ReleaseId;
-        existingSpike.OutcomeId = spike.OutcomeId;
-        existingSpike.UpdatedAt = DateTime.UtcNow;
-
-        _spikeRepository.Update(existingSpike);
-        await _spikeRepository.SaveChangesAsync();
-
-        return NoContent();
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSpike(int projectId, int epicId, int id)
     {
-        var spike = await _spikeRepository.FirstOrDefaultAsync(s => s.Id == id && s.EpicId == epicId);
-
-        if (spike == null)
+        try
+        {
+            await _spikeService.DeleteAsync(epicId, id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        _spikeRepository.Remove(spike);
-        await _spikeRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 }

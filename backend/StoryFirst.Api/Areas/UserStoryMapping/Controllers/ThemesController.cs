@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
-using StoryFirst.Api.Repositories;
+using StoryFirst.Api.Areas.UserStoryMapping.Services;
 
 namespace StoryFirst.Api.Areas.UserStoryMapping.Controllers;
 
@@ -9,244 +9,84 @@ namespace StoryFirst.Api.Areas.UserStoryMapping.Controllers;
 [Route("api/projects/{projectId}/[controller]")]
 public class ThemesController : BaseApiController
 {
-    private readonly IThemeRepository _themeRepository;
-    private readonly IEpicRepository _epicRepository;
+    private readonly IThemeService _themeService;
 
-    public ThemesController(
-        IThemeRepository themeRepository,
-        IEpicRepository epicRepository)
+    public ThemesController(IThemeService themeService)
     {
-        _themeRepository = themeRepository;
-        _epicRepository = epicRepository;
+        _themeService = themeService;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetThemes(int projectId)
     {
-        var themes = await _themeRepository.FindAsync(t => t.ProjectId == projectId);
-        var orderedThemes = themes.OrderBy(t => t.Order).ToList();
-        
-        var result = new List<object>();
-        foreach (var theme in orderedThemes)
-        {
-            var themeDetails = await _themeRepository.GetWithDetailsAsync(theme.Id);
-            var epics = await _epicRepository.FindAsync(e => e.ThemeId == theme.Id);
-            
-            result.Add(new
-            {
-                themeDetails!.Id,
-                themeDetails.Name,
-                themeDetails.Description,
-                themeDetails.Order,
-                themeDetails.ProjectId,
-                themeDetails.OutcomeId,
-                Outcome = themeDetails.Outcome == null ? null : new { themeDetails.Outcome.Id, themeDetails.Outcome.Description },
-                themeDetails.CreatedAt,
-                themeDetails.UpdatedAt,
-                Epics = epics.OrderBy(e => e.Order).Select(e => new
-                {
-                    e.Id,
-                    e.Name,
-                    e.Description,
-                    e.Order,
-                    e.ThemeId,
-                    e.OutcomeId,
-                    Outcome = e.Outcome == null ? null : new { e.Outcome.Id, e.Outcome.Description },
-                    e.CreatedAt,
-                    e.UpdatedAt,
-                    Stories = e.Stories.OrderBy(s => s.Order).Select(s => new
-                    {
-                        s.Id,
-                        s.Title,
-                        s.Description,
-                        s.SolutionDescription,
-                        s.AcceptanceCriteria,
-                        s.Order,
-                        s.Priority,
-                        s.Status,
-                        s.StoryPoints,
-                        s.EpicId,
-                        s.SprintId,
-                        Sprint = s.Sprint == null ? null : new { s.Sprint.Id, s.Sprint.Name },
-                        s.ReleaseId,
-                        Release = s.Release == null ? null : new { s.Release.Id, s.Release.Name },
-                        s.TeamId,
-                        s.AssigneeId,
-                        s.AssigneeName,
-                        s.OutcomeId,
-                        s.CreatedAt,
-                        s.UpdatedAt
-                    }).ToList(),
-                    Spikes = e.Spikes.OrderBy(sp => sp.Order).Select(sp => new
-                    {
-                        sp.Id,
-                        sp.Title,
-                        sp.Description,
-                        sp.InvestigationGoal,
-                        sp.Findings,
-                        sp.Order,
-                        sp.Priority,
-                        sp.Status,
-                        sp.StoryPoints,
-                        sp.EpicId,
-                        sp.SprintId,
-                        Sprint = sp.Sprint == null ? null : new { sp.Sprint.Id, sp.Sprint.Name },
-                        sp.ReleaseId,
-                        Release = sp.Release == null ? null : new { sp.Release.Id, sp.Release.Name },
-                        sp.TeamId,
-                        sp.AssigneeId,
-                        sp.AssigneeName,
-                        sp.OutcomeId,
-                        sp.CreatedAt,
-                        sp.UpdatedAt
-                    }).ToList()
-                }).ToList()
-            });
-        }
-
-        return Ok(result);
+        var themes = await _themeService.GetAllByProjectAsync(projectId);
+        return Ok(themes);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTheme(int projectId, int id)
     {
-        var theme = await _themeRepository.FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == id);
+        var theme = await _themeService.GetByIdAsync(projectId, id);
 
         if (theme == null)
         {
             return NotFound();
         }
 
-        var themeDetails = await _themeRepository.GetWithDetailsAsync(id);
-        var epics = await _epicRepository.FindAsync(e => e.ThemeId == id);
-
-        var result = new
-        {
-            themeDetails!.Id,
-            themeDetails.Name,
-            themeDetails.Description,
-            themeDetails.Order,
-            themeDetails.ProjectId,
-            themeDetails.OutcomeId,
-            Outcome = themeDetails.Outcome == null ? null : new { themeDetails.Outcome.Id, themeDetails.Outcome.Description },
-            themeDetails.CreatedAt,
-            themeDetails.UpdatedAt,
-            Epics = epics.OrderBy(e => e.Order).Select(e => new
-            {
-                e.Id,
-                e.Name,
-                e.Description,
-                e.Order,
-                e.ThemeId,
-                e.OutcomeId,
-                Outcome = e.Outcome == null ? null : new { e.Outcome.Id, e.Outcome.Description },
-                e.CreatedAt,
-                e.UpdatedAt,
-                Stories = e.Stories.OrderBy(s => s.Order).Select(s => new
-                {
-                    s.Id,
-                    s.Title,
-                    s.Description,
-                    s.SolutionDescription,
-                    s.AcceptanceCriteria,
-                    s.Order,
-                    s.Priority,
-                    s.Status,
-                    s.StoryPoints,
-                    s.EpicId,
-                    s.SprintId,
-                    Sprint = s.Sprint == null ? null : new { s.Sprint.Id, s.Sprint.Name },
-                    s.ReleaseId,
-                    Release = s.Release == null ? null : new { s.Release.Id, s.Release.Name },
-                    s.TeamId,
-                    s.AssigneeId,
-                    s.AssigneeName,
-                    s.OutcomeId,
-                    s.CreatedAt,
-                    s.UpdatedAt
-                }).ToList(),
-                Spikes = e.Spikes.OrderBy(sp => sp.Order).Select(sp => new
-                {
-                    sp.Id,
-                    sp.Title,
-                    sp.Description,
-                    sp.InvestigationGoal,
-                    sp.Findings,
-                    sp.Order,
-                    sp.Priority,
-                    sp.Status,
-                    sp.StoryPoints,
-                    sp.EpicId,
-                    sp.SprintId,
-                    Sprint = sp.Sprint == null ? null : new { sp.Sprint.Id, sp.Sprint.Name },
-                    sp.ReleaseId,
-                    Release = sp.Release == null ? null : new { sp.Release.Id, sp.Release.Name },
-                    sp.TeamId,
-                    sp.AssigneeId,
-                    sp.AssigneeName,
-                    sp.OutcomeId,
-                    sp.CreatedAt,
-                    sp.UpdatedAt
-                }).ToList()
-            }).ToList()
-        };
-
-        return Ok(result);
+        return Ok(theme);
     }
 
     [HttpPost]
     public async Task<ActionResult<Theme>> CreateTheme(int projectId, Theme theme)
     {
-        theme.ProjectId = projectId;
-        theme.CreatedAt = DateTime.UtcNow;
-        theme.UpdatedAt = DateTime.UtcNow;
-
-        await _themeRepository.AddAsync(theme);
-        await _themeRepository.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetTheme), new { projectId, id = theme.Id }, theme);
+        try
+        {
+            var result = await _themeService.CreateAsync(projectId, theme);
+            return CreatedAtAction(nameof(GetTheme), new { projectId, id = result.Id }, result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTheme(int projectId, int id, Theme theme)
     {
-        if (id != theme.Id)
+        try
+        {
+            await _themeService.UpdateAsync(projectId, id, theme);
+            return NoContent();
+        }
+        catch (ArgumentException)
         {
             return BadRequest();
         }
-
-        var existingTheme = await _themeRepository.FirstOrDefaultAsync(t => t.Id == id && t.ProjectId == projectId);
-
-        if (existingTheme == null)
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        existingTheme.Name = theme.Name;
-        existingTheme.Description = theme.Description;
-        existingTheme.Order = theme.Order;
-        existingTheme.OutcomeId = theme.OutcomeId;
-        existingTheme.UpdatedAt = DateTime.UtcNow;
-
-        _themeRepository.Update(existingTheme);
-        await _themeRepository.SaveChangesAsync();
-
-        return NoContent();
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTheme(int projectId, int id)
     {
-        var theme = await _themeRepository.FirstOrDefaultAsync(t => t.Id == id && t.ProjectId == projectId);
-
-        if (theme == null)
+        try
+        {
+            await _themeService.DeleteAsync(projectId, id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        _themeRepository.Remove(theme);
-        await _themeRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 }

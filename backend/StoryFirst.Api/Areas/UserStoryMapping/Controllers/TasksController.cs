@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
-using StoryFirst.Api.Repositories;
+using StoryFirst.Api.Areas.UserStoryMapping.Services;
 
 namespace StoryFirst.Api.Areas.UserStoryMapping.Controllers;
 
@@ -9,24 +9,24 @@ namespace StoryFirst.Api.Areas.UserStoryMapping.Controllers;
 [Route("api/[controller]")]
 public class TasksController : BaseApiController
 {
-    private readonly IRepository<TaskItem> _taskRepository;
+    private readonly ITaskService _taskService;
 
-    public TasksController(IRepository<TaskItem> taskRepository)
+    public TasksController(ITaskService taskService)
     {
-        _taskRepository = taskRepository;
+        _taskService = taskService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks()
     {
-        var tasks = await _taskRepository.GetAllAsync();
+        var tasks = await _taskService.GetAllAsync();
         return Ok(tasks);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<TaskItem>> GetTask(int id)
     {
-        var task = await _taskRepository.GetByIdAsync(id);
+        var task = await _taskService.GetByIdAsync(id);
 
         if (task == null)
         {
@@ -39,51 +39,54 @@ public class TasksController : BaseApiController
     [HttpPost]
     public async Task<ActionResult<TaskItem>> CreateTask(TaskItem task)
     {
-        task.CreatedAt = DateTime.UtcNow;
-        task.UpdatedAt = DateTime.UtcNow;
-
-        await _taskRepository.AddAsync(task);
-        await _taskRepository.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
+        try
+        {
+            var result = await _taskService.CreateAsync(task);
+            return CreatedAtAction(nameof(GetTask), new { id = result.Id }, result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTask(int id, TaskItem task)
     {
-        if (id != task.Id)
+        try
+        {
+            await _taskService.UpdateAsync(id, task);
+            return NoContent();
+        }
+        catch (ArgumentException)
         {
             return BadRequest();
         }
-
-        var existingTask = await _taskRepository.GetByIdAsync(id);
-
-        if (existingTask == null)
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        task.UpdatedAt = DateTime.UtcNow;
-        task.CreatedAt = existingTask.CreatedAt;
-
-        _taskRepository.Update(task);
-        await _taskRepository.SaveChangesAsync();
-
-        return NoContent();
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTask(int id)
     {
-        var task = await _taskRepository.GetByIdAsync(id);
-        if (task == null)
+        try
+        {
+            await _taskService.DeleteAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        _taskRepository.Remove(task);
-        await _taskRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 }
