@@ -147,6 +147,23 @@
           </Card>
         </TabPanel>
 
+        <TabPanel header="Backlog" value="backlog">
+          <Card>
+            <template #content>
+              <div class="quick-nav-card">
+                <i class="pi pi-list" style="font-size: 2rem; color: #8b5cf6;"></i>
+                <h3>Product Backlog</h3>
+                <p>View sprints and backlog items with filtering by team, assignee, release, and epic. Manage sprint planning, reviews, and retrospectives.</p>
+                <Button 
+                  label="View Backlog" 
+                  icon="pi pi-arrow-right" 
+                  @click="navigateToBacklog" 
+                />
+              </div>
+            </template>
+          </Card>
+        </TabPanel>
+
         <TabPanel header="Members" value="members">
           <Card>
             <template #title>
@@ -432,6 +449,10 @@ const navigateToGraph = () => {
 
 const navigateToStoryMap = () => {
   router.push(`/projects/${project.value?.id}/story-map`)
+}
+
+const navigateToBacklog = () => {
+  router.push(`/projects/${project.value?.id}/backlog`)
 }
 
 onMounted(() => {
