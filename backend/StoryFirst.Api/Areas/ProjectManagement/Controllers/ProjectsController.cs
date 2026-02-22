@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StoryFirst.Api.Models;
-using StoryFirst.Api.Repositories;
 using StoryFirst.Api.Common.Controllers;
+using StoryFirst.Api.Areas.ProjectManagement.Services;
 
 namespace StoryFirst.Api.Areas.ProjectManagement.Controllers;
 
@@ -9,22 +9,18 @@ namespace StoryFirst.Api.Areas.ProjectManagement.Controllers;
 [Route("api/[controller]")]
 public class ProjectsController : BaseApiController
 {
-    private readonly IProjectRepository _projectRepository;
-    private readonly IRepository<ProjectMember> _projectMemberRepository;
+    private readonly IProjectService _projectService;
 
-    public ProjectsController(
-        IProjectRepository projectRepository,
-        IRepository<ProjectMember> projectMemberRepository)
+    public ProjectsController(IProjectService projectService)
     {
-        _projectRepository = projectRepository;
-        _projectMemberRepository = projectMemberRepository;
+        _projectService = projectService;
     }
 
     // GET: api/projects
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
     {
-        var projects = await _projectRepository.GetAllAsync();
+        var projects = await _projectService.GetAllAsync();
         return Ok(projects);
     }
 
@@ -32,7 +28,7 @@ public class ProjectsController : BaseApiController
     [HttpGet("{id}")]
     public async Task<ActionResult<Project>> GetProject(int id)
     {
-        var project = await _projectRepository.GetWithMembersAsync(id);
+        var project = await _projectService.GetByIdAsync(id);
 
         if (project == null)
         {
@@ -46,7 +42,7 @@ public class ProjectsController : BaseApiController
     [HttpGet("by-key/{key}")]
     public async Task<ActionResult<Project>> GetProjectByKey(string key)
     {
-        var project = await _projectRepository.GetByKeyAsync(key);
+        var project = await _projectService.GetByKeyAsync(key);
 
         if (project == null)
         {
@@ -60,113 +56,83 @@ public class ProjectsController : BaseApiController
     [HttpPost]
     public async Task<ActionResult<Project>> CreateProject(Project project)
     {
-        // Validate project key
-        if (string.IsNullOrWhiteSpace(project.Key))
+        try
         {
-            return BadRequest("Project key is required");
+            var result = await _projectService.CreateAsync(project);
+            return CreatedAtAction(nameof(GetProject), new { id = result.Id }, result);
         }
-
-        // Validate key format (alphanumeric and hyphens only, uppercase)
-        if (!System.Text.RegularExpressions.Regex.IsMatch(project.Key, @"^[A-Z0-9-]+$"))
+        catch (ArgumentException ex)
         {
-            return BadRequest("Project key must contain only uppercase letters, numbers, and hyphens");
+            return BadRequest(ex.Message);
         }
-
-        // Check for duplicate key
-        if (await _projectRepository.AnyAsync(p => p.Key == project.Key))
+        catch (InvalidOperationException ex)
         {
-            return Conflict("A project with this key already exists");
+            return Conflict(ex.Message);
         }
-
-        project.CreatedAt = DateTime.UtcNow;
-        project.UpdatedAt = DateTime.UtcNow;
-
-        await _projectRepository.AddAsync(project);
-        await _projectRepository.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetProject), new { id = project.Id }, project);
     }
 
     // PUT: api/projects/{id}
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateProject(int id, Project project)
     {
-        if (id != project.Id)
+        try
+        {
+            await _projectService.UpdateAsync(id, project);
+            return NoContent();
+        }
+        catch (ArgumentException)
         {
             return BadRequest();
         }
-
-        // Don't allow changing the key
-        var existingProject = await _projectRepository.GetByIdAsync(id);
-        if (existingProject == null)
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        if (existingProject.Key != project.Key)
+        catch (InvalidOperationException ex)
         {
-            return BadRequest("Cannot change project key");
+            return BadRequest(ex.Message);
         }
-
-        project.UpdatedAt = DateTime.UtcNow;
-        project.CreatedAt = existingProject.CreatedAt; // Preserve original creation date
-        
-        _projectRepository.Update(project);
-        await _projectRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 
     // DELETE: api/projects/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProject(int id)
     {
-        var project = await _projectRepository.GetByIdAsync(id);
-        if (project == null)
+        try
+        {
+            await _projectService.DeleteAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        _projectRepository.Remove(project);
-        await _projectRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 
     // POST: api/projects/{id}/members
     [HttpPost("{id}/members")]
     public async Task<ActionResult<ProjectMember>> AddMember(int id, ProjectMember member)
     {
-        var project = await _projectRepository.GetByIdAsync(id);
-        if (project == null)
+        try
         {
-            return NotFound("Project not found");
+            var result = await _projectService.AddMemberAsync(id, member);
+            return CreatedAtAction(nameof(GetProjectMember), new { id = id, memberId = result.Id }, result);
         }
-
-        // Check if user is already a member
-        var existingMember = await _projectMemberRepository
-            .FirstOrDefaultAsync(m => m.ProjectId == id && m.UserId == member.UserId);
-
-        if (existingMember != null)
+        catch (KeyNotFoundException ex)
         {
-            return Conflict("User is already a member of this project");
+            return NotFound(ex.Message);
         }
-
-        member.ProjectId = id;
-        member.AddedAt = DateTime.UtcNow;
-
-        await _projectMemberRepository.AddAsync(member);
-        await _projectMemberRepository.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetProjectMember), new { id = id, memberId = member.Id }, member);
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
     }
 
     // GET: api/projects/{id}/members/{memberId}
     [HttpGet("{id}/members/{memberId}")]
     public async Task<ActionResult<ProjectMember>> GetProjectMember(int id, int memberId)
     {
-        var member = await _projectMemberRepository
-            .FirstOrDefaultAsync(m => m.ProjectId == id && m.Id == memberId);
+        var member = await _projectService.GetMemberAsync(id, memberId);
 
         if (member == null)
         {
@@ -180,43 +146,33 @@ public class ProjectsController : BaseApiController
     [HttpDelete("{id}/members/{memberId}")]
     public async Task<IActionResult> RemoveMember(int id, int memberId)
     {
-        var member = await _projectMemberRepository
-            .FirstOrDefaultAsync(m => m.ProjectId == id && m.Id == memberId);
-
-        if (member == null)
+        try
+        {
+            await _projectService.RemoveMemberAsync(id, memberId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        _projectMemberRepository.Remove(member);
-        await _projectMemberRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 
     // PUT: api/projects/{id}/members/{memberId}
     [HttpPut("{id}/members/{memberId}")]
     public async Task<IActionResult> UpdateMember(int id, int memberId, ProjectMember member)
     {
-        if (id != member.ProjectId || memberId != member.Id)
+        try
+        {
+            await _projectService.UpdateMemberAsync(id, memberId, member);
+            return NoContent();
+        }
+        catch (ArgumentException)
         {
             return BadRequest();
         }
-
-        var existingMember = await _projectMemberRepository
-            .FirstOrDefaultAsync(m => m.ProjectId == id && m.Id == memberId);
-
-        if (existingMember == null)
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        // Preserve the original AddedAt timestamp
-        member.AddedAt = existingMember.AddedAt;
-
-        _projectMemberRepository.Update(member);
-        await _projectMemberRepository.SaveChangesAsync();
-
-        return NoContent();
     }
 }

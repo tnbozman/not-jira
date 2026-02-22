@@ -95,6 +95,14 @@ builder.Services.AddScoped<IStoryRepository, StoryRepository>();
 builder.Services.AddScoped<ISpikeRepository, SpikeRepository>();
 builder.Services.AddScoped<IExternalEntityRepository, ExternalEntityRepository>();
 
+// Register Services
+builder.Services.AddScoped<StoryFirst.Api.Areas.ProjectManagement.Services.IProjectService, StoryFirst.Api.Areas.ProjectManagement.Services.ProjectService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.IThemeService, StoryFirst.Api.Areas.UserStoryMapping.Services.ThemeService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.IEpicService, StoryFirst.Api.Areas.UserStoryMapping.Services.EpicService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.IStoryService, StoryFirst.Api.Areas.UserStoryMapping.Services.StoryService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.ISpikeService, StoryFirst.Api.Areas.UserStoryMapping.Services.SpikeService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.ITaskService, StoryFirst.Api.Areas.UserStoryMapping.Services.TaskService>();
+
 // Add Controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
