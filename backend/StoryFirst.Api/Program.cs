@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using StoryFirst.Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using StoryFirst.Api.Middleware;
+using StoryFirst.Api.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,6 +86,32 @@ builder.Services.AddAuthorization();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Register Repositories
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IThemeRepository, ThemeRepository>();
+builder.Services.AddScoped<IEpicRepository, EpicRepository>();
+builder.Services.AddScoped<IStoryRepository, StoryRepository>();
+builder.Services.AddScoped<ISpikeRepository, SpikeRepository>();
+builder.Services.AddScoped<IExternalEntityRepository, ExternalEntityRepository>();
+
+// Register Services
+builder.Services.AddScoped<StoryFirst.Api.Areas.ProjectManagement.Services.IProjectService, StoryFirst.Api.Areas.ProjectManagement.Services.ProjectService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.IThemeService, StoryFirst.Api.Areas.UserStoryMapping.Services.ThemeService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.IEpicService, StoryFirst.Api.Areas.UserStoryMapping.Services.EpicService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.IStoryService, StoryFirst.Api.Areas.UserStoryMapping.Services.StoryService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.ISpikeService, StoryFirst.Api.Areas.UserStoryMapping.Services.SpikeService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.UserStoryMapping.Services.ITaskService, StoryFirst.Api.Areas.UserStoryMapping.Services.TaskService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.SprintPlanning.Services.IBacklogService, StoryFirst.Api.Areas.SprintPlanning.Services.BacklogService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.SprintPlanning.Services.ISprintService, StoryFirst.Api.Areas.SprintPlanning.Services.SprintService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.SprintPlanning.Services.ITeamService, StoryFirst.Api.Areas.SprintPlanning.Services.TeamService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.SprintPlanning.Services.IReleaseService, StoryFirst.Api.Areas.SprintPlanning.Services.ReleaseService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.IExternalEntityService, StoryFirst.Api.Areas.ProductDiscovery.Services.ExternalEntityService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.IProblemService, StoryFirst.Api.Areas.ProductDiscovery.Services.ProblemService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.IInterviewService, StoryFirst.Api.Areas.ProductDiscovery.Services.InterviewService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.ITagService, StoryFirst.Api.Areas.ProductDiscovery.Services.TagService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.Visualization.Services.IGraphService, StoryFirst.Api.Areas.Visualization.Services.GraphService>();
+
 // Add Controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -115,6 +143,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Use global exception handler
+app.UseGlobalExceptionHandler();
 
 app.UseCors("AllowAll");
 
