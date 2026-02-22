@@ -22,16 +22,31 @@
       <Message severity="error" :closable="false">{{ error }}</Message>
     </div>
 
-    <div v-else class="story-map">
-      <!-- Themes Row -->
-      <div class="themes-row">
-        <div v-for="theme in themes" :key="theme.id" class="theme-card">
-          <div class="theme-card-inner">
-            <div class="theme-top">
+    <div v-else-if="themes.length === 0" class="empty-state">
+      <Message severity="info" :closable="false">
+        No themes yet. Click "Add Theme" to create your first outcome-focused theme.
+      </Message>
+    </div>
+
+    <div v-else class="story-map-wrapper">
+      <div class="story-map-grid" :style="{ gridTemplateColumns: gridColumns }">
+        <!-- ── Row 0: Theme headers ─────────────────────────── -->
+        <!-- Top-left corner (blank cell above release labels) -->
+        <div class="grid-corner"></div>
+
+        <template v-for="theme in themes" :key="'th-' + theme.id">
+          <div class="theme-header" :style="{ gridColumn: 'span ' + (theme.epics?.length || 1) }">
+            <div class="theme-header-inner">
               <h3 class="theme-name">{{ theme.name }}</h3>
-              <div class="theme-btns">
+              <div class="card-btns">
                 <Button icon="pi pi-pencil" text size="small" @click="editTheme(theme)" />
-                <Button icon="pi pi-plus" text size="small" @click="showAddEpicDialog(theme)" />
+                <Button
+                  icon="pi pi-plus"
+                  text
+                  size="small"
+                  @click="showAddEpicDialog(theme)"
+                  v-tooltip="'Add Epic'"
+                />
                 <Button
                   icon="pi pi-trash"
                   text
@@ -42,20 +57,32 @@
               </div>
             </div>
             <p v-if="theme.description" class="theme-desc">{{ theme.description }}</p>
-            <Tag
-              v-if="theme.outcome"
-              severity="success"
-              :value="'Outcome: ' + theme.outcome.description"
-            />
+          </div>
+        </template>
 
-            <!-- Epics Column -->
-            <div class="epics-column">
-              <div v-for="epic in theme.epics" :key="epic.id" class="epic-card">
+        <!-- ── Row 1: Epic backbone ─────────────────────────── -->
+        <!-- Left label -->
+        <div class="row-label row-label--backbone">Backbone</div>
+
+        <template v-for="theme in themes" :key="'te-' + theme.id">
+          <div
+            v-for="epic in theme.epics && theme.epics.length ? theme.epics : [null]"
+            :key="'ep-' + (epic ? epic.id : 'empty-' + theme.id)"
+            class="epic-cell"
+          >
+            <template v-if="epic">
+              <div class="epic-card">
                 <div class="epic-top">
                   <h4 class="epic-name">{{ epic.name }}</h4>
-                  <div class="epic-btns">
+                  <div class="card-btns">
                     <Button icon="pi pi-pencil" text size="small" @click="editEpic(theme, epic)" />
-                    <Button icon="pi pi-plus" text size="small" @click="showAddStoryDialog(epic)" />
+                    <Button
+                      icon="pi pi-plus"
+                      text
+                      size="small"
+                      @click="showAddStoryDialog(epic)"
+                      v-tooltip="'Add Story'"
+                    />
                     <Button
                       icon="pi pi-trash"
                       text
@@ -66,94 +93,89 @@
                   </div>
                 </div>
                 <p v-if="epic.description" class="epic-desc">{{ epic.description }}</p>
-                <Tag
-                  v-if="epic.outcome"
-                  severity="info"
-                  :value="'Outcome: ' + epic.outcome.description"
-                />
+              </div>
+            </template>
+            <template v-else>
+              <div class="epic-card epic-card--empty">
+                <p class="empty-hint">No epics</p>
+              </div>
+            </template>
+          </div>
+        </template>
 
-                <!-- Stories/Spikes -->
-                <div class="work-items">
-                  <div
-                    v-for="story in epic.stories"
-                    :key="'story-' + story.id"
-                    class="work-item work-item--story"
-                  >
-                    <div class="wi-header">
-                      <i class="pi pi-bookmark"></i>
-                      <span>{{ story.title }}</span>
-                    </div>
-                    <div class="wi-meta">
-                      <Tag :value="story.status" />
-                      <Tag
-                        v-if="story.storyPoints"
-                        :value="story.storyPoints + ' pts'"
-                        severity="info"
-                      />
-                      <Tag v-if="story.sprint" :value="story.sprint.name" severity="warning" />
-                    </div>
-                    <div class="wi-actions">
-                      <Button
-                        icon="pi pi-pencil"
-                        text
-                        size="small"
-                        @click="editStory(epic, story)"
-                      />
-                      <Button
-                        icon="pi pi-trash"
-                        text
-                        size="small"
-                        severity="danger"
-                        @click="confirmDeleteStory(epic, story)"
-                      />
-                    </div>
-                  </div>
+        <!-- ── Rows 2+: Release swim-lanes ──────────────────── -->
+        <template v-for="rl in releaseRows" :key="'rl-' + rl.id">
+          <!-- Left release label -->
+          <div class="row-label row-label--release">
+            <span class="release-name">{{ rl.name }}</span>
+            <Tag v-if="rl.status" :value="rl.status" size="small" />
+          </div>
 
-                  <div
-                    v-for="spike in epic.spikes"
-                    :key="'spike-' + spike.id"
-                    class="work-item work-item--spike"
-                  >
-                    <div class="wi-header">
-                      <i class="pi pi-bolt"></i>
-                      <span>{{ spike.title }}</span>
-                    </div>
-                    <div class="wi-meta">
-                      <Tag :value="spike.status" />
-                      <Tag
-                        v-if="spike.storyPoints"
-                        :value="spike.storyPoints + ' pts'"
-                        severity="info"
-                      />
-                      <Tag v-if="spike.sprint" :value="spike.sprint.name" severity="warning" />
-                    </div>
-                    <div class="wi-actions">
-                      <Button
-                        icon="pi pi-pencil"
-                        text
-                        size="small"
-                        @click="editSpike(epic, spike)"
-                      />
-                      <Button
-                        icon="pi pi-trash"
-                        text
-                        size="small"
-                        severity="danger"
-                        @click="confirmDeleteSpike(epic, spike)"
-                      />
-                    </div>
-                  </div>
+          <!-- One cell per epic column -->
+          <div
+            v-for="col in epicColumns"
+            :key="'cell-' + rl.id + '-' + col.epicId"
+            class="story-cell"
+          >
+            <template
+              v-for="item in getItemsForCell(col.epicId, rl.id)"
+              :key="item.kind + '-' + item.data.id"
+            >
+              <div
+                :class="[
+                  'work-item',
+                  item.kind === 'story' ? 'work-item--story' : 'work-item--spike',
+                ]"
+              >
+                <div class="wi-header">
+                  <i :class="item.kind === 'story' ? 'pi pi-bookmark' : 'pi pi-bolt'"></i>
+                  <span>{{ item.data.title }}</span>
+                </div>
+                <div class="wi-meta">
+                  <Tag :value="item.data.status" />
+                  <Tag
+                    v-if="item.data.storyPoints"
+                    :value="item.data.storyPoints + ' pts'"
+                    severity="info"
+                  />
+                  <Tag v-if="item.data.sprint" :value="item.data.sprint.name" severity="warning" />
+                </div>
+                <div class="wi-actions">
+                  <Button
+                    v-if="item.kind === 'story'"
+                    icon="pi pi-pencil"
+                    text
+                    size="small"
+                    @click="editStory(col.epic!, item.data as any)"
+                  />
+                  <Button
+                    v-if="item.kind === 'spike'"
+                    icon="pi pi-pencil"
+                    text
+                    size="small"
+                    @click="editSpike(col.epic!, item.data as any)"
+                  />
+                  <Button
+                    v-if="item.kind === 'story'"
+                    icon="pi pi-trash"
+                    text
+                    size="small"
+                    severity="danger"
+                    @click="confirmDeleteStory(col.epic!, item.data as any)"
+                  />
+                  <Button
+                    v-if="item.kind === 'spike'"
+                    icon="pi pi-trash"
+                    text
+                    size="small"
+                    severity="danger"
+                    @click="confirmDeleteSpike(col.epic!, item.data as any)"
+                  />
                 </div>
               </div>
-            </div>
+            </template>
           </div>
-        </div>
-      </div>
-
-      <div v-if="themes.length === 0" class="empty-state">
-        <Message severity="info" :closable="false">
-          No themes yet. Click "Add Theme" to create your first outcome-focused theme.
-        </Message>
+        </template>
       </div>
     </div>
 
@@ -306,6 +328,19 @@
             id="story-points"
             v-model="storyForm.storyPoints"
             placeholder="Story points"
+            class="w-full"
+          />
+        </div>
+        <div class="form-field">
+          <label for="story-release" class="field-label">Release</label>
+          <Dropdown
+            id="story-release"
+            v-model="storyForm.releaseId"
+            :options="releases"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select release"
+            showClear
             class="w-full"
           />
         </div>
@@ -500,6 +535,7 @@ import {
   type Sprint,
   Priority,
 } from "@/services/userStoryMapService";
+import { backlogService, type ReleaseDto } from "@/services/backlogService";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import Button from "primevue/button";
@@ -531,6 +567,7 @@ const error = ref("");
 
 const themes = ref<Theme[]>([]);
 const sprints = ref<Sprint[]>([]);
+const releases = ref<ReleaseDto[]>([]);
 
 const showThemeDialog = ref(false);
 const showEpicDialog = ref(false);
@@ -577,9 +614,77 @@ const sprintFormEndDate = ref<Date | null>(null);
 const statusOptions = ["Backlog", "To Do", "In Progress", "In Review", "Done"];
 const sprintStatusOptions = ["Planned", "Active", "Completed"];
 
+// ── Computed: flatten all epics into columns ─────────────────
+interface EpicColumn {
+  epicId: number;
+  epic: Epic;
+  themeId: number;
+}
+
+const epicColumns = computed<EpicColumn[]>(() => {
+  const cols: EpicColumn[] = [];
+  for (const theme of themes.value) {
+    if (theme.epics && theme.epics.length) {
+      for (const epic of theme.epics) {
+        cols.push({ epicId: epic.id!, epic, themeId: theme.id! });
+      }
+    }
+  }
+  return cols;
+});
+
+// ── Computed: build release rows (+ "Unassigned" catch-all) ──
+interface ReleaseRow {
+  id: number | null; // null = unassigned
+  name: string;
+  status?: string;
+}
+
+const releaseRows = computed<ReleaseRow[]>(() => {
+  const rows: ReleaseRow[] = [];
+  // Add each release
+  for (const r of releases.value) {
+    rows.push({ id: r.id, name: r.name, status: r.status });
+  }
+  // Always add an "Unassigned" row at the end
+  rows.push({ id: null, name: "Unassigned" });
+  return rows;
+});
+
+// ── Computed: CSS grid columns ───────────────────────────────
+const gridColumns = computed(() => {
+  const totalEpicCols = epicColumns.value.length || 1;
+  // First column is the release label, rest are epic columns
+  return `8rem repeat(${totalEpicCols}, minmax(10rem, 1fr))`;
+});
+
+// ── Build a lookup for items by epicId + releaseId ───────────
+type WorkItem = { kind: "story"; data: Story } | { kind: "spike"; data: Spike };
+
+function getItemsForCell(epicId: number, releaseId: number | null): WorkItem[] {
+  const items: WorkItem[] = [];
+  for (const theme of themes.value) {
+    for (const epic of theme.epics || []) {
+      if (epic.id !== epicId) continue;
+      for (const story of epic.stories || []) {
+        const storyRelId = story.releaseId ?? null;
+        if (storyRelId === releaseId) {
+          items.push({ kind: "story", data: story });
+        }
+      }
+      for (const spike of epic.spikes || []) {
+        const spikeRelId = spike.releaseId ?? null;
+        if (spikeRelId === releaseId) {
+          items.push({ kind: "spike", data: spike });
+        }
+      }
+    }
+  }
+  return items;
+}
+
 onMounted(async () => {
-  await loadThemes();
-  await loadSprints();
+  await Promise.all([loadThemes(), loadSprints(), loadReleases()]);
   loading.value = false;
 });
 
@@ -589,6 +694,14 @@ async function loadThemes() {
   } catch (err) {
     error.value = "Failed to load themes";
     console.error(err);
+  }
+}
+
+async function loadReleases() {
+  try {
+    releases.value = await backlogService.getReleases(projectIdValue.value);
+  } catch (err) {
+    console.error("Failed to load releases:", err);
   }
 }
 
@@ -937,6 +1050,8 @@ function confirmDeleteSprint(sprint: Sprint) {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  height: calc(100vh - 12rem);
+  min-height: 400px;
 }
 
 .usm-header {
@@ -970,102 +1085,206 @@ function confirmDeleteSprint(sprint: Sprint) {
   padding: 1rem 0;
 }
 
-.story-map {
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+}
+
+/* ── Story-map grid ────────────────────────────────────────── */
+.story-map-wrapper {
+  flex: 1;
+  min-height: 0;
   overflow-x: auto;
+  overflow-y: auto;
+  padding-bottom: 0;
+  max-width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #e2e8f0;
 }
 
-.themes-row {
-  display: flex;
-  gap: 1.5rem;
-  min-height: 400px;
-  padding-bottom: 1rem;
+.story-map-wrapper::-webkit-scrollbar {
+  height: 10px;
+  width: 8px;
 }
 
-.theme-card {
-  min-width: 22rem;
-  max-width: 22rem;
+.story-map-wrapper::-webkit-scrollbar-track {
+  background: #e2e8f0;
+  border-radius: 4px;
 }
 
-.theme-card-inner {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  padding: 1rem 1.25rem;
+.story-map-wrapper::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
 }
 
-.theme-top {
+.story-map-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+.story-map-grid {
+  display: grid;
+  gap: 0;
+  min-width: max-content;
+}
+
+/* Top-left blank corner */
+.grid-corner {
+  background: transparent;
+  border-bottom: 2px solid #e2e8f0;
+  border-right: 2px solid #e2e8f0;
+}
+
+/* ── Theme header row ──────────────────────────────────────── */
+.theme-header {
+  background: #1e40af;
+  color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid #e2e8f0;
+  border-right: 1px solid #bfdbfe;
+}
+
+.theme-header:last-of-type {
+  border-right: none;
+}
+
+.theme-header-inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
 }
 
 .theme-name {
   margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #0f172a;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #ffffff;
 }
 
-.theme-btns {
-  display: flex;
-  gap: 0.125rem;
+.theme-header .card-btns :deep(.p-button) {
+  color: #bfdbfe !important;
+}
+
+.theme-header .card-btns :deep(.p-button:hover) {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.15) !important;
 }
 
 .theme-desc {
-  margin: 0 0 0.75rem;
-  font-size: 0.875rem;
-  color: #64748b;
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: #bfdbfe;
 }
 
-.epics-column {
+/* ── Row labels (left column) ──────────────────────────────── */
+.row-label {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border-right: 2px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #475569;
+  background: #f8fafc;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.row-label--backbone {
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.row-label--release {
+  background: #f8fafc;
+}
+
+.release-name {
+  color: #1e293b;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* ── Epic cells (backbone row) ─────────────────────────────── */
+.epic-cell {
+  padding: 0.375rem;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 2px solid #e2e8f0;
+  background: #eff6ff;
 }
 
 .epic-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border: 1px solid #bfdbfe;
   border-radius: 0.5rem;
-  padding: 0.75rem;
+  padding: 0.5rem 0.625rem;
+  height: 100%;
+}
+
+.epic-card--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-style: dashed;
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.empty-hint {
+  color: #94a3b8;
+  font-size: 0.8125rem;
+  font-style: italic;
+  margin: 0;
 }
 
 .epic-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.375rem;
+  gap: 0.25rem;
 }
 
 .epic-name {
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: #1e293b;
 }
 
-.epic-btns {
-  display: flex;
-  gap: 0.125rem;
-}
-
 .epic-desc {
-  margin: 0 0 0.5rem;
-  font-size: 0.8125rem;
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
   color: #64748b;
 }
 
-.work-items {
+.card-btns {
+  display: flex;
+  gap: 0.125rem;
+  flex-shrink: 0;
+}
+
+/* ── Story/Spike cells (body rows) ─────────────────────────── */
+.story-cell {
+  padding: 0.375rem;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-top: 0.75rem;
+  min-height: 3.5rem;
 }
 
 .work-item {
-  padding: 0.625rem;
+  padding: 0.5rem 0.625rem;
   border: 1px solid #e2e8f0;
   border-radius: 0.375rem;
   background: #ffffff;
@@ -1082,36 +1301,32 @@ function confirmDeleteSprint(sprint: Sprint) {
 .wi-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.375rem;
+  gap: 0.375rem;
   font-weight: 600;
   font-size: 0.8125rem;
   color: #1e293b;
 }
 
 .wi-header i {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: #64748b;
 }
 
 .wi-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.375rem;
-  margin-bottom: 0.25rem;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
 }
 
 .wi-actions {
   display: flex;
   gap: 0.125rem;
   justify-content: flex-end;
+  margin-top: 0.125rem;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-}
-
+/* ── Dialogs ───────────────────────────────────────────────── */
 .dialog-form {
   display: flex;
   flex-direction: column;

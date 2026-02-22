@@ -506,64 +506,202 @@
 }
 
 /* ── Dialog ────────────────────────────────────────────────── */
+.p-dialog {
+  background: #ffffff !important;
+}
+
 .p-dialog .p-dialog-header {
-  background: #ffffff;
-  color: #0f172a;
-  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.p-dialog .p-dialog-header-actions .p-dialog-header-close {
+  color: #64748b !important;
+  background: transparent !important;
+}
+
+.p-dialog .p-dialog-header-actions .p-dialog-header-close:hover {
+  color: #334155 !important;
+  background: #f1f5f9 !important;
 }
 
 .p-dialog .p-dialog-content {
-  background: #ffffff;
-  color: #1e293b;
+  background: #ffffff !important;
+  color: #1e293b !important;
 }
 
 .p-dialog .p-dialog-footer {
-  background: #ffffff;
-  border-top: 1px solid #e2e8f0;
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
 }
 
-/* ── InputText / Textarea / Dropdown ───────────────────────── */
+/* Dialog mask / overlay */
+.p-dialog-mask {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ── InputText / Textarea / Dropdown / Select / InputNumber ─ */
+/* Force light-mode styling on ALL form inputs — prevents dark
+   backgrounds that PrimeVue Aura may inject via system dark mode. */
 .p-inputtext,
 .p-textarea,
-.p-dropdown {
-  border-color: #cbd5e1;
-  color: #1e293b;
-  background: #ffffff;
+.p-dropdown,
+.p-select,
+.p-multiselect,
+.p-autocomplete-input,
+.p-inputnumber-input,
+.p-datepicker-input,
+.p-password-input,
+.p-cascadeselect,
+.p-treeselect,
+.p-chips-input-token input,
+.p-inputmask,
+.p-inputotp-input,
+.p-knob,
+.p-listbox,
+.p-mention-input {
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+  background: #ffffff !important;
 }
 
 .p-inputtext:enabled:hover,
 .p-textarea:enabled:hover,
-.p-dropdown:not(.p-disabled):hover {
-  border-color: #94a3b8;
+.p-dropdown:not(.p-disabled):hover,
+.p-select:not(.p-disabled):hover,
+.p-multiselect:not(.p-disabled):hover,
+.p-autocomplete-input:enabled:hover,
+.p-inputnumber-input:enabled:hover,
+.p-datepicker-input:enabled:hover,
+.p-cascadeselect:not(.p-disabled):hover,
+.p-treeselect:not(.p-disabled):hover {
+  border-color: #94a3b8 !important;
 }
 
 .p-inputtext:enabled:focus,
 .p-textarea:enabled:focus,
-.p-dropdown:not(.p-disabled).p-focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 1px #2563eb33;
+.p-dropdown:not(.p-disabled).p-focus,
+.p-select:not(.p-disabled).p-focus,
+.p-multiselect:not(.p-disabled).p-focus,
+.p-autocomplete-input:enabled:focus,
+.p-inputnumber-input:enabled:focus,
+.p-datepicker-input:enabled:focus,
+.p-cascadeselect:not(.p-disabled).p-focus,
+.p-treeselect:not(.p-disabled).p-focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 1px #2563eb33 !important;
 }
 
 .p-inputtext::placeholder,
-.p-textarea::placeholder {
-  color: #94a3b8;
+.p-textarea::placeholder,
+.p-autocomplete-input::placeholder,
+.p-inputnumber-input::placeholder,
+.p-datepicker-input::placeholder,
+.p-password-input::placeholder {
+  color: #94a3b8 !important;
 }
 
-.p-inputtext:disabled {
-  background: #f1f5f9;
-  color: #94a3b8;
+.p-inputtext:disabled,
+.p-textarea:disabled,
+.p-autocomplete-input:disabled,
+.p-inputnumber-input:disabled,
+.p-datepicker-input:disabled,
+.p-password-input:disabled {
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
+}
+
+/* Select / Dropdown trigger button & label */
+.p-select-label,
+.p-dropdown-label,
+.p-multiselect-label,
+.p-cascadeselect-label,
+.p-treeselect-label {
+  color: #1e293b !important;
+  background: transparent !important;
+}
+
+.p-select-label.p-placeholder,
+.p-dropdown-label.p-placeholder,
+.p-multiselect-label.p-placeholder,
+.p-cascadeselect-label.p-placeholder,
+.p-treeselect-label.p-placeholder {
+  color: #94a3b8 !important;
+}
+
+.p-select-dropdown,
+.p-dropdown-trigger,
+.p-multiselect-trigger,
+.p-datepicker-dropdown,
+.p-cascadeselect-trigger,
+.p-treeselect-trigger {
+  color: #64748b !important;
+  background: transparent !important;
+}
+
+.p-select-clear-icon,
+.p-dropdown-clear-icon,
+.p-multiselect-clear-icon {
+  color: #94a3b8 !important;
+}
+
+/* InputNumber buttons */
+.p-inputnumber-button {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.p-inputnumber-button:hover {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+/* Chips / Token input */
+.p-chips,
+.p-chips-multiple-container {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.p-chips-token {
+  background: #eff6ff !important;
+  color: #1e40af !important;
+}
+
+/* Listbox */
+.p-listbox {
+  border-color: #cbd5e1 !important;
+}
+
+.p-listbox-option {
+  color: #334155 !important;
+}
+
+.p-listbox-option:hover,
+.p-listbox-option.p-focus {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.p-listbox-option.p-selected,
+.p-listbox-option[data-p-selected="true"] {
+  background: #eff6ff !important;
+  color: #2563eb !important;
 }
 
 /* ── Menu / Popup (quick-create, user dropdown) ────────────── */
 .p-menu {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  color: #1e293b;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
 }
 
 .p-menu .p-menuitem-link,
 .p-menu .p-menuitem-content {
-  color: #334155;
+  color: #334155 !important;
+  background: transparent !important;
 }
 
 .p-menu .p-menuitem-link:hover,
@@ -573,11 +711,11 @@
 }
 
 .p-menu .p-menuitem-icon {
-  color: #64748b;
+  color: #64748b !important;
 }
 
 .p-menu .p-menuitem-link:hover .p-menuitem-icon {
-  color: #334155;
+  color: #334155 !important;
 }
 
 /* ── Tooltip ───────────────────────────────────────────────── */
@@ -588,44 +726,94 @@
 
 /* ── Select / Dropdown overlay list ────────────────────────── */
 .p-select-overlay,
-.p-dropdown-panel {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  color: #1e293b;
+.p-dropdown-panel,
+.p-multiselect-overlay,
+.p-autocomplete-overlay,
+.p-cascadeselect-overlay,
+.p-treeselect-overlay {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
 }
 
 .p-select-option,
-.p-dropdown-item {
-  color: #334155;
+.p-dropdown-item,
+.p-multiselect-option,
+.p-autocomplete-option,
+.p-cascadeselect-option,
+.p-treeselect-node {
+  color: #334155 !important;
 }
 
 .p-select-option:hover,
 .p-select-option.p-focus,
 .p-dropdown-item:hover,
-.p-dropdown-item.p-focus {
+.p-dropdown-item.p-focus,
+.p-multiselect-option:hover,
+.p-multiselect-option.p-focus,
+.p-autocomplete-option:hover,
+.p-autocomplete-option.p-focus {
   background: #f1f5f9 !important;
   color: #0f172a !important;
 }
 
 .p-select-option.p-selected,
 .p-select-option[data-p-selected="true"],
-.p-dropdown-item.p-highlight {
+.p-dropdown-item.p-highlight,
+.p-multiselect-option.p-selected,
+.p-multiselect-option[data-p-selected="true"] {
   background: #eff6ff !important;
   color: #2563eb !important;
 }
 
 .p-select-option.p-selected.p-focus,
 .p-select-option[data-p-selected="true"].p-focus,
-.p-dropdown-item.p-highlight.p-focus {
+.p-dropdown-item.p-highlight.p-focus,
+.p-multiselect-option.p-selected.p-focus,
+.p-multiselect-option[data-p-selected="true"].p-focus {
   background: #dbeafe !important;
   color: #1d4ed8 !important;
 }
 
+/* Select / Dropdown filter input inside overlay */
+.p-select-overlay .p-select-filter,
+.p-dropdown-panel .p-dropdown-filter,
+.p-multiselect-overlay .p-multiselect-filter,
+.p-select-overlay .p-select-filter-container .p-inputtext,
+.p-dropdown-panel .p-dropdown-filter-container .p-inputtext,
+.p-multiselect-overlay .p-multiselect-filter-container .p-inputtext {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Dropdown overlay header/footer (e.g. MultiSelect header) */
+.p-multiselect-header,
+.p-select-overlay .p-select-header {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Empty message inside overlays */
+.p-select-empty-message,
+.p-dropdown-empty-message,
+.p-multiselect-empty-message,
+.p-autocomplete-empty-message {
+  color: #94a3b8 !important;
+}
+
 /* ── DatePicker ────────────────────────────────────────────── */
-.p-datepicker-panel {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  color: #1e293b;
+.p-datepicker-panel,
+.p-datepicker-overlay {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+.p-datepicker-panel .p-datepicker-day-cell,
+.p-datepicker-panel .p-datepicker-day {
+  color: #334155 !important;
 }
 
 .p-datepicker-panel .p-datepicker-day:hover {
@@ -639,15 +827,54 @@
   color: #ffffff !important;
 }
 
+.p-datepicker-panel .p-datepicker-day.p-datepicker-today,
+.p-datepicker-panel .p-datepicker-day[data-p-today="true"] {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+}
+
 .p-datepicker-panel .p-datepicker-header {
-  color: #334155;
-  background: #ffffff;
+  color: #334155 !important;
+  background: #ffffff !important;
+}
+
+.p-datepicker-panel .p-datepicker-title button,
+.p-datepicker-panel .p-datepicker-header button,
+.p-datepicker-panel .p-datepicker-prev-button,
+.p-datepicker-panel .p-datepicker-next-button {
+  color: #64748b !important;
+  background: transparent !important;
 }
 
 .p-datepicker-panel .p-datepicker-title button:hover,
-.p-datepicker-panel .p-datepicker-header button:hover {
+.p-datepicker-panel .p-datepicker-header button:hover,
+.p-datepicker-panel .p-datepicker-prev-button:hover,
+.p-datepicker-panel .p-datepicker-next-button:hover {
   color: #0f172a !important;
   background: #f1f5f9 !important;
+}
+
+.p-datepicker-panel .p-datepicker-weekday-cell,
+.p-datepicker-panel .p-datepicker-weekday {
+  color: #64748b !important;
+}
+
+/* DatePicker month/year picker */
+.p-datepicker-panel .p-datepicker-month,
+.p-datepicker-panel .p-datepicker-year {
+  color: #334155 !important;
+}
+
+.p-datepicker-panel .p-datepicker-month:hover,
+.p-datepicker-panel .p-datepicker-year:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.p-datepicker-panel .p-datepicker-month.p-datepicker-month-selected,
+.p-datepicker-panel .p-datepicker-year.p-datepicker-year-selected {
+  background: #2563eb !important;
+  color: #ffffff !important;
 }
 
 /* ── Message ───────────────────────────────────────────────── */
@@ -677,10 +904,88 @@
 
 /* ── ConfirmDialog ─────────────────────────────────────────── */
 .p-confirmdialog .p-confirmdialog-message {
-  color: #334155;
+  color: #334155 !important;
+}
+
+.p-confirmdialog .p-confirmdialog-icon {
+  color: #f59e0b !important;
+}
+
+/* ── Popover / OverlayPanel ────────────────────────────────── */
+.p-popover,
+.p-overlaypanel {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+/* ── Toast ─────────────────────────────────────────────────── */
+.p-toast-message {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.p-toast-message-text {
+  color: #1e293b !important;
+}
+
+.p-toast-detail {
+  color: #475569 !important;
 }
 
 /* ── Anchor / Link hover fix ───────────────────────────────── */
 a:hover {
   color: inherit;
+}
+
+/*
+ * ── Force light-mode CSS variables ──────────────────────────
+ * PrimeVue Aura theme injects dark-mode overrides via
+ * @media (prefers-color-scheme: dark). Even though we set
+ * darkModeSelector: false, some cached/pre-built theme CSS may
+ * still attempt dark overrides. This block re-asserts all key
+ * design tokens to their light-mode values with !important.
+ */
+:root {
+  --p-text-color: #0f172a !important;
+  --p-text-muted-color: #64748b !important;
+
+  --p-content-background: #ffffff !important;
+  --p-content-color: #1e293b !important;
+  --p-content-border-color: #e2e8f0 !important;
+  --p-content-hover-background: #f1f5f9 !important;
+  --p-content-hover-color: #0f172a !important;
+
+  --p-surface-0: #ffffff !important;
+  --p-surface-50: #f8fafc !important;
+  --p-surface-100: #f1f5f9 !important;
+  --p-surface-200: #e2e8f0 !important;
+  --p-surface-300: #cbd5e1 !important;
+  --p-surface-400: #94a3b8 !important;
+  --p-surface-500: #64748b !important;
+  --p-surface-600: #475569 !important;
+  --p-surface-700: #334155 !important;
+  --p-surface-800: #1e293b !important;
+  --p-surface-900: #0f172a !important;
+  --p-surface-950: #020617 !important;
+
+  --p-form-field-background: #ffffff !important;
+  --p-form-field-color: #1e293b !important;
+  --p-form-field-border-color: #cbd5e1 !important;
+  --p-form-field-hover-border-color: #94a3b8 !important;
+  --p-form-field-focus-border-color: #2563eb !important;
+  --p-form-field-placeholder-color: #94a3b8 !important;
+  --p-form-field-disabled-background: #f1f5f9 !important;
+  --p-form-field-disabled-color: #94a3b8 !important;
+
+  --p-highlight-background: #eff6ff !important;
+  --p-highlight-color: #2563eb !important;
+  --p-highlight-focus-background: #dbeafe !important;
+  --p-highlight-focus-color: #1d4ed8 !important;
+
+  --p-primary-color: #2563eb !important;
+  --p-primary-hover-color: #1d4ed8 !important;
+  --p-primary-contrast-color: #ffffff !important;
+
+  color-scheme: light !important;
 }

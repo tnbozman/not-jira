@@ -40,9 +40,11 @@ export interface Story {
   storyPoints?: number;
   epicId?: number;
   sprintId?: number;
+  releaseId?: number;
   outcomeId?: number;
   outcome?: any;
   sprint?: Sprint;
+  release?: { id: number; name: string };
   createdAt?: string;
   updatedAt?: string;
 }
@@ -59,9 +61,11 @@ export interface Spike {
   storyPoints?: number;
   epicId?: number;
   sprintId?: number;
+  releaseId?: number;
   outcomeId?: number;
   outcome?: any;
   sprint?: Sprint;
+  release?: { id: number; name: string };
   createdAt?: string;
   updatedAt?: string;
 }

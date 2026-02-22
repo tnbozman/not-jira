@@ -19,25 +19,161 @@ public class ThemesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Theme>>> GetThemes(int projectId)
+    public async Task<IActionResult> GetThemes(int projectId)
     {
         var themes = await _context.Themes
             .Where(t => t.ProjectId == projectId)
-            .Include(t => t.Outcome)
-            .Include(t => t.Epics)
             .OrderBy(t => t.Order)
+            .Select(t => new
+            {
+                t.Id,
+                t.Name,
+                t.Description,
+                t.Order,
+                t.ProjectId,
+                t.OutcomeId,
+                Outcome = t.Outcome == null ? null : new { t.Outcome.Id, t.Outcome.Description },
+                t.CreatedAt,
+                t.UpdatedAt,
+                Epics = t.Epics.OrderBy(e => e.Order).Select(e => new
+                {
+                    e.Id,
+                    e.Name,
+                    e.Description,
+                    e.Order,
+                    e.ThemeId,
+                    e.OutcomeId,
+                    Outcome = e.Outcome == null ? null : new { e.Outcome.Id, e.Outcome.Description },
+                    e.CreatedAt,
+                    e.UpdatedAt,
+                    Stories = e.Stories.OrderBy(s => s.Order).Select(s => new
+                    {
+                        s.Id,
+                        s.Title,
+                        s.Description,
+                        s.SolutionDescription,
+                        s.AcceptanceCriteria,
+                        s.Order,
+                        s.Priority,
+                        s.Status,
+                        s.StoryPoints,
+                        s.EpicId,
+                        s.SprintId,
+                        Sprint = s.Sprint == null ? null : new { s.Sprint.Id, s.Sprint.Name },
+                        s.ReleaseId,
+                        Release = s.Release == null ? null : new { s.Release.Id, s.Release.Name },
+                        s.TeamId,
+                        s.AssigneeId,
+                        s.AssigneeName,
+                        s.OutcomeId,
+                        s.CreatedAt,
+                        s.UpdatedAt
+                    }).ToList(),
+                    Spikes = e.Spikes.OrderBy(sp => sp.Order).Select(sp => new
+                    {
+                        sp.Id,
+                        sp.Title,
+                        sp.Description,
+                        sp.InvestigationGoal,
+                        sp.Findings,
+                        sp.Order,
+                        sp.Priority,
+                        sp.Status,
+                        sp.StoryPoints,
+                        sp.EpicId,
+                        sp.SprintId,
+                        Sprint = sp.Sprint == null ? null : new { sp.Sprint.Id, sp.Sprint.Name },
+                        sp.ReleaseId,
+                        Release = sp.Release == null ? null : new { sp.Release.Id, sp.Release.Name },
+                        sp.TeamId,
+                        sp.AssigneeId,
+                        sp.AssigneeName,
+                        sp.OutcomeId,
+                        sp.CreatedAt,
+                        sp.UpdatedAt
+                    }).ToList()
+                }).ToList()
+            })
             .ToListAsync();
-            
+
         return Ok(themes);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Theme>> GetTheme(int projectId, int id)
+    public async Task<IActionResult> GetTheme(int projectId, int id)
     {
         var theme = await _context.Themes
             .Where(t => t.ProjectId == projectId && t.Id == id)
-            .Include(t => t.Outcome)
-            .Include(t => t.Epics)
+            .Select(t => new
+            {
+                t.Id,
+                t.Name,
+                t.Description,
+                t.Order,
+                t.ProjectId,
+                t.OutcomeId,
+                Outcome = t.Outcome == null ? null : new { t.Outcome.Id, t.Outcome.Description },
+                t.CreatedAt,
+                t.UpdatedAt,
+                Epics = t.Epics.OrderBy(e => e.Order).Select(e => new
+                {
+                    e.Id,
+                    e.Name,
+                    e.Description,
+                    e.Order,
+                    e.ThemeId,
+                    e.OutcomeId,
+                    Outcome = e.Outcome == null ? null : new { e.Outcome.Id, e.Outcome.Description },
+                    e.CreatedAt,
+                    e.UpdatedAt,
+                    Stories = e.Stories.OrderBy(s => s.Order).Select(s => new
+                    {
+                        s.Id,
+                        s.Title,
+                        s.Description,
+                        s.SolutionDescription,
+                        s.AcceptanceCriteria,
+                        s.Order,
+                        s.Priority,
+                        s.Status,
+                        s.StoryPoints,
+                        s.EpicId,
+                        s.SprintId,
+                        Sprint = s.Sprint == null ? null : new { s.Sprint.Id, s.Sprint.Name },
+                        s.ReleaseId,
+                        Release = s.Release == null ? null : new { s.Release.Id, s.Release.Name },
+                        s.TeamId,
+                        s.AssigneeId,
+                        s.AssigneeName,
+                        s.OutcomeId,
+                        s.CreatedAt,
+                        s.UpdatedAt
+                    }).ToList(),
+                    Spikes = e.Spikes.OrderBy(sp => sp.Order).Select(sp => new
+                    {
+                        sp.Id,
+                        sp.Title,
+                        sp.Description,
+                        sp.InvestigationGoal,
+                        sp.Findings,
+                        sp.Order,
+                        sp.Priority,
+                        sp.Status,
+                        sp.StoryPoints,
+                        sp.EpicId,
+                        sp.SprintId,
+                        Sprint = sp.Sprint == null ? null : new { sp.Sprint.Id, sp.Sprint.Name },
+                        sp.ReleaseId,
+                        Release = sp.Release == null ? null : new { sp.Release.Id, sp.Release.Name },
+                        sp.TeamId,
+                        sp.AssigneeId,
+                        sp.AssigneeName,
+                        sp.OutcomeId,
+                        sp.CreatedAt,
+                        sp.UpdatedAt
+                    }).ToList()
+                }).ToList()
+            })
             .FirstOrDefaultAsync();
 
         if (theme == null)

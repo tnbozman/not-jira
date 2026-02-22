@@ -27,7 +27,7 @@ public class SpikesController : ControllerBase
             .Include(s => s.Sprint)
             .OrderBy(s => s.Order)
             .ToListAsync();
-            
+
         return Ok(spikes);
     }
 
@@ -86,6 +86,7 @@ public class SpikesController : ControllerBase
         existingSpike.Status = spike.Status;
         existingSpike.StoryPoints = spike.StoryPoints;
         existingSpike.SprintId = spike.SprintId;
+        existingSpike.ReleaseId = spike.ReleaseId;
         existingSpike.OutcomeId = spike.OutcomeId;
         existingSpike.UpdatedAt = DateTime.UtcNow;
 

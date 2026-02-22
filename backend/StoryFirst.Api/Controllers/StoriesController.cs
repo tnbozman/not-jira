@@ -27,7 +27,7 @@ public class StoriesController : ControllerBase
             .Include(s => s.Sprint)
             .OrderBy(s => s.Order)
             .ToListAsync();
-            
+
         return Ok(stories);
     }
 
@@ -86,6 +86,10 @@ public class StoriesController : ControllerBase
         existingStory.Status = story.Status;
         existingStory.StoryPoints = story.StoryPoints;
         existingStory.SprintId = story.SprintId;
+        existingStory.ReleaseId = story.ReleaseId;
+        existingStory.TeamId = story.TeamId;
+        existingStory.AssigneeId = story.AssigneeId;
+        existingStory.AssigneeName = story.AssigneeName;
         existingStory.OutcomeId = story.OutcomeId;
         existingStory.UpdatedAt = DateTime.UtcNow;
 
