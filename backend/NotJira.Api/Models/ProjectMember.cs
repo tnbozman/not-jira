@@ -11,7 +11,7 @@ public class ProjectMember
     public DateTime AddedAt { get; set; }
     
     // Navigation property
-    public Project Project { get; set; } = null!;
+    public Project? Project { get; set; }
 }
 
 public enum ProjectRole

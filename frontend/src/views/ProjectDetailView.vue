@@ -43,7 +43,7 @@
       </div>
 
       <TabView>
-        <TabPanel header="Overview">
+        <TabPanel header="Overview" value="overview">
           <Card>
             <template #content>
               <div v-if="!editing" class="project-info">
@@ -66,7 +66,7 @@
                   <label for="key">Project Key</label>
                   <InputText 
                     id="key"
-                    v-model="editedProject.key"
+                    v-model="editedProject!.key"
                     disabled
                   />
                   <small class="help-text">Project key cannot be changed</small>
@@ -76,7 +76,7 @@
                   <label for="name">Project Name *</label>
                   <InputText 
                     id="name"
-                    v-model="editedProject.name"
+                    v-model="editedProject!.name"
                     placeholder="Enter project name"
                   />
                 </div>
@@ -85,7 +85,7 @@
                   <label for="description">Description</label>
                   <Textarea 
                     id="description"
-                    v-model="editedProject.description"
+                    v-model="editedProject!.description"
                     placeholder="Enter project description"
                     rows="5"
                     auto-resize
@@ -96,7 +96,7 @@
           </Card>
         </TabPanel>
 
-        <TabPanel header="Members">
+        <TabPanel header="Members" value="members">
           <Card>
             <template #title>
               <div class="members-header">
