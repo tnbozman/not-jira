@@ -184,20 +184,20 @@ const isProjectsActive = computed(() => route.path.startsWith("/projects"));
 }
 
 .app-main {
-  max-width: 1440px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 1.25rem 1rem;
+  padding: 1rem 0.5rem;
 }
 
 @media (min-width: 640px) {
   .app-main {
-    padding: 1.5rem 1.5rem;
+    padding: 1rem 1rem;
   }
 }
 
 @media (min-width: 1024px) {
   .app-main {
-    padding: 1.5rem 2rem;
+    padding: 1rem 1.5rem;
   }
 }
 

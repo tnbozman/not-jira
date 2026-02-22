@@ -10,88 +10,88 @@
  */
 :root {
   /* Text */
-  --p-text-color:              #0f172a;
-  --p-text-muted-color:        #64748b;
+  --p-text-color: #0f172a;
+  --p-text-muted-color: #64748b;
 
   /* Primary */
-  --p-primary-color:           #2563eb;
-  --p-primary-hover-color:     #1d4ed8;
-  --p-primary-contrast-color:  #ffffff;
-  --p-primary-50:              #eff6ff;
-  --p-primary-100:             #dbeafe;
-  --p-primary-200:             #bfdbfe;
-  --p-primary-500:             #3b82f6;
-  --p-primary-600:             #2563eb;
-  --p-primary-700:             #1d4ed8;
-  --p-primary-800:             #1e40af;
+  --p-primary-color: #2563eb;
+  --p-primary-hover-color: #1d4ed8;
+  --p-primary-contrast-color: #ffffff;
+  --p-primary-50: #eff6ff;
+  --p-primary-100: #dbeafe;
+  --p-primary-200: #bfdbfe;
+  --p-primary-500: #3b82f6;
+  --p-primary-600: #2563eb;
+  --p-primary-700: #1d4ed8;
+  --p-primary-800: #1e40af;
 
   /* Surface */
-  --p-surface-0:               #ffffff;
-  --p-surface-50:              #f8fafc;
-  --p-surface-100:             #f1f5f9;
-  --p-surface-200:             #e2e8f0;
-  --p-surface-300:             #cbd5e1;
-  --p-surface-400:             #94a3b8;
-  --p-surface-500:             #64748b;
-  --p-surface-600:             #475569;
-  --p-surface-700:             #334155;
-  --p-surface-800:             #1e293b;
-  --p-surface-900:             #0f172a;
-  --p-surface-950:             #020617;
+  --p-surface-0: #ffffff;
+  --p-surface-50: #f8fafc;
+  --p-surface-100: #f1f5f9;
+  --p-surface-200: #e2e8f0;
+  --p-surface-300: #cbd5e1;
+  --p-surface-400: #94a3b8;
+  --p-surface-500: #64748b;
+  --p-surface-600: #475569;
+  --p-surface-700: #334155;
+  --p-surface-800: #1e293b;
+  --p-surface-900: #0f172a;
+  --p-surface-950: #020617;
 
   /* Content */
-  --p-content-background:      #ffffff;
-  --p-content-color:           #1e293b;
-  --p-content-border-color:    #e2e8f0;
-  --p-content-hover-background:#f1f5f9;
-  --p-content-hover-color:     #0f172a;
+  --p-content-background: #ffffff;
+  --p-content-color: #1e293b;
+  --p-content-border-color: #e2e8f0;
+  --p-content-hover-background: #f1f5f9;
+  --p-content-hover-color: #0f172a;
 
   /* Highlight (selected items) */
-  --p-highlight-background:    #eff6ff;
-  --p-highlight-color:         #2563eb;
-  --p-highlight-focus-background:#dbeafe;
-  --p-highlight-focus-color:   #1d4ed8;
+  --p-highlight-background: #eff6ff;
+  --p-highlight-color: #2563eb;
+  --p-highlight-focus-background: #dbeafe;
+  --p-highlight-focus-color: #1d4ed8;
 
   /* Form field */
-  --p-form-field-background:   #ffffff;
-  --p-form-field-color:        #1e293b;
+  --p-form-field-background: #ffffff;
+  --p-form-field-color: #1e293b;
   --p-form-field-border-color: #cbd5e1;
   --p-form-field-hover-border-color: #94a3b8;
   --p-form-field-focus-border-color: #2563eb;
-  --p-form-field-placeholder-color:  #94a3b8;
-  --p-form-field-disabled-background:#f1f5f9;
-  --p-form-field-disabled-color:#94a3b8;
+  --p-form-field-placeholder-color: #94a3b8;
+  --p-form-field-disabled-background: #f1f5f9;
+  --p-form-field-disabled-color: #94a3b8;
 
   /* TabView specific tokens */
-  --p-tabview-tab-list-background:       #ffffff;
-  --p-tabview-tab-list-border-color:     #e2e8f0;
-  --p-tabview-tab-border-color:          #e2e8f0;
-  --p-tabview-tab-active-border-color:   #2563eb;
-  --p-tabview-tab-color:                 #64748b;
-  --p-tabview-tab-hover-color:           #0f172a;
-  --p-tabview-tab-active-color:          #2563eb;
-  --p-tabview-tab-panel-background:      transparent;
-  --p-tabview-tab-panel-color:           #1e293b;
-  --p-tabview-nav-button-background:     #ffffff;
-  --p-tabview-nav-button-color:          #64748b;
-  --p-tabview-nav-button-hover-color:    #0f172a;
+  --p-tabview-tab-list-background: #ffffff;
+  --p-tabview-tab-list-border-color: #e2e8f0;
+  --p-tabview-tab-border-color: #e2e8f0;
+  --p-tabview-tab-active-border-color: #2563eb;
+  --p-tabview-tab-color: #64748b;
+  --p-tabview-tab-hover-color: #0f172a;
+  --p-tabview-tab-active-color: #2563eb;
+  --p-tabview-tab-panel-background: transparent;
+  --p-tabview-tab-panel-color: #1e293b;
+  --p-tabview-nav-button-background: #ffffff;
+  --p-tabview-nav-button-color: #64748b;
+  --p-tabview-nav-button-hover-color: #0f172a;
 
   /* DataTable specific tokens */
-  --p-datatable-border-color:                  #e2e8f0;
-  --p-datatable-header-cell-background:        #f8fafc;
-  --p-datatable-header-cell-color:             #475569;
-  --p-datatable-header-cell-border-color:      #e2e8f0;
-  --p-datatable-row-background:                #ffffff;
-  --p-datatable-row-color:                     #334155;
-  --p-datatable-row-hover-background:          #eff6ff;
-  --p-datatable-row-hover-color:               #1e293b;
-  --p-datatable-row-striped-background:        #f8fafc;
-  --p-datatable-row-selected-background:       #dbeafe;
-  --p-datatable-row-selected-color:            #1e40af;
-  --p-datatable-body-cell-border-color:        #f1f5f9;
-  --p-datatable-footer-cell-background:        #f8fafc;
-  --p-datatable-footer-cell-color:             #475569;
-  --p-datatable-footer-cell-border-color:      #e2e8f0;
+  --p-datatable-border-color: #e2e8f0;
+  --p-datatable-header-cell-background: #f8fafc;
+  --p-datatable-header-cell-color: #475569;
+  --p-datatable-header-cell-border-color: #e2e8f0;
+  --p-datatable-row-background: #ffffff;
+  --p-datatable-row-color: #334155;
+  --p-datatable-row-hover-background: #eff6ff;
+  --p-datatable-row-hover-color: #1e293b;
+  --p-datatable-row-striped-background: #f8fafc;
+  --p-datatable-row-selected-background: #dbeafe;
+  --p-datatable-row-selected-color: #1e40af;
+  --p-datatable-body-cell-border-color: #f1f5f9;
+  --p-datatable-footer-cell-background: #f8fafc;
+  --p-datatable-footer-cell-color: #475569;
+  --p-datatable-footer-cell-border-color: #e2e8f0;
 }
 
 /*
@@ -219,7 +219,8 @@
  * We match it exactly + add fallback selectors.
  */
 .p-tabview-tablist-item:not(.p-highlight):not(.p-disabled):hover > .p-tabview-tab-header,
-.p-tabview-tablist-item:not(.p-tabview-tablist-item-active):not(.p-disabled):hover > .p-tabview-tab-header,
+.p-tabview-tablist-item:not(.p-tabview-tablist-item-active):not(.p-disabled):hover
+  > .p-tabview-tab-header,
 .p-tabview .p-tabview-header:not(.p-highlight):not(.p-disabled):hover .p-tabview-header-action,
 .p-tabview .p-tabview-nav-link:hover,
 .p-tab:hover,
@@ -430,7 +431,9 @@
 .p-datatable .p-datatable-tbody > tr:hover,
 .p-datatable-hoverable .p-datatable-tbody > tr:not(.p-datatable-row-selected):hover,
 .p-datatable.p-datatable-striped .p-datatable-tbody > tr:hover,
-.p-datatable-striped.p-datatable-hoverable .p-datatable-tbody > tr:not(.p-datatable-row-selected):hover {
+.p-datatable-striped.p-datatable-hoverable
+  .p-datatable-tbody
+  > tr:not(.p-datatable-row-selected):hover {
   background: #eff6ff !important;
   color: #1e293b !important;
 }
