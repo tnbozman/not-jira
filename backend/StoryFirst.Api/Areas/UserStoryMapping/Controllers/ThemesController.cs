@@ -24,9 +24,10 @@ public class ThemesController : BaseApiController
     public async Task<IActionResult> GetThemes(int projectId)
     {
         var themes = await _themeRepository.FindAsync(t => t.ProjectId == projectId);
+        var orderedThemes = themes.OrderBy(t => t.Order).ToList();
         
         var result = new List<object>();
-        foreach (var theme in themes.OrderBy(t => t.Order))
+        foreach (var theme in orderedThemes)
         {
             var themeDetails = await _themeRepository.GetWithDetailsAsync(theme.Id);
             var epics = await _epicRepository.FindAsync(e => e.ThemeId == theme.Id);

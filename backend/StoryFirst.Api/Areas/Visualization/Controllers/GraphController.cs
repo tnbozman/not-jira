@@ -182,9 +182,12 @@ public class GraphController : BaseApiController
         };
     }
 
-    private static string TruncateText(string text, int maxLength)
+    private static string TruncateText(string? text, int maxLength)
     {
-        if (string.IsNullOrEmpty(text) || text.Length <= maxLength)
+        if (string.IsNullOrEmpty(text))
+            return string.Empty;
+
+        if (text.Length <= maxLength)
             return text;
 
         return text.Substring(0, maxLength) + "...";
