@@ -110,6 +110,7 @@ builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.IExter
 builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.IProblemService, StoryFirst.Api.Areas.ProductDiscovery.Services.ProblemService>();
 builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.IInterviewService, StoryFirst.Api.Areas.ProductDiscovery.Services.InterviewService>();
 builder.Services.AddScoped<StoryFirst.Api.Areas.ProductDiscovery.Services.ITagService, StoryFirst.Api.Areas.ProductDiscovery.Services.TagService>();
+builder.Services.AddScoped<StoryFirst.Api.Areas.Visualization.Services.IGraphService, StoryFirst.Api.Areas.Visualization.Services.GraphService>();
 
 // Add Controllers
 builder.Services.AddControllers()
