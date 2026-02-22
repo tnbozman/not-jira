@@ -1,33 +1,32 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoryFirst.Api.Data;
+using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
-using Microsoft.AspNetCore.Authorization;
+using StoryFirst.Api.Repositories;
 
-namespace StoryFirst.Api.Controllers;
+namespace StoryFirst.Api.Areas.UserStoryMapping.Controllers;
 
-[ApiController]
+[Area("UserStoryMapping")]
 [Route("api/[controller]")]
-[Authorize]
-public class TasksController : ControllerBase
+public class TasksController : BaseApiController
 {
-    private readonly AppDbContext _context;
+    private readonly IRepository<TaskItem> _taskRepository;
 
-    public TasksController(AppDbContext context)
+    public TasksController(IRepository<TaskItem> taskRepository)
     {
-        _context = context;
+        _taskRepository = taskRepository;
     }
 
     [HttpGet]
     public async System.Threading.Tasks.Task<ActionResult<IEnumerable<TaskItem>>> GetTasks()
     {
-        return await _context.Tasks.ToListAsync();
+        var tasks = await _taskRepository.GetAllAsync();
+        return Ok(tasks);
     }
 
     [HttpGet("{id}")]
     public async System.Threading.Tasks.Task<ActionResult<TaskItem>> GetTask(int id)
     {
-        var task = await _context.Tasks.FindAsync(id);
+        var task = await _taskRepository.GetByIdAsync(id);
 
         if (task == null)
         {
@@ -43,8 +42,8 @@ public class TasksController : ControllerBase
         task.CreatedAt = DateTime.UtcNow;
         task.UpdatedAt = DateTime.UtcNow;
 
-        _context.Tasks.Add(task);
-        await _context.SaveChangesAsync();
+        await _taskRepository.AddAsync(task);
+        await _taskRepository.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
     }
@@ -57,24 +56,18 @@ public class TasksController : ControllerBase
             return BadRequest();
         }
 
-        task.UpdatedAt = DateTime.UtcNow;
-        _context.Entry(task).State = EntityState.Modified;
+        var existingTask = await _taskRepository.GetByIdAsync(id);
 
-        try
+        if (existingTask == null)
         {
-            await _context.SaveChangesAsync();
+            return NotFound();
         }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!TaskExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
+
+        task.UpdatedAt = DateTime.UtcNow;
+        task.CreatedAt = existingTask.CreatedAt;
+
+        _taskRepository.Update(task);
+        await _taskRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -82,20 +75,15 @@ public class TasksController : ControllerBase
     [HttpDelete("{id}")]
     public async System.Threading.Tasks.Task<IActionResult> DeleteTask(int id)
     {
-        var task = await _context.Tasks.FindAsync(id);
+        var task = await _taskRepository.GetByIdAsync(id);
         if (task == null)
         {
             return NotFound();
         }
 
-        _context.Tasks.Remove(task);
-        await _context.SaveChangesAsync();
+        _taskRepository.Remove(task);
+        await _taskRepository.SaveChangesAsync();
 
         return NoContent();
-    }
-
-    private bool TaskExists(int id)
-    {
-        return _context.Tasks.Any(e => e.Id == id);
     }
 }

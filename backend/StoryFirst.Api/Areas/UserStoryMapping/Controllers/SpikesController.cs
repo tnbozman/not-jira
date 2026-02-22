@@ -1,51 +1,40 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoryFirst.Api.Data;
+using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
+using StoryFirst.Api.Repositories;
 
-namespace StoryFirst.Api.Controllers;
+namespace StoryFirst.Api.Areas.UserStoryMapping.Controllers;
 
-[Authorize]
-[ApiController]
+[Area("UserStoryMapping")]
 [Route("api/projects/{projectId}/epics/{epicId}/[controller]")]
-public class SpikesController : ControllerBase
+public class SpikesController : BaseApiController
 {
-    private readonly AppDbContext _context;
+    private readonly ISpikeRepository _spikeRepository;
 
-    public SpikesController(AppDbContext context)
+    public SpikesController(ISpikeRepository spikeRepository)
     {
-        _context = context;
+        _spikeRepository = spikeRepository;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Spike>>> GetSpikes(int projectId, int epicId)
     {
-        var spikes = await _context.Spikes
-            .Where(s => s.EpicId == epicId)
-            .Include(s => s.Outcome)
-            .Include(s => s.Sprint)
-            .OrderBy(s => s.Order)
-            .ToListAsync();
-
+        var spikes = await _spikeRepository.GetByEpicIdAsync(epicId);
         return Ok(spikes);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Spike>> GetSpike(int projectId, int epicId, int id)
     {
-        var spike = await _context.Spikes
-            .Where(s => s.EpicId == epicId && s.Id == id)
-            .Include(s => s.Outcome)
-            .Include(s => s.Sprint)
-            .FirstOrDefaultAsync();
+        var spike = await _spikeRepository.FirstOrDefaultAsync(s => s.EpicId == epicId && s.Id == id);
 
         if (spike == null)
         {
             return NotFound();
         }
 
-        return Ok(spike);
+        var spikeDetails = await _spikeRepository.GetWithDetailsAsync(id);
+        return Ok(spikeDetails);
     }
 
     [HttpPost]
@@ -55,8 +44,8 @@ public class SpikesController : ControllerBase
         spike.CreatedAt = DateTime.UtcNow;
         spike.UpdatedAt = DateTime.UtcNow;
 
-        _context.Spikes.Add(spike);
-        await _context.SaveChangesAsync();
+        await _spikeRepository.AddAsync(spike);
+        await _spikeRepository.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetSpike), new { projectId, epicId, id = spike.Id }, spike);
     }
@@ -69,8 +58,7 @@ public class SpikesController : ControllerBase
             return BadRequest();
         }
 
-        var existingSpike = await _context.Spikes
-            .FirstOrDefaultAsync(s => s.Id == id && s.EpicId == epicId);
+        var existingSpike = await _spikeRepository.FirstOrDefaultAsync(s => s.Id == id && s.EpicId == epicId);
 
         if (existingSpike == null)
         {
@@ -90,7 +78,8 @@ public class SpikesController : ControllerBase
         existingSpike.OutcomeId = spike.OutcomeId;
         existingSpike.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _spikeRepository.Update(existingSpike);
+        await _spikeRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -98,16 +87,15 @@ public class SpikesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSpike(int projectId, int epicId, int id)
     {
-        var spike = await _context.Spikes
-            .FirstOrDefaultAsync(s => s.Id == id && s.EpicId == epicId);
+        var spike = await _spikeRepository.FirstOrDefaultAsync(s => s.Id == id && s.EpicId == epicId);
 
         if (spike == null)
         {
             return NotFound();
         }
 
-        _context.Spikes.Remove(spike);
-        await _context.SaveChangesAsync();
+        _spikeRepository.Remove(spike);
+        await _spikeRepository.SaveChangesAsync();
 
         return NoContent();
     }

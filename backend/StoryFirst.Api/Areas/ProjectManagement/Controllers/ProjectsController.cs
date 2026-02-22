@@ -1,39 +1,38 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoryFirst.Api.Data;
 using StoryFirst.Api.Models;
-using Microsoft.AspNetCore.Authorization;
+using StoryFirst.Api.Repositories;
+using StoryFirst.Api.Common.Controllers;
 
-namespace StoryFirst.Api.Controllers;
+namespace StoryFirst.Api.Areas.ProjectManagement.Controllers;
 
-[ApiController]
+[Area("ProjectManagement")]
 [Route("api/[controller]")]
-[Authorize]
-public class ProjectsController : ControllerBase
+public class ProjectsController : BaseApiController
 {
-    private readonly AppDbContext _context;
+    private readonly IProjectRepository _projectRepository;
+    private readonly IRepository<ProjectMember> _projectMemberRepository;
 
-    public ProjectsController(AppDbContext context)
+    public ProjectsController(
+        IProjectRepository projectRepository,
+        IRepository<ProjectMember> projectMemberRepository)
     {
-        _context = context;
+        _projectRepository = projectRepository;
+        _projectMemberRepository = projectMemberRepository;
     }
 
     // GET: api/projects
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
     {
-        return await _context.Projects
-            .Include(p => p.Members)
-            .ToListAsync();
+        var projects = await _projectRepository.GetAllAsync();
+        return Ok(projects);
     }
 
     // GET: api/projects/{id}
     [HttpGet("{id}")]
     public async Task<ActionResult<Project>> GetProject(int id)
     {
-        var project = await _context.Projects
-            .Include(p => p.Members)
-            .FirstOrDefaultAsync(p => p.Id == id);
+        var project = await _projectRepository.GetWithMembersAsync(id);
 
         if (project == null)
         {
@@ -47,9 +46,7 @@ public class ProjectsController : ControllerBase
     [HttpGet("by-key/{key}")]
     public async Task<ActionResult<Project>> GetProjectByKey(string key)
     {
-        var project = await _context.Projects
-            .Include(p => p.Members)
-            .FirstOrDefaultAsync(p => p.Key == key);
+        var project = await _projectRepository.GetByKeyAsync(key);
 
         if (project == null)
         {
@@ -76,7 +73,7 @@ public class ProjectsController : ControllerBase
         }
 
         // Check for duplicate key
-        if (await _context.Projects.AnyAsync(p => p.Key == project.Key))
+        if (await _projectRepository.AnyAsync(p => p.Key == project.Key))
         {
             return Conflict("A project with this key already exists");
         }
@@ -84,8 +81,8 @@ public class ProjectsController : ControllerBase
         project.CreatedAt = DateTime.UtcNow;
         project.UpdatedAt = DateTime.UtcNow;
 
-        _context.Projects.Add(project);
-        await _context.SaveChangesAsync();
+        await _projectRepository.AddAsync(project);
+        await _projectRepository.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetProject), new { id = project.Id }, project);
     }
@@ -100,7 +97,7 @@ public class ProjectsController : ControllerBase
         }
 
         // Don't allow changing the key
-        var existingProject = await _context.Projects.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+        var existingProject = await _projectRepository.GetByIdAsync(id);
         if (existingProject == null)
         {
             return NotFound();
@@ -114,24 +111,8 @@ public class ProjectsController : ControllerBase
         project.UpdatedAt = DateTime.UtcNow;
         project.CreatedAt = existingProject.CreatedAt; // Preserve original creation date
         
-        _context.Entry(project).State = EntityState.Modified;
-        _context.Entry(project).Property(p => p.CreatedAt).IsModified = false;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ProjectExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
+        _projectRepository.Update(project);
+        await _projectRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -140,14 +121,14 @@ public class ProjectsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProject(int id)
     {
-        var project = await _context.Projects.FindAsync(id);
+        var project = await _projectRepository.GetByIdAsync(id);
         if (project == null)
         {
             return NotFound();
         }
 
-        _context.Projects.Remove(project);
-        await _context.SaveChangesAsync();
+        _projectRepository.Remove(project);
+        await _projectRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -156,14 +137,14 @@ public class ProjectsController : ControllerBase
     [HttpPost("{id}/members")]
     public async Task<ActionResult<ProjectMember>> AddMember(int id, ProjectMember member)
     {
-        var project = await _context.Projects.FindAsync(id);
+        var project = await _projectRepository.GetByIdAsync(id);
         if (project == null)
         {
             return NotFound("Project not found");
         }
 
         // Check if user is already a member
-        var existingMember = await _context.ProjectMembers
+        var existingMember = await _projectMemberRepository
             .FirstOrDefaultAsync(m => m.ProjectId == id && m.UserId == member.UserId);
 
         if (existingMember != null)
@@ -174,8 +155,8 @@ public class ProjectsController : ControllerBase
         member.ProjectId = id;
         member.AddedAt = DateTime.UtcNow;
 
-        _context.ProjectMembers.Add(member);
-        await _context.SaveChangesAsync();
+        await _projectMemberRepository.AddAsync(member);
+        await _projectMemberRepository.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetProjectMember), new { id = id, memberId = member.Id }, member);
     }
@@ -184,7 +165,7 @@ public class ProjectsController : ControllerBase
     [HttpGet("{id}/members/{memberId}")]
     public async Task<ActionResult<ProjectMember>> GetProjectMember(int id, int memberId)
     {
-        var member = await _context.ProjectMembers
+        var member = await _projectMemberRepository
             .FirstOrDefaultAsync(m => m.ProjectId == id && m.Id == memberId);
 
         if (member == null)
@@ -199,7 +180,7 @@ public class ProjectsController : ControllerBase
     [HttpDelete("{id}/members/{memberId}")]
     public async Task<IActionResult> RemoveMember(int id, int memberId)
     {
-        var member = await _context.ProjectMembers
+        var member = await _projectMemberRepository
             .FirstOrDefaultAsync(m => m.ProjectId == id && m.Id == memberId);
 
         if (member == null)
@@ -207,8 +188,8 @@ public class ProjectsController : ControllerBase
             return NotFound();
         }
 
-        _context.ProjectMembers.Remove(member);
-        await _context.SaveChangesAsync();
+        _projectMemberRepository.Remove(member);
+        await _projectMemberRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -222,8 +203,7 @@ public class ProjectsController : ControllerBase
             return BadRequest();
         }
 
-        var existingMember = await _context.ProjectMembers
-            .AsNoTracking()
+        var existingMember = await _projectMemberRepository
             .FirstOrDefaultAsync(m => m.ProjectId == id && m.Id == memberId);
 
         if (existingMember == null)
@@ -234,30 +214,9 @@ public class ProjectsController : ControllerBase
         // Preserve the original AddedAt timestamp
         member.AddedAt = existingMember.AddedAt;
 
-        _context.Entry(member).State = EntityState.Modified;
-        _context.Entry(member).Property(m => m.AddedAt).IsModified = false;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!_context.ProjectMembers.Any(m => m.Id == memberId))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
+        _projectMemberRepository.Update(member);
+        await _projectMemberRepository.SaveChangesAsync();
 
         return NoContent();
-    }
-
-    private bool ProjectExists(int id)
-    {
-        return _context.Projects.Any(e => e.Id == id);
     }
 }

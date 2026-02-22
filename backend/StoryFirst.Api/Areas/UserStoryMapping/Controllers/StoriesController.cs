@@ -1,51 +1,40 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoryFirst.Api.Data;
+using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
+using StoryFirst.Api.Repositories;
 
-namespace StoryFirst.Api.Controllers;
+namespace StoryFirst.Api.Areas.UserStoryMapping.Controllers;
 
-[Authorize]
-[ApiController]
+[Area("UserStoryMapping")]
 [Route("api/projects/{projectId}/epics/{epicId}/[controller]")]
-public class StoriesController : ControllerBase
+public class StoriesController : BaseApiController
 {
-    private readonly AppDbContext _context;
+    private readonly IStoryRepository _storyRepository;
 
-    public StoriesController(AppDbContext context)
+    public StoriesController(IStoryRepository storyRepository)
     {
-        _context = context;
+        _storyRepository = storyRepository;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Story>>> GetStories(int projectId, int epicId)
     {
-        var stories = await _context.Stories
-            .Where(s => s.EpicId == epicId)
-            .Include(s => s.Outcome)
-            .Include(s => s.Sprint)
-            .OrderBy(s => s.Order)
-            .ToListAsync();
-
+        var stories = await _storyRepository.GetByEpicIdAsync(epicId);
         return Ok(stories);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Story>> GetStory(int projectId, int epicId, int id)
     {
-        var story = await _context.Stories
-            .Where(s => s.EpicId == epicId && s.Id == id)
-            .Include(s => s.Outcome)
-            .Include(s => s.Sprint)
-            .FirstOrDefaultAsync();
+        var story = await _storyRepository.FirstOrDefaultAsync(s => s.EpicId == epicId && s.Id == id);
 
         if (story == null)
         {
             return NotFound();
         }
 
-        return Ok(story);
+        var storyDetails = await _storyRepository.GetWithDetailsAsync(id);
+        return Ok(storyDetails);
     }
 
     [HttpPost]
@@ -55,8 +44,8 @@ public class StoriesController : ControllerBase
         story.CreatedAt = DateTime.UtcNow;
         story.UpdatedAt = DateTime.UtcNow;
 
-        _context.Stories.Add(story);
-        await _context.SaveChangesAsync();
+        await _storyRepository.AddAsync(story);
+        await _storyRepository.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetStory), new { projectId, epicId, id = story.Id }, story);
     }
@@ -69,8 +58,7 @@ public class StoriesController : ControllerBase
             return BadRequest();
         }
 
-        var existingStory = await _context.Stories
-            .FirstOrDefaultAsync(s => s.Id == id && s.EpicId == epicId);
+        var existingStory = await _storyRepository.FirstOrDefaultAsync(s => s.Id == id && s.EpicId == epicId);
 
         if (existingStory == null)
         {
@@ -93,7 +81,8 @@ public class StoriesController : ControllerBase
         existingStory.OutcomeId = story.OutcomeId;
         existingStory.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _storyRepository.Update(existingStory);
+        await _storyRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -101,16 +90,15 @@ public class StoriesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteStory(int projectId, int epicId, int id)
     {
-        var story = await _context.Stories
-            .FirstOrDefaultAsync(s => s.Id == id && s.EpicId == epicId);
+        var story = await _storyRepository.FirstOrDefaultAsync(s => s.Id == id && s.EpicId == epicId);
 
         if (story == null)
         {
             return NotFound();
         }
 
-        _context.Stories.Remove(story);
-        await _context.SaveChangesAsync();
+        _storyRepository.Remove(story);
+        await _storyRepository.SaveChangesAsync();
 
         return NoContent();
     }

@@ -1,53 +1,40 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoryFirst.Api.Data;
+using StoryFirst.Api.Common.Controllers;
 using StoryFirst.Api.Models;
+using StoryFirst.Api.Repositories;
 
-namespace StoryFirst.Api.Controllers;
+namespace StoryFirst.Api.Areas.UserStoryMapping.Controllers;
 
-[Authorize]
-[ApiController]
+[Area("UserStoryMapping")]
 [Route("api/projects/{projectId}/themes/{themeId}/[controller]")]
-public class EpicsController : ControllerBase
+public class EpicsController : BaseApiController
 {
-    private readonly AppDbContext _context;
+    private readonly IEpicRepository _epicRepository;
 
-    public EpicsController(AppDbContext context)
+    public EpicsController(IEpicRepository epicRepository)
     {
-        _context = context;
+        _epicRepository = epicRepository;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Epic>>> GetEpics(int projectId, int themeId)
     {
-        var epics = await _context.Epics
-            .Where(e => e.ThemeId == themeId)
-            .Include(e => e.Outcome)
-            .Include(e => e.Stories)
-            .Include(e => e.Spikes)
-            .OrderBy(e => e.Order)
-            .ToListAsync();
-            
+        var epics = await _epicRepository.GetByThemeIdAsync(themeId);
         return Ok(epics);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Epic>> GetEpic(int projectId, int themeId, int id)
     {
-        var epic = await _context.Epics
-            .Where(e => e.ThemeId == themeId && e.Id == id)
-            .Include(e => e.Outcome)
-            .Include(e => e.Stories)
-            .Include(e => e.Spikes)
-            .FirstOrDefaultAsync();
+        var epic = await _epicRepository.FirstOrDefaultAsync(e => e.ThemeId == themeId && e.Id == id);
 
         if (epic == null)
         {
             return NotFound();
         }
 
-        return Ok(epic);
+        var epicDetails = await _epicRepository.GetWithDetailsAsync(id);
+        return Ok(epicDetails);
     }
 
     [HttpPost]
@@ -57,8 +44,8 @@ public class EpicsController : ControllerBase
         epic.CreatedAt = DateTime.UtcNow;
         epic.UpdatedAt = DateTime.UtcNow;
 
-        _context.Epics.Add(epic);
-        await _context.SaveChangesAsync();
+        await _epicRepository.AddAsync(epic);
+        await _epicRepository.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetEpic), new { projectId, themeId, id = epic.Id }, epic);
     }
@@ -71,8 +58,7 @@ public class EpicsController : ControllerBase
             return BadRequest();
         }
 
-        var existingEpic = await _context.Epics
-            .FirstOrDefaultAsync(e => e.Id == id && e.ThemeId == themeId);
+        var existingEpic = await _epicRepository.FirstOrDefaultAsync(e => e.Id == id && e.ThemeId == themeId);
 
         if (existingEpic == null)
         {
@@ -85,7 +71,8 @@ public class EpicsController : ControllerBase
         existingEpic.OutcomeId = epic.OutcomeId;
         existingEpic.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _epicRepository.Update(existingEpic);
+        await _epicRepository.SaveChangesAsync();
 
         return NoContent();
     }
@@ -93,16 +80,15 @@ public class EpicsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteEpic(int projectId, int themeId, int id)
     {
-        var epic = await _context.Epics
-            .FirstOrDefaultAsync(e => e.Id == id && e.ThemeId == themeId);
+        var epic = await _epicRepository.FirstOrDefaultAsync(e => e.Id == id && e.ThemeId == themeId);
 
         if (epic == null)
         {
             return NotFound();
         }
 
-        _context.Epics.Remove(epic);
-        await _context.SaveChangesAsync();
+        _epicRepository.Remove(epic);
+        await _epicRepository.SaveChangesAsync();
 
         return NoContent();
     }
