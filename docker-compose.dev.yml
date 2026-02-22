@@ -3,7 +3,7 @@ services:
     build:
       context: .devcontainer
       dockerfile: Dockerfile
-    container_name: notjira-devcontainer
+    container_name: storyfirst-devcontainer
     volumes:
       - .:/workspace:cached
       # Mount .gitconfig and .ssh for seamless git integration
@@ -11,7 +11,7 @@ services:
       - ~/.ssh:/home/vscode/.ssh:ro
     command: sleep infinity
     networks:
-      - notjira-dev
+      - storyfirst-dev
     depends_on:
       db:
         condition: service_healthy
@@ -19,14 +19,14 @@ services:
         condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=db;Database=notjira;Username=postgres;Password=postgres
-      - Authentication__Keycloak__Authority=http://localhost:8180/realms/notjira
-      - Authentication__Keycloak__Audience=notjira-api
-      - Authentication__Keycloak__MetadataAddress=http://keycloak:8080/realms/notjira/.well-known/openid-configuration
+      - ConnectionStrings__DefaultConnection=Host=db;Database=storyfirst;Username=postgres;Password=postgres
+      - Authentication__Keycloak__Authority=http://localhost:8180/realms/storyfirst
+      - Authentication__Keycloak__Audience=storyfirst-api
+      - Authentication__Keycloak__MetadataAddress=http://keycloak:8080/realms/storyfirst/.well-known/openid-configuration
       - Authentication__Keycloak__InternalUrl=http://keycloak:8080
-      - Authentication__Keycloak__ValidIssuers__0=http://localhost:8180/realms/notjira
-      - Authentication__Keycloak__ValidIssuers__1=http://keycloak:8080/realms/notjira
-      - Authentication__Keycloak__ValidIssuers__2=http://localhost:8080/realms/notjira
+      - Authentication__Keycloak__ValidIssuers__0=http://localhost:8180/realms/storyfirst
+      - Authentication__Keycloak__ValidIssuers__1=http://keycloak:8080/realms/storyfirst
+      - Authentication__Keycloak__ValidIssuers__2=http://localhost:8080/realms/storyfirst
       - Authentication__Keycloak__RequireHttpsMetadata=false
       - Authentication__Keycloak__ValidateIssuer=true
       - Authentication__Keycloak__ValidateAudience=true
@@ -34,17 +34,17 @@ services:
 
   db:
     image: postgres:17
-    container_name: notjira-dev-db
+    container_name: storyfirst-dev-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: notjira
+      POSTGRES_DB: storyfirst
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
       - ./keycloak/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
-      - notjira-dev
+      - storyfirst-dev
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -53,7 +53,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
-    container_name: notjira-dev-keycloak
+    container_name: storyfirst-dev-keycloak
     restart: unless-stopped
     environment:
       KEYCLOAK_ADMIN: admin
@@ -72,7 +72,7 @@ services:
     volumes:
       - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
     networks:
-      - notjira-dev
+      - storyfirst-dev
     depends_on:
       db:
         condition: service_healthy
@@ -84,7 +84,7 @@ services:
       start_period: 90s
 
 networks:
-  notjira-dev:
+  storyfirst-dev:
 
 volumes:
   postgres_dev_data:

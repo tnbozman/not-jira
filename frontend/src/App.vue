@@ -25,7 +25,7 @@ const userMenuItems = computed(() => [
     label: username.value || "User",
     items: [
       {
-        label: "About Not JIRA",
+        label: "About StoryFirst",
         icon: "pi pi-info-circle",
         command: () => router.push("/about"),
       },
@@ -83,7 +83,7 @@ const isProjectsActive = computed(() => route.path.startsWith("/projects"));
         <div class="header-left">
           <RouterLink to="/" class="brand-link">
             <i class="pi pi-objects-column brand-icon"></i>
-            <span class="brand-name">Not JIRA</span>
+            <span class="brand-name">StoryFirst</span>
           </RouterLink>
 
           <!-- Desktop Nav Links -->

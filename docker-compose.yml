@@ -1,11 +1,11 @@
 services:
   db:
     image: postgres:17
-    container_name: notjira-db
+    container_name: storyfirst-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: notjira
+      POSTGRES_DB: storyfirst
     ports:
       - "5432:5432"
     volumes:
@@ -19,7 +19,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
-    container_name: notjira-keycloak
+    container_name: storyfirst-keycloak
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -54,18 +54,18 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: notjira-backend
+    container_name: storyfirst-backend
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Host=db;Database=notjira;Username=postgres;Password=postgres
-      - Authentication__Keycloak__Authority=http://localhost:8180/realms/notjira
-      - Authentication__Keycloak__Audience=notjira-api
-      - Authentication__Keycloak__MetadataAddress=http://keycloak:8080/realms/notjira/.well-known/openid-configuration
+      - ConnectionStrings__DefaultConnection=Host=db;Database=storyfirst;Username=postgres;Password=postgres
+      - Authentication__Keycloak__Authority=http://localhost:8180/realms/storyfirst
+      - Authentication__Keycloak__Audience=storyfirst-api
+      - Authentication__Keycloak__MetadataAddress=http://keycloak:8080/realms/storyfirst/.well-known/openid-configuration
       - Authentication__Keycloak__InternalUrl=http://keycloak:8080
-      - Authentication__Keycloak__ValidIssuers__0=http://localhost:8180/realms/notjira
-      - Authentication__Keycloak__ValidIssuers__1=http://localhost:8080/realms/notjira
-      - Authentication__Keycloak__ValidIssuers__2=http://keycloak:8080/realms/notjira
+      - Authentication__Keycloak__ValidIssuers__0=http://localhost:8180/realms/storyfirst
+      - Authentication__Keycloak__ValidIssuers__1=http://localhost:8080/realms/storyfirst
+      - Authentication__Keycloak__ValidIssuers__2=http://keycloak:8080/realms/storyfirst
       - Authentication__Keycloak__RequireHttpsMetadata=false
       - Authentication__Keycloak__ValidateIssuer=true
       - Authentication__Keycloak__ValidateAudience=true
@@ -92,12 +92,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: notjira-frontend
+    container_name: storyfirst-frontend
     environment:
       - API_BASE_URL=/api
       - KEYCLOAK_URL=http://localhost:8180
-      - KEYCLOAK_REALM=notjira
-      - KEYCLOAK_CLIENT_ID=notjira-frontend
+      - KEYCLOAK_REALM=storyfirst
+      - KEYCLOAK_CLIENT_ID=storyfirst-frontend
     ports:
       - "80:80"
     depends_on:

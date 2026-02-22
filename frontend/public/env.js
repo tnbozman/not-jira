@@ -3,6 +3,6 @@
 window.__ENV__ = {
   API_BASE_URL: "/api",
   KEYCLOAK_URL: "http://localhost:8180",
-  KEYCLOAK_REALM: "notjira",
-  KEYCLOAK_CLIENT_ID: "notjira-frontend",
+  KEYCLOAK_REALM: "storyfirst",
+  KEYCLOAK_CLIENT_ID: "storyfirst-frontend",
 };

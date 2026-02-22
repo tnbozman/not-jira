@@ -3,7 +3,7 @@
 <template>
   <div class="about-page">
     <div class="about-header">
-      <h1 class="about-title">About Not JIRA</h1>
+      <h1 class="about-title">About StoryFirst</h1>
       <p class="about-sub">A modern project management tool built with modern technologies.</p>
     </div>
 

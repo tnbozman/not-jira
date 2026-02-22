@@ -1,7 +1,7 @@
 {
-  "id": "notjira",
-  "realm": "notjira",
-  "displayName": "Not JIRA",
+  "id": "storyfirst",
+  "realm": "storyfirst",
+  "displayName": "StoryFirst",
   "enabled": true,
   "sslRequired": "external",
   "registrationAllowed": true,
@@ -66,7 +66,7 @@
     {
       "username": "admin",
       "enabled": true,
-      "email": "admin@notjira.local",
+      "email": "admin@storyfirst.local",
       "firstName": "Admin",
       "lastName": "User",
       "credentials": [
@@ -82,7 +82,7 @@
     {
       "username": "manager",
       "enabled": true,
-      "email": "manager@notjira.local",
+      "email": "manager@storyfirst.local",
       "firstName": "Manager",
       "lastName": "User",
       "credentials": [
@@ -98,7 +98,7 @@
     {
       "username": "testuser",
       "enabled": true,
-      "email": "testuser@notjira.local",
+      "email": "testuser@storyfirst.local",
       "firstName": "Test",
       "lastName": "User",
       "credentials": [
@@ -114,7 +114,7 @@
     {
       "username": "product.manager",
       "enabled": true,
-      "email": "product.manager@notjira.local",
+      "email": "product.manager@storyfirst.local",
       "firstName": "Product",
       "lastName": "Manager",
       "credentials": [
@@ -130,7 +130,7 @@
     {
       "username": "developer",
       "enabled": true,
-      "email": "developer@notjira.local",
+      "email": "developer@storyfirst.local",
       "firstName": "Dev",
       "lastName": "Eloper",
       "credentials": [
@@ -146,7 +146,7 @@
     {
       "username": "sponsor",
       "enabled": true,
-      "email": "sponsor@notjira.local",
+      "email": "sponsor@storyfirst.local",
       "firstName": "Product",
       "lastName": "Sponsor",
       "credentials": [
@@ -162,8 +162,8 @@
   ],
   "clients": [
     {
-      "clientId": "notjira-api",
-      "name": "Not JIRA API",
+      "clientId": "storyfirst-api",
+      "name": "StoryFirst API",
       "description": "Backend API client",
       "enabled": true,
       "publicClient": false,
@@ -177,8 +177,8 @@
       }
     },
     {
-      "clientId": "notjira-frontend",
-      "name": "Not JIRA Frontend",
+      "clientId": "storyfirst-frontend",
+      "name": "StoryFirst Frontend",
       "description": "Frontend application client",
       "enabled": true,
       "publicClient": true,
@@ -206,7 +206,7 @@
           "protocol": "openid-connect",
           "protocolMapper": "oidc-audience-mapper",
           "config": {
-            "included.client.audience": "notjira-api",
+            "included.client.audience": "storyfirst-api",
             "id.token.claim": "false",
             "access.token.claim": "true"
           }

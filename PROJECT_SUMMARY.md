@@ -2,7 +2,7 @@
 
 ## ✅ Completed Tasks
 
-This document summarizes the complete monorepo setup for the Not JIRA project.
+This document summarizes the complete monorepo setup for the StoryFirst project.
 
 ### 1. Frontend Setup (Vue 3 + PrimeVue + Tailwind CSS)
 
@@ -40,11 +40,11 @@ This document summarizes the complete monorepo setup for the Not JIRA project.
 - OpenAPI/Swagger documentation
 
 **Files:**
-- `backend/NotJira.Api/Program.cs` - Application configuration and startup
-- `backend/NotJira.Api/Models/Task.cs` - TaskItem model definition
-- `backend/NotJira.Api/Data/AppDbContext.cs` - EF Core database context
-- `backend/NotJira.Api/Controllers/TasksController.cs` - REST API controller
-- `backend/NotJira.Api/Migrations/` - Database migrations
+- `backend/StoryFirst.Api/Program.cs` - Application configuration and startup
+- `backend/StoryFirst.Api/Models/Task.cs` - TaskItem model definition
+- `backend/StoryFirst.Api/Data/AppDbContext.cs` - EF Core database context
+- `backend/StoryFirst.Api/Controllers/TasksController.cs` - REST API controller
+- `backend/StoryFirst.Api/Migrations/` - Database migrations
 - `backend/Dockerfile` - Multi-stage Docker build
 
 **API Endpoints:**
@@ -117,7 +117,7 @@ This document summarizes the complete monorepo setup for the Not JIRA project.
 - `frontend/tailwind.config.js` - Tailwind CSS configuration
 - `frontend/postcss.config.js` - PostCSS configuration
 - `frontend/nginx.conf` - Nginx server configuration
-- `backend/NotJira.Api/appsettings.json` - Application settings with connection string
+- `backend/StoryFirst.Api/appsettings.json` - Application settings with connection string
 
 ## 🏗️ Architecture
 
@@ -172,7 +172,7 @@ Open in VS Code → "Reopen in Container"
 ### Local Development:
 ```bash
 # Backend
-cd backend/NotJira.Api
+cd backend/StoryFirst.Api
 dotnet run
 
 # Frontend (new terminal)

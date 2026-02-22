@@ -2,7 +2,7 @@
 
 ## Overview
 
-This implementation adds an outcome-focused user story map based on Jeff Patton's methodology to the Not-JIRA system. The user story map supports outcome-focused themes, epics, stories, and spikes, all linked to the existing Outcome system for full traceability from solutions back to entity problems.
+This implementation adds an outcome-focused user story map based on Jeff Patton's methodology to the StoryFirst system. The user story map supports outcome-focused themes, epics, stories, and spikes, all linked to the existing Outcome system for full traceability from solutions back to entity problems.
 
 ## Features Implemented
 

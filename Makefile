@@ -49,8 +49,8 @@ docker-test:
 	fi; \
 	echo ""; \
 	echo "── Keycloak ────────────────────────────────────────"; \
-	if curl -sf http://localhost:8180/realms/notjira > /dev/null 2>&1; then \
-		echo "  ✅ Keycloak is healthy (realm 'notjira' accessible)"; \
+	if curl -sf http://localhost:8180/realms/storyfirst > /dev/null 2>&1; then \
+		echo "  ✅ Keycloak is healthy (realm 'storyfirst' accessible)"; \
 	else \
 		echo "  ❌ Keycloak is NOT healthy"; \
 		PASS=false; \
@@ -114,7 +114,7 @@ devcontainer-cleanup:
 	@echo "🧹 Cleaning up devcontainer environment..."
 	docker compose -f docker-compose.dev.yml down -v --rmi local --remove-orphans
 	@echo "🗑️  Pruning dangling images..."
-	docker image prune -f --filter "label=com.docker.compose.project=not-jira" 2>/dev/null || true
+	docker image prune -f --filter "label=com.docker.compose.project=story-first" 2>/dev/null || true
 	@echo "✅ DevContainer cleanup complete."
 
 # ── Internal helpers ─────────────────────────────────────────────────
@@ -131,7 +131,7 @@ _wait-for-services:
 	done
 	@echo "  Waiting for Keycloak (may take up to 3 minutes on first start)..."
 	@for i in $$(seq 1 90); do \
-		if curl -sf http://localhost:8180/realms/notjira > /dev/null 2>&1; then \
+		if curl -sf http://localhost:8180/realms/storyfirst > /dev/null 2>&1; then \
 			echo "  ✅ Keycloak ready"; \
 			break; \
 		fi; \
@@ -162,7 +162,7 @@ _wait-for-services:
 ## Show this help
 help:
 	@echo ""
-	@echo "Not-JIRA Makefile"
+	@echo "StoryFirst Makefile"
 	@echo "================="
 	@echo ""
 	@echo "Docker Compose (local full-stack):"

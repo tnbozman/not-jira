@@ -7,7 +7,7 @@ This implementation adds developer-focused capabilities to support Large Scale S
 
 ### New Database Models
 
-#### Team Model (`backend/NotJira.Api/Models/Team.cs`)
+#### Team Model (`backend/StoryFirst.Api/Models/Team.cs`)
 - **Purpose**: Represents development teams within a project
 - **Fields**:
   - Id, Name, Description
@@ -15,7 +15,7 @@ This implementation adds developer-focused capabilities to support Large Scale S
   - CreatedAt, UpdatedAt
 - **Relationships**: Has many Stories and Spikes
 
-#### Release Model (`backend/NotJira.Api/Models/Release.cs`)
+#### Release Model (`backend/StoryFirst.Api/Models/Release.cs`)
 - **Purpose**: Represents product releases for grouping work items
 - **Fields**:
   - Id, Name, Description
@@ -25,7 +25,7 @@ This implementation adds developer-focused capabilities to support Large Scale S
   - CreatedAt, UpdatedAt
 - **Relationships**: Has many Stories and Spikes
 
-#### TeamPlanning Model (`backend/NotJira.Api/Models/TeamPlanning.cs`)
+#### TeamPlanning Model (`backend/StoryFirst.Api/Models/TeamPlanning.cs`)
 - **Purpose**: Stores Planning 2 notes per team for each sprint
 - **Fields**:
   - Id, PlanningTwoNotes
@@ -49,7 +49,7 @@ This implementation adds developer-focused capabilities to support Large Scale S
 
 ### New API Controllers
 
-#### TeamsController (`backend/NotJira.Api/Controllers/TeamsController.cs`)
+#### TeamsController (`backend/StoryFirst.Api/Controllers/TeamsController.cs`)
 - **Route**: `/api/projects/{projectId}/teams`
 - **Endpoints**:
   - `GET /` - List all teams in project
@@ -58,7 +58,7 @@ This implementation adds developer-focused capabilities to support Large Scale S
   - `PUT /{id}` - Update team
   - `DELETE /{id}` - Delete team
 
-#### ReleasesController (`backend/NotJira.Api/Controllers/ReleasesController.cs`)
+#### ReleasesController (`backend/StoryFirst.Api/Controllers/ReleasesController.cs`)
 - **Route**: `/api/projects/{projectId}/releases`
 - **Endpoints**:
   - `GET /` - List all releases in project
@@ -67,7 +67,7 @@ This implementation adds developer-focused capabilities to support Large Scale S
   - `PUT /{id}` - Update release
   - `DELETE /{id}` - Delete release
 
-#### BacklogController (`backend/NotJira.Api/Controllers/BacklogController.cs`)
+#### BacklogController (`backend/StoryFirst.Api/Controllers/BacklogController.cs`)
 - **Route**: `/api/projects/{projectId}/backlog`
 - **Endpoint**: `GET /` with query parameters
 - **Features**:

@@ -39,8 +39,8 @@ function getEnv(key: keyof RuntimeConfig, fallback: string): string {
 const config: RuntimeConfig = {
   API_BASE_URL: getEnv("API_BASE_URL", "/api"),
   KEYCLOAK_URL: getEnv("KEYCLOAK_URL", "http://localhost:8180"),
-  KEYCLOAK_REALM: getEnv("KEYCLOAK_REALM", "notjira"),
-  KEYCLOAK_CLIENT_ID: getEnv("KEYCLOAK_CLIENT_ID", "notjira-frontend"),
+  KEYCLOAK_REALM: getEnv("KEYCLOAK_REALM", "storyfirst"),
+  KEYCLOAK_CLIENT_ID: getEnv("KEYCLOAK_CLIENT_ID", "storyfirst-frontend"),
 };
 
 export default config;
