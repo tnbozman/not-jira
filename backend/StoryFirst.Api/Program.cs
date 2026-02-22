@@ -3,6 +3,7 @@ using StoryFirst.Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using StoryFirst.Api.Middleware;
+using StoryFirst.Api.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,6 +85,15 @@ builder.Services.AddAuthorization();
 // Add Database Context
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register Repositories
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IThemeRepository, ThemeRepository>();
+builder.Services.AddScoped<IEpicRepository, EpicRepository>();
+builder.Services.AddScoped<IStoryRepository, StoryRepository>();
+builder.Services.AddScoped<ISpikeRepository, SpikeRepository>();
+builder.Services.AddScoped<IExternalEntityRepository, ExternalEntityRepository>();
 
 // Add Controllers
 builder.Services.AddControllers()
