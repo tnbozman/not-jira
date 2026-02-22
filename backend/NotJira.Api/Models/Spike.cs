@@ -26,6 +26,18 @@ public class Spike
     public int? SprintId { get; set; }
     public Sprint? Sprint { get; set; }
     
+    // Foreign key to Team (optional)
+    public int? TeamId { get; set; }
+    public Team? Team { get; set; }
+    
+    // Foreign key to Release (optional)
+    public int? ReleaseId { get; set; }
+    public Release? Release { get; set; }
+    
+    // Assignee (using UserId from Keycloak)
+    public string? AssigneeId { get; set; }
+    public string? AssigneeName { get; set; }
+    
     // Foreign key to Outcome (outcome-focused spike)
     public int? OutcomeId { get; set; }
     public Outcome? Outcome { get; set; }

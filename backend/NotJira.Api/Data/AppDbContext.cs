@@ -26,6 +26,9 @@ public class AppDbContext : DbContext
     public DbSet<Story> Stories { get; set; }
     public DbSet<Spike> Spikes { get; set; }
     public DbSet<Sprint> Sprints { get; set; }
+    public DbSet<Team> Teams { get; set; }
+    public DbSet<Release> Releases { get; set; }
+    public DbSet<TeamPlanning> TeamPlannings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -320,6 +323,16 @@ public class AppDbContext : DbContext
                 .HasForeignKey(e => e.SprintId)
                 .OnDelete(DeleteBehavior.SetNull);
                 
+            entity.HasOne(e => e.Team)
+                .WithMany(t => t.Stories)
+                .HasForeignKey(e => e.TeamId)
+                .OnDelete(DeleteBehavior.SetNull);
+                
+            entity.HasOne(e => e.Release)
+                .WithMany(r => r.Stories)
+                .HasForeignKey(e => e.ReleaseId)
+                .OnDelete(DeleteBehavior.SetNull);
+                
             entity.HasOne(e => e.Outcome)
                 .WithMany()
                 .HasForeignKey(e => e.OutcomeId)
@@ -350,6 +363,16 @@ public class AppDbContext : DbContext
                 .HasForeignKey(e => e.SprintId)
                 .OnDelete(DeleteBehavior.SetNull);
                 
+            entity.HasOne(e => e.Team)
+                .WithMany(t => t.Spikes)
+                .HasForeignKey(e => e.TeamId)
+                .OnDelete(DeleteBehavior.SetNull);
+                
+            entity.HasOne(e => e.Release)
+                .WithMany(r => r.Spikes)
+                .HasForeignKey(e => e.ReleaseId)
+                .OnDelete(DeleteBehavior.SetNull);
+                
             entity.HasOne(e => e.Outcome)
                 .WithMany()
                 .HasForeignKey(e => e.OutcomeId)
@@ -362,6 +385,9 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Goal).HasMaxLength(1000);
+            entity.Property(e => e.PlanningOneNotes).HasMaxLength(4000);
+            entity.Property(e => e.ReviewNotes).HasMaxLength(4000);
+            entity.Property(e => e.RetroNotes).HasMaxLength(4000);
             entity.Property(e => e.StartDate).IsRequired();
             entity.Property(e => e.EndDate).IsRequired();
             entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
@@ -371,6 +397,56 @@ public class AppDbContext : DbContext
             entity.HasOne(e => e.Project)
                 .WithMany()
                 .HasForeignKey(e => e.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        
+        // Team
+        modelBuilder.Entity<Team>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            
+            entity.HasOne(e => e.Project)
+                .WithMany()
+                .HasForeignKey(e => e.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        
+        // Release
+        modelBuilder.Entity<Release>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            
+            entity.HasOne(e => e.Project)
+                .WithMany()
+                .HasForeignKey(e => e.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        
+        // TeamPlanning
+        modelBuilder.Entity<TeamPlanning>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PlanningTwoNotes).HasMaxLength(4000);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            
+            entity.HasOne(e => e.Sprint)
+                .WithMany(s => s.TeamPlannings)
+                .HasForeignKey(e => e.SprintId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(e => e.Team)
+                .WithMany()
+                .HasForeignKey(e => e.TeamId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
